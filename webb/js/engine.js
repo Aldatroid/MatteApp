@@ -126,6 +126,7 @@ function renderTask(t) {
   const slotRow = t.input === 'num' && !t.inlineSlot ? `<div class="q-answer"><span class="slot">?</span>${t.unit ? `<span class="unit">${esc(t.unit)}</span>` : ''}</div>` : '';
   body.innerHTML = `<div class="task-layout"><div class="q-area"><div class="q-kicker">${esc(t.kicker)}</div><div class="q-text${t.big ? ' big' : ''}">${t.text}</div>${slotRow}${t.sub ? `<p class="q-sub">${esc(t.sub)}</p>` : ''}</div><div class="spacer"></div><div class="input-area" id="inputArea"></div></div>`;
   const ia = $('#inputArea');
+  ia.classList.toggle('num', t.input === 'num');
   if (t.input === 'num') keypad(ia, d => { if (run.phase !== 'ask' || run.input.length >= 4) return; run.input = (run.input === '0' ? '' : run.input) + d; updateSlot(); }, () => { if (run.phase !== 'ask') return; run.input = run.input.slice(0, -1); updateSlot(); }, submit);
   else {
     ia.innerHTML = `<div class="choices">${t.choices.map(c => `<button class="choice" data-v="${esc(c.value)}">${esc(c.label)}</button>`).join('')}</div>`;

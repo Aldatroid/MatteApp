@@ -106,7 +106,9 @@ function genArea(L, num) {
   }
   const A = parts.reduce((s, p) => s + partArea(p), 0), P = Math.round(polyPerim(outline));
   const isArea = ask === 'area';
-  const spec = { parts, outline, sides, heights, dims, grid, dashed };
+  // reserve = mått som visas först i tips/facit; vyn lämnar plats för dem från början.
+  const P0 = parts[0], reserve = kind === 'rect' ? [SD([0, 0], [P0.w, 0], P0.w), SD([P0.w, 0], [P0.w, P0.h], P0.h)] : derived;
+  const spec = { parts, outline, sides, heights, dims, grid, dashed, reserve };
   const R = parts[0], T = parts.find(p => p.kind === 'tri');
   const showDerived = () => derived.forEach(s => sideLabel(s, { parent: FL.fx, cls: 'hl' }));
   const what = { rect: name === 'kvadratens' ? 'kvadrat' : 'rektangel', tri: 'triangel', comp: parts.length + ' delar', lomk: 'L-figur' }[kind];
