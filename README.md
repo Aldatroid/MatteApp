@@ -52,6 +52,17 @@ koncept/              Konceptbilder och grafiskt arbetsmaterial
 
 Föräldern väljer i föräldraläget vilka områden som ska vara med i dagens pass och hur mycket av passet varje område ska få (lite, normalt eller mycket). Valen sparas på enheten.
 
+## Teman
+
+Appen kan byta utseende under en säsong, till exempel Halloween eller jul. Ett tema är en mapp med bilder under `webb/assets/themes/` och en post i `THEMES` i `webb/js/themes.js`.
+
+- Bilderna ska ha samma filnamn och pixelmått som originalen i `webb/assets/` (till exempel `panel.png`, `bg.jpg` och `levels/door.jpg`). Bilder som saknas i temamappen tas från originalen.
+- `season` anger när temat gäller med inställningen **Automatiskt**, till exempel `['10-10', '11-02']`. Perioden får gå över nyår.
+- `frames` behövs bara om dekorationer i ramarnas hörn är större än originalets hörn, så att de inte sträcks ut.
+- `colors` kan byta knapparnas, pratbubblans och bakgrundens färger (variablerna står i `:root` i `css/app.css`).
+
+Föräldern väljer tema under **Inställningar** i föräldraläget: Automatiskt (efter säsong) eller ett bestämt tema. Bara det aktuella temats bilder laddas. Mappar som heter `_review` och `README.md`-filer i temamapparna publiceras inte.
+
 ## Integritet och säkerhet
 
 Appen är helt statisk och har ingen server, databas eller inloggning. All data sparas i webbläsarens `localStorage` på den egna enheten och skickas aldrig någonstans.

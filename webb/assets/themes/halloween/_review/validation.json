@@ -1,0 +1,294 @@
+{
+  "expected": 32,
+  "found": 32,
+  "failures": [],
+  "results": [
+    {
+      "name": "bg.jpg",
+      "width": 2048,
+      "height": 1536,
+      "format": "jpeg",
+      "alpha": null
+    },
+    {
+      "name": "bg_blur.jpg",
+      "width": 960,
+      "height": 720,
+      "format": "jpeg",
+      "alpha": null
+    },
+    {
+      "name": "btn_pass.png",
+      "width": 1217,
+      "height": 513,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "bubble.png",
+      "width": 792,
+      "height": 250,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "dino.png",
+      "width": 446,
+      "height": 446,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "dino_ring.png",
+      "width": 479,
+      "height": 475,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "gear.png",
+      "width": 220,
+      "height": 222,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "glowframe.png",
+      "width": 476,
+      "height": 468,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 253
+      }
+    },
+    {
+      "name": "header.png",
+      "width": 801,
+      "height": 160,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "hintbar.png",
+      "width": 808,
+      "height": 170,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "icon-180.png",
+      "width": 180,
+      "height": 180,
+      "format": "png",
+      "alpha": null
+    },
+    {
+      "name": "icon-192.png",
+      "width": 192,
+      "height": 192,
+      "format": "png",
+      "alpha": null
+    },
+    {
+      "name": "icon-32.png",
+      "width": 32,
+      "height": 32,
+      "format": "png",
+      "alpha": null
+    },
+    {
+      "name": "icon-512.png",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": null
+    },
+    {
+      "name": "icon_back.png",
+      "width": 122,
+      "height": 104,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "icon_bulb.png",
+      "width": 99,
+      "height": 108,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "icon_chev.png",
+      "width": 42,
+      "height": 61,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "icon_foot.png",
+      "width": 110,
+      "height": 140,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "icon_mountain.png",
+      "width": 172,
+      "height": 108,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "key.png",
+      "width": 288,
+      "height": 198,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "key_back.png",
+      "width": 289,
+      "height": 220,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "key_dark.png",
+      "width": 236,
+      "height": 200,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "key_light.png",
+      "width": 246,
+      "height": 215,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "key_ok.png",
+      "width": 564,
+      "height": 258,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 254
+      }
+    },
+    {
+      "name": "key_wide.png",
+      "width": 390,
+      "height": 194,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "panel.png",
+      "width": 763,
+      "height": 700,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "topbar.png",
+      "width": 1277,
+      "height": 210,
+      "format": "png",
+      "alpha": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    {
+      "name": "levels/door.jpg",
+      "width": 1280,
+      "height": 960,
+      "format": "jpeg",
+      "alpha": null
+    },
+    {
+      "name": "levels/final.jpg",
+      "width": 1280,
+      "height": 853,
+      "format": "jpeg",
+      "alpha": null
+    },
+    {
+      "name": "levels/progress1.jpg",
+      "width": 1280,
+      "height": 960,
+      "format": "jpeg",
+      "alpha": null
+    },
+    {
+      "name": "levels/progress2.jpg",
+      "width": 1280,
+      "height": 960,
+      "format": "jpeg",
+      "alpha": null
+    },
+    {
+      "name": "levels/progress3.jpg",
+      "width": 1280,
+      "height": 960,
+      "format": "jpeg",
+      "alpha": null
+    }
+  ]
+}

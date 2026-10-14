@@ -16,6 +16,14 @@
   --shadow:0 1px 0 rgba(0,0,0,.2),0 8px 24px rgba(0,0,0,.4);
   --gold:linear-gradient(180deg,#ffdc85 0%,#f7b940 55%,#e39a22 100%);
   color-scheme:dark;
+  /* Bilder och färger som ett tema kan byta (se js/themes.js). Bilderna sätts alltid av js/themes.js, så att bara aktuellt temas bilder laddas. */
+  --img-bg:none; --img-bg-blur:none; --img-btn-pass:none;
+  --img-panel:none; --img-header:none; --img-topbar:none;
+  --img-icon-back:none; --img-icon-bulb:none; --img-icon-foot:none; --img-icon-mountain:none;
+  --btn-top:#2d4362; --btn-mid:#23384f; --btn-bot:#172a3f; --btn-border:#3d5476; --btn-shine:rgba(170,200,240,.32);
+  --btn-on-top:#5c7eb0; --btn-on-mid:#4a6a9d; --btn-on-bot:#3d5b90; --btn-on-border:#86ade3;
+  --bubble-top:#22324f; --bubble-bot:#17243b; --bubble-border:#4f6c9c;
+  --shade:6,12,22;
 }
 *{box-sizing:border-box}
 html{height:100%;box-sizing:border-box}
@@ -246,18 +254,18 @@ textarea{width:100%;min-height:90px;font-family:ui-monospace,Menlo,Consolas,mono
 
 /* ===== Dinotema: grafik ur asset-arket (assets/*.png), skalbar via border-image ===== */
 /* bakgrund: konceptets djungeltempel, suddig och nedtonad överallt; skarp på startsidan */
-body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(../assets/bg_blur.jpg) center/cover no-repeat,#070f1b}
-#home{background:linear-gradient(180deg,rgba(5,10,20,.30) 0%,rgba(5,10,20,.50) 45%,rgba(5,10,20,.88) 100%),url(../assets/bg.jpg) center/cover no-repeat}
+body{background:linear-gradient(rgba(var(--shade),.80),rgba(var(--shade),.92)),var(--img-bg-blur) center/cover no-repeat,var(--paper)}
+#home{background:linear-gradient(180deg,rgba(var(--shade),.30) 0%,rgba(var(--shade),.50) 45%,rgba(var(--shade),.88) 100%),var(--img-bg) center/cover no-repeat}
 #stage{background:radial-gradient(80% 70% at 50% 45%,rgba(20,38,74,.30) 0%,rgba(6,12,23,.55) 100%)}
 /* stenpaneler */
-#panel,.card,.section,.gate-box,.stat{background:none;border:0;border-radius:0;box-shadow:none;border-image:url(../assets/panel.png) 80 fill / 20px stretch}
+#panel,.card,.section,.gate-box,.stat{background:none;border:0;border-radius:0;box-shadow:none;border-image:var(--img-panel) 80 fill / 20px stretch}
 #panel{padding:22px 24px 24px}
 .stat{padding:20px}
 @media (max-aspect-ratio:1/1){#panel{border-radius:0;border-top:0}}
 /* stålblå knappar */
-.key,.btn,.ghost-btn,.chip,.seg button,.stepper button,.netgrid button,.choice{border:1.5px solid #3d5476;border-radius:12px;color:var(--ink);background:linear-gradient(180deg,#2d4362 0%,#23384f 45%,#172a3f 100%);box-shadow:inset 0 1.5px 0 rgba(170,200,240,.32),inset 0 -3px 0 rgba(0,0,0,.28),0 3px 7px rgba(0,0,0,.45)}
+.key,.btn,.ghost-btn,.chip,.seg button,.stepper button,.netgrid button,.choice{border:1.5px solid var(--btn-border);border-radius:12px;color:var(--ink);background:linear-gradient(180deg,var(--btn-top) 0%,var(--btn-mid) 45%,var(--btn-bot) 100%);box-shadow:inset 0 1.5px 0 var(--btn-shine),inset 0 -3px 0 rgba(0,0,0,.28),0 3px 7px rgba(0,0,0,.45)}
 .choice{border-radius:14px}
-.key:active,.btn:active,.ghost-btn:active,.chip:active,.choice:active,.stepper button:active,.chip.on,.seg button.on,.netgrid button.on{background:linear-gradient(180deg,#5c7eb0 0%,#4a6a9d 50%,#3d5b90 100%);border-color:#86ade3;color:#fff;box-shadow:inset 0 1.5px 0 rgba(215,235,255,.6),inset 0 -3px 0 rgba(0,0,0,.2),0 2px 6px rgba(0,0,0,.4)}
+.key:active,.btn:active,.ghost-btn:active,.chip:active,.choice:active,.stepper button:active,.chip.on,.seg button.on,.netgrid button.on{background:linear-gradient(180deg,var(--btn-on-top) 0%,var(--btn-on-mid) 50%,var(--btn-on-bot) 100%);border-color:var(--btn-on-border);color:#fff;box-shadow:inset 0 1.5px 0 rgba(215,235,255,.6),inset 0 -3px 0 rgba(0,0,0,.2),0 2px 6px rgba(0,0,0,.4)}
 .key:active,.btn:active,.ghost-btn:active,.chip:active,.choice:active,.stepper button:active{transform:scale(.97)}
 .choice:disabled,.key:disabled{background:linear-gradient(180deg,#1f2e41,#122031);border-color:#2c3c55;box-shadow:inset 0 1px 0 rgba(130,155,190,.18),0 2px 5px rgba(0,0,0,.4);opacity:.75}
 .choice.ok{background:linear-gradient(180deg,#13202f,#0b1420);border:2px solid #ffb43a;color:var(--good);opacity:1;box-shadow:0 0 16px rgba(255,170,40,.65),inset 0 0 12px rgba(255,170,40,.3)}
@@ -266,23 +274,23 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(../asse
 .stepper{background:rgba(0,0,0,.25);border-color:var(--line)}
 .key{position:relative;font-size:32px}
 .key.del{font-size:0}
-.key.del::after{content:'';position:absolute;inset:0;background:url(../assets/icon_back.png) center/auto 40% no-repeat}
+.key.del::after{content:'';position:absolute;inset:0;background:var(--img-icon-back) center/auto 40% no-repeat}
 /* guldknappar */
 .key.ok,.btn.primary,.next-btn,.tile-pass{border-image:none;border:1px solid #ffe3a3;border-radius:14px;background:var(--gold);color:var(--accent-ink);box-shadow:0 0 18px rgba(255,170,40,.4),inset 0 2px 0 rgba(255,255,255,.55),inset 0 -3px 0 rgba(150,80,0,.35)}
 .key.ok{font-size:0}
-.key.ok::after{content:'';position:absolute;inset:0;background:url(../assets/icon_foot.png) center/auto 52% no-repeat}
+.key.ok::after{content:'';position:absolute;inset:0;background:var(--img-icon-foot) center/auto 52% no-repeat}
 .key.ok:active,.btn.primary:active,.next-btn:active{filter:brightness(1.08);transform:scale(.97)}
 .btn.danger{border-image:none;background:var(--bad);color:#2a0d08;border-radius:14px}
 .next-btn{display:flex;align-items:center;justify-content:center;gap:14px}
-.next-btn::after{content:'';width:1.1em;height:1.1em;background:url(../assets/icon_foot.png) center/contain no-repeat}
+.next-btn::after{content:'';width:1.1em;height:1.1em;background:var(--img-icon-foot) center/contain no-repeat}
 /* rubrikrad med berg */
-.q-kicker,.card-kicker{display:flex;align-items:center;min-height:42px;padding:0 64px 0 62px;color:var(--sun);border-image:url(../assets/header.png) 44 280 44 240 fill / 11px 70px 11px 60px stretch;align-self:stretch}
+.q-kicker,.card-kicker{display:flex;align-items:center;min-height:42px;padding:0 64px 0 62px;color:var(--sun);border-image:var(--img-header) 44 280 44 240 fill / 11px 70px 11px 60px stretch;align-self:stretch}
 /* topprad med två runda fack: avsluta till vänster, tips till höger */
-.topbar{position:relative;height:54px;padding:0 60px;border-image:url(../assets/topbar.png) 60 240 60 240 fill / 15px 60px 15px 60px stretch}
+.topbar{position:relative;height:54px;padding:0 60px;border-image:var(--img-topbar) 60 240 60 240 fill / 15px 60px 15px 60px stretch}
 .topbar .ghost-btn{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;min-height:0;padding:0;border:0;box-shadow:none;border-radius:50%;font-size:0;background:transparent}
 #exitBtn{left:11px}
 #exitBtn::before{content:'✕';font-size:18px;color:var(--ink)}
-#hintBtn{right:11px;background:url(../assets/icon_bulb.png) center/62% no-repeat}
+#hintBtn{right:11px;background:var(--img-icon-bulb) center/62% no-repeat}
 #hintBtn:disabled{opacity:.3}
 #hintBtn:not(:disabled){animation:hintPulse 2.4s ease-in-out infinite}
 @keyframes hintPulse{50%{filter:drop-shadow(0 0 6px rgba(255,200,80,.9))}}
@@ -293,7 +301,7 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(../asse
 .say{display:flex;gap:12px;align-items:flex-start}
 .say-dino{width:58px;height:58px;flex:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
 .say:has(#fb:empty) .say-dino{display:none}
-.feedback,.feedback.ok,.feedback.no,.feedback.tip{position:relative;flex:1;min-width:0;background:linear-gradient(180deg,#22324f,#17243b);border:1.5px solid #4f6c9c;border-radius:14px;color:var(--ink)}
+.feedback,.feedback.ok,.feedback.no,.feedback.tip{position:relative;flex:1;min-width:0;background:linear-gradient(180deg,var(--bubble-top),var(--bubble-bot));border:1.5px solid var(--bubble-border);border-radius:14px;color:var(--ink)}
 .feedback.ok{border-color:var(--good)} .feedback.no{border-color:var(--bad)} .feedback.tip{border-color:var(--sun)}
 .feedback::before{content:'';position:absolute;left:-8px;top:18px;width:13px;height:13px;background:#1f2e4a;border-left:1.5px solid;border-bottom:1.5px solid;border-color:inherit;transform:rotate(45deg)}
 .feedback:empty{border:0;background:none}
@@ -306,14 +314,14 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(../asse
 /* maskot som poppar upp */
 #mascot{position:absolute;left:14px;bottom:14px;display:flex;align-items:flex-end;gap:10px;pointer-events:none;z-index:5;max-width:calc(100% - 28px)}
 #mascot img{width:clamp(84px,14vh,150px);height:auto;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
-#mascot .m-bubble{position:relative;margin-bottom:18px;padding:12px 16px;background:linear-gradient(180deg,#22324f,#17243b);border:1.5px solid #4f6c9c;border-radius:14px;font-family:var(--f-body);font-size:16px;line-height:1.4;color:var(--ink);box-shadow:0 6px 22px rgba(0,0,0,.45);max-width:560px;flex:0 1 auto;max-height:46vh;overflow-y:auto;pointer-events:auto;min-width:0}
+#mascot .m-bubble{position:relative;margin-bottom:18px;padding:12px 16px;background:linear-gradient(180deg,var(--bubble-top),var(--bubble-bot));border:1.5px solid var(--bubble-border);border-radius:14px;font-family:var(--f-body);font-size:16px;line-height:1.4;color:var(--ink);box-shadow:0 6px 22px rgba(0,0,0,.45);max-width:560px;flex:0 1 auto;max-height:46vh;overflow-y:auto;pointer-events:auto;min-width:0}
 #mascot[data-kind="ok"] .m-bubble{border-color:var(--good)} #mascot[data-kind="no"] .m-bubble{border-color:var(--bad)} #mascot[data-kind="tip"] .m-bubble,#mascot[data-kind="pop"] .m-bubble{border-color:var(--sun);box-shadow:0 0 22px rgba(255,180,60,.25)}
 #mascot[data-kind="pop"] .m-bubble{font-family:var(--f-display);font-weight:600;font-size:clamp(18px,2.4vh,22px)}
 #mascot .feedback,#mascot .feedback.ok,#mascot .feedback.no,#mascot .feedback.tip{background:none;border:0;padding:0;border-radius:0;flex:none}
 #mascot .feedback::before{display:none}
 #mascot.nudge img{animation:mascotNudge .45s ease-out}
 @keyframes mascotNudge{40%{transform:translateY(-10px) rotate(-4deg)}}
-#mascot .m-bubble::before{content:'';position:absolute;left:-8px;bottom:18px;width:13px;height:13px;background:#1b2942;border-left:1.5px solid;border-bottom:1.5px solid;border-color:inherit;transform:rotate(45deg)}
+#mascot .m-bubble::before{content:'';position:absolute;left:-8px;bottom:18px;width:13px;height:13px;background:var(--bubble-bot);border-left:1.5px solid;border-bottom:1.5px solid;border-color:inherit;transform:rotate(45deg)}
 #mascot.show{animation:mascotIn .6s cubic-bezier(.3,1.6,.5,1) both}
 #mascot.show img{animation:mascotBob 1.4s ease-in-out .6s infinite}
 #mascot.out{animation:mascotOut .35s ease-in both}
@@ -327,16 +335,16 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(../asse
 .gear-btn:active{transform:rotate(30deg) scale(.95)}
 .hero{display:flex;align-items:center;gap:clamp(12px,3vw,28px);margin-bottom:28px}
 .hero-dino{width:clamp(120px,18vw,200px);height:auto;flex:none;filter:drop-shadow(0 8px 18px rgba(0,0,0,.6));animation:mascotBob 3s ease-in-out infinite}
-.hero-bubble{position:relative;padding:20px 26px;background:linear-gradient(180deg,#22324f,#17243b);border:1.5px solid #4f6c9c;border-radius:20px;min-width:0}
+.hero-bubble{position:relative;padding:20px 26px;background:linear-gradient(180deg,var(--bubble-top),var(--bubble-bot));border:1.5px solid var(--bubble-border);border-radius:20px;min-width:0}
 .hero-bubble::before{content:'';position:absolute;left:-10px;top:50%;width:18px;height:18px;margin-top:-9px;background:#1d2c47;border-left:1.5px solid #4f6c9c;border-bottom:1.5px solid #4f6c9c;transform:rotate(45deg)}
 .hero-bubble .lead{margin:6px 0 0}
 #hello{font-size:clamp(40px,7vw,72px)}
 .tile{border-radius:18px}
-.tile-free{background:none;border-image:url(../assets/panel.png) 80 fill / 20px stretch;color:var(--ink);box-shadow:none}
+.tile-free{background:none;border-image:var(--img-panel) 80 fill / 20px stretch;color:var(--ink);box-shadow:none}
 .tile-pass .tile-kicker{opacity:.75}
 .tile svg{display:none}
 /* Dagens pass: guldplattan (fotspåret ligger i hörnet som inte töjs) */
-.tile-pass{border:0;border-radius:0;box-shadow:none;border-image:none;background:url(../assets/btn_pass.png) center/100% 100% no-repeat;aspect-ratio:1217/513;min-height:0;padding:clamp(18px,5%,40px) clamp(22px,6%,48px);filter:drop-shadow(0 8px 20px rgba(255,170,40,.22))}
+.tile-pass{border:0;border-radius:0;box-shadow:none;border-image:none;background:var(--img-btn-pass) center/100% 100% no-repeat;aspect-ratio:1217/513;min-height:0;padding:clamp(18px,5%,40px) clamp(22px,6%,48px);filter:drop-shadow(0 8px 20px rgba(255,170,40,.22))}
 .tile{transition:transform .12s ease-out,filter .12s}
 .tile.tile-pass:active{transform:scale(.97);filter:drop-shadow(0 4px 10px rgba(255,170,40,.35)) brightness(1.08)}
 .tile:active{transform:scale(.97);filter:brightness(1.12)}
@@ -351,7 +359,7 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(../asse
 .tile-text{font-size:clamp(14px,1.6vw,17px)}
 @media (max-aspect-ratio:1/1){.tile-title{font-size:clamp(34px,7vw,58px)}.tile-text{font-size:clamp(16px,2.6vw,21px);max-width:30ch}.tile-kicker{font-size:14px}}
 @media (max-height:640px){.hero{margin-bottom:16px}.hero-dino{width:clamp(90px,14vw,150px)}.home-status{margin-top:14px}}
-.tile-free::after{content:'';position:absolute;right:24px;bottom:22px;width:96px;height:62px;background:url(../assets/icon_mountain.png) center/contain no-repeat;opacity:.9}
+.tile-free::after{content:'';position:absolute;right:24px;bottom:22px;width:96px;height:62px;background:var(--img-icon-mountain) center/contain no-repeat;opacity:.9}
 .pill{background:rgba(0,0,0,.3)}
 .heat button{color:rgba(255,255,255,.75)}
 #flat text.hl{fill:var(--blue)}

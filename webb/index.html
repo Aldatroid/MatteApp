@@ -11,8 +11,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#070f1b">
 <title>Mattelabbet</title>
-<link rel="apple-touch-icon" href="assets/icon-180.png">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+<link rel="apple-touch-icon" data-asset="icon-180.png" href="assets/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" data-asset="icon-32.png" href="assets/icon-32.png">
 <link rel="manifest" href="assets/manifest.webmanifest">
 <link rel="preload" href="assets/fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/lexend.woff2" as="font" type="font/woff2" crossorigin>
@@ -24,11 +24,11 @@
   <!-- START -->
   <section id="home" class="screen home scroll">
     <header class="home-top">
-      <span class="brand"><img src="assets/icon_mountain.png" alt="">Mattelabbet</span>
-      <button class="gear-btn" id="toParent" aria-label="Föräldraläge" title="Föräldraläge"><img src="assets/gear.png" alt=""></button>
+      <span class="brand"><img data-asset="icon_mountain.png" alt="">Mattelabbet</span>
+      <button class="gear-btn" id="toParent" aria-label="Föräldraläge" title="Föräldraläge"><img data-asset="gear.png" alt=""></button>
     </header>
     <div class="home-main">
-      <div class="hero"><img class="hero-dino" src="assets/dino_ring.png" alt="Dino, din guide"><div class="hero-bubble"><h1 id="hello">Hej!</h1>
+      <div class="hero"><img class="hero-dino" data-asset="dino_ring.png" alt="Dino, din guide"><div class="hero-bubble"><h1 id="hello">Hej!</h1>
       <p class="lead">Vad vill du göra idag?</p></div></div>
       <div class="home-tiles">
         <button class="tile tile-pass" id="startPass">
@@ -97,7 +97,7 @@
       <div id="labels"></div>
       <div class="stage-hint" id="stageHint">Snurra med fingret</div>
       <div id="no3d" hidden>3D-bilden kan inte visas på den här enheten, men uppgifterna fungerar ändå.</div>
-      <div id="mascot" hidden><img src="assets/dino_ring.png" alt=""><div class="m-bubble"><div class="feedback" id="fb" aria-live="polite"></div></div></div>
+      <div id="mascot" hidden><img data-asset="dino_ring.png" alt=""><div class="m-bubble"><div class="feedback" id="fb" aria-live="polite"></div></div></div>
     </div>
     <div id="panel">
       <div class="topbar">
@@ -113,7 +113,7 @@
   <!-- SAMMANFATTNING -->
   <section id="summary" class="screen scroll" hidden>
     <div class="wrap narrow" style="padding-top:48px">
-      <div class="hero"><img class="hero-dino" src="assets/dino_ring.png" alt=""><div class="hero-bubble"><h2 class="big-title" id="sumTitle">Bra jobbat!</h2></div></div>
+      <div class="hero"><img class="hero-dino" data-asset="dino_ring.png" alt=""><div class="hero-bubble"><h2 class="big-title" id="sumTitle">Bra jobbat!</h2></div></div>
       <p class="lead" id="sumLead" style="margin:0"></p>
       <div class="sum-stats" id="sumStats"></div>
       <ul class="obs" id="sumNotes"></ul>

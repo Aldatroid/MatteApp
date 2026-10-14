@@ -2,17 +2,32 @@
    CSS border-image ritar nio separata bitar, som glipar när ett element skalas (t.ex. vid tryck).
    Här ritas varje ram ihop till EN canvas i elementets storlek, på hela skärmpixlar och med lite överlapp,
    och läggs bakom innehållet. Ritas om när storleken ändras. */
+import { asset, onTheme } from './themes.js';
+
+// slice = hörnens storlek i bilden (topp, höger, botten, vänster), width = samma hörn på skärmen.
+// Ett tema kan ge andra värden (frames i themes.js) om dess dekorationer i hörnen är större.
 const FRAMES = [
-  { sel: '#panel,.card,.section,.gate-box,.stat,.tile-free', src: 'assets/panel.png', slice: [80, 80, 80, 80], width: [20, 20, 20, 20] },
-  { sel: '.q-kicker,.card-kicker', src: 'assets/header.png', slice: [44, 280, 44, 240], width: [11, 70, 11, 60] },
-  { sel: '.topbar', src: 'assets/topbar.png', slice: [60, 240, 60, 240], width: [15, 60, 15, 60] },
+  { key: 'panel', sel: '#panel,.card,.section,.gate-box,.stat,.tile-free', file: 'panel.png', slice: [80, 80, 80, 80], width: [20, 20, 20, 20] },
+  { key: 'header', sel: '.q-kicker,.card-kicker', file: 'header.png', slice: [44, 280, 44, 240], width: [11, 70, 11, 60] },
+  { key: 'topbar', sel: '.topbar', file: 'topbar.png', slice: [60, 240, 60, 240], width: [15, 60, 15, 60] },
 ];
-FRAMES.forEach(f => { f.img = new Image(); f.img.src = f.src; f.ready = f.img.decode().then(() => true, () => false); });
+FRAMES.forEach(f => { f.base = { slice: f.slice, width: f.width }; });
+function loadFrames(theme) {
+  for (const f of FRAMES) {
+    Object.assign(f, f.base, theme?.frames?.[f.key] || {});
+    const img = new Image(); img.src = asset(f.file, theme);
+    f.ready = img.decode().then(() => { f.img = img; return true; }, () => false);
+  }
+  // rita om alla ramar som redan finns när de nya bilderna har laddats
+  Promise.all(FRAMES.map(f => f.ready)).then(() => document.querySelectorAll('.baked').forEach(drawFrame));
+}
+loadFrames();
+onTheme(loadFrames);
 const frameOf = new WeakMap();
 const frameRO = new ResizeObserver(entries => entries.forEach(e => drawFrame(e.target)));
 function drawFrame(el) {
   const f = frameOf.get(el); const cv = el.querySelector(':scope > .frame-cv');
-  if (!f || !cv || !f.img.naturalWidth) return;
+  if (!f || !cv || !f.img?.naturalWidth) return;
   const dpr = Math.min(3, window.devicePixelRatio || 1);
   const W = el.offsetWidth, H = el.offsetHeight; if (!W || !H) return;
   const w = Math.round(W * dpr), h = Math.round(H * dpr);

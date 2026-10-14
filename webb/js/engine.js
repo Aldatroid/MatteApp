@@ -5,6 +5,7 @@ import { has3D, world, resize, clearScene, startLoop, stopLoop } from './three/s
 import { areaById, leveledAreas, passAreas } from './curriculum.js';
 import { currentLevel, levelState, updateLevel } from './levels.js';
 import { countGood } from './areas/mul.js';
+import { asset } from './themes.js';
 
 export let run = null;
 const RIGHT = ['Rätt!', 'Snyggt!', 'Precis!', 'Ja!', 'Bra!', 'Klockrent!'];
@@ -81,7 +82,7 @@ function setLevelBg(key) {
   if (!key) { layers.forEach(l => l.classList.remove('on')); return; }
   levelLayer = 1 - levelLayer;
   const next = layers[levelLayer], prev = layers[1 - levelLayer];
-  next.style.backgroundImage = `url(assets/levels/${key}.jpg)`;
+  next.style.backgroundImage = `url(${asset(`levels/${key}.jpg`)})`;
   next.classList.add('on'); prev.classList.remove('on');
 }
 function passStage() {

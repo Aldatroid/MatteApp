@@ -8,7 +8,7 @@ export const WEIGHTS = [[1, 'Lite'], [2, 'Normalt'], [4, 'Mycket']];
 let storageOK = true;
 export const storageWorks = () => storageOK;
 // settings.areas: { [områdes-id]: { on: bool, w: vikt } }. Saknas ett område gäller standardvärdet i curriculum.js.
-export function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, areas: {} }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {} }; }
+export function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, areas: {}, theme: 'auto' }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {} }; }
 // Sparad och importerad data tvättas fält för fält: bara kända nycklar, och siffror blir siffror.
 // Då kan en manipulerad säkerhetskopia aldrig smyga in HTML i vyerna.
 const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
@@ -24,6 +24,7 @@ export function migrate(d) {
     v: 1, created: num(d.created) || b.created, name: str(d.name, 20),
     settings: {
       passMin: [5, 7, 10].includes(st.passMin) ? st.passMin : b.settings.passMin,
+      theme: /^[a-z]{1,20}$/.test(st.theme) ? st.theme : 'auto',
       areas: mapObj(st.areas, /^[a-z]{1,20}$/, a => ({ on: a.on !== false, w: WEIGHT_VALUES.includes(a.w) ? a.w : 2 })),
     },
     facts: mapObj(d.facts, /^\d{1,2}x\d{1,2}$/, f => nums(f, ['box', 'n', 'r', 'ms', 'last'])),

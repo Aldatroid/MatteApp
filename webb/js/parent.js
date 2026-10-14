@@ -4,6 +4,15 @@ import { S, save, defaults, migrate, replaceData, storageWorks, WEIGHTS } from '
 import { CURRICULUM, TOPICS, allAreas, areaById, leveledAreas, gradeText, areaSetting, setAreaSetting, passAreas } from './curriculum.js';
 import { ALL_FACTS, hardestFacts, countGood, factStatus } from './areas/mul.js';
 import { keypad } from './engine.js';
+import { THEMES, applyTheme, activeThemeId } from './themes.js';
+
+// Under temavalet: vad "Automatiskt" betyder just nu.
+function themeNote() {
+  const el = $('#themeNote'); if (!el) return;
+  const auto = (S.settings.theme || 'auto') === 'auto', cur = THEMES[activeThemeId()];
+  const seasons = Object.values(THEMES).filter(t => t.season).map(t => `${t.name} ${t.season.map(d => { const [m, dd] = d.split('-'); return `${Number(dd)}/${Number(m)}`; }).join('–')}`).join(', ');
+  el.textContent = auto ? `Just nu: ${cur.name}. Automatiskt byter tema efter säsong (${seasons}).` : '';
+}
 
 let gateAns = 0, gateIn = '';
 $('#toParent').addEventListener('click', () => {
@@ -116,6 +125,8 @@ export function renderParent() {
     <div class="section"><h3>Senaste svaren</h3>${recent ? `<div class="tbl-wrap"><table><thead><tr><th>När</th><th>Område</th><th>Uppgift</th><th>Svar (rätt svar)</th><th></th><th>Tid</th></tr></thead><tbody>${recent}</tbody></table></div>` : '<p class="sub">Inga svar ännu.</p>'}</div>
     <div class="section"><h3>Inställningar</h3>
       <label class="field">Barnets namn (visas på startsidan)<input id="childName" maxlength="20" value="${esc(S.name)}" placeholder="Valfritt"></label>
+      <div class="field">Tema ${seg('theme', [['auto', 'Automatiskt'], ...Object.entries(THEMES).map(([id, t]) => [id, esc(t.name)])], S.settings.theme || 'auto')}
+        <span class="sub" id="themeNote"></span></div>
     </div>
     <div class="section"><h3>Integritet</h3><p class="sub">Mattelabbet samlar inte in några uppgifter. Namn, svar och framsteg sparas bara i webbläsaren på den här enheten och skickas aldrig någonstans. Appen använder inga kakor, ingen spårning och ingen reklam.</p>
       <p class="sub">Webbläsaren kan ibland rensa sparad data, till exempel om appen inte används på länge eller om webbplatsdata raderas. Ta gärna en säkerhetskopia då och då.</p>
@@ -138,8 +149,11 @@ export function renderParent() {
     $('#heatDetail').innerHTML = f?.n ? `<b>${a} · ${c} = ${a * c}</b>: ${f.n} försök, ${f.r} rätt${f.ms ? `, snittid ${(f.ms / 1000).toFixed(1).replace('.', ',')} s` : ''}. ${STATUS_TXT[factStatus(f)]}.` : `<b>${a} · ${c}</b>: inte övad ännu.`;
   }));
   $('#childName').addEventListener('input', e => { S.name = e.target.value.trim(); save(); });
+  themeNote();
   el.querySelectorAll('[data-seg]').forEach(sg => sg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-    S.settings[sg.dataset.seg] = Number(b.dataset.v); save();
+    const isTheme = sg.dataset.seg === 'theme';
+    S.settings[sg.dataset.seg] = isTheme ? b.dataset.v : Number(b.dataset.v); save();
+    if (isTheme) { applyTheme(); themeNote(); }
     sg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
   })));
   $('#copyBtn').addEventListener('click', () => {
