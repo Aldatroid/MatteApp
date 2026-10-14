@@ -1,6 +1,7 @@
 /* ============ Lagring ============ */
 import { clamp, dayKey } from './util.js';
 
+// Nyckeln har kvar appens gamla namn (Mattelabbet) så att sparade framsteg följer med.
 const KEY = 'mattelabbet.v1';
 export const FAST_MS = 5000;
 // Vikter som föräldern kan välja per område i dagens pass.

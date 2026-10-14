@@ -6,7 +6,7 @@
    curriculum.js            vilka områden som finns, ordning, årskurs och standardvikt
    levels.js                nivålogik för områden med nivåer
    themes.js                teman (t.ex. Halloween) som byter bilder och färger
-   engine.js                spelmotorn: dagens pass, fri lek, svar och återkoppling
+   engine.js                spelmotorn: dagens pass, Utforska, svar och återkoppling
    home.js, sandbox.js, parent.js   skärmarna */
 import { applyTheme } from './themes.js';
 import './frames.js';

@@ -1,4 +1,4 @@
-name: Publish Mattelabbet
+name: Publish Mattetemplet
 
 on:
   push:

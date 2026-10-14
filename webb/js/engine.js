@@ -17,7 +17,7 @@ export function tick() {
   run.activeMs += d; run.lastTick = now; today().ms += d;
 }
 
-// mode: 'pass' (dagens pass), 'free' (fri lek: cfg.area = områdes-id eller 'mix') eller 'sandbox'.
+// mode: 'pass' (dagens pass), 'free' (Utforska: cfg.area = områdes-id eller 'mix') eller 'sandbox'.
 export function startRun(mode, cfg = {}) {
   run = { mode, cfg, start: Date.now(), lastTick: Date.now(), activeMs: 0, n: 0, right: 0, first: 0, queue: [], recentKeys: [], lastArea: null, areaRun: 0, counts: {}, levelUps: [], goodBefore: countGood(), task: null, phase: 'ask', durMs: S.settings.passMin * 60000, hintUsed: false, input: '' };
   show('play'); resize();
@@ -236,7 +236,7 @@ function showSummary(r) {
   $('#sumLead').textContent = `Du gjorde ${r.n} ${r.n === 1 ? 'uppgift' : 'uppgifter'} på ${fmtMin(r.activeMs)}.`;
   const good = countGood(), diff = good - r.goodBefore;
   $('#sumStats').innerHTML = `<div class="stat"><b>${r.right} av ${r.n}</b><span>rätt svar${r.right > r.first ? `, varav ${r.first} på första försöket` : ''}</span></div><div class="stat"><b>${good}</b><span>gångertal som sitter${diff > 0 ? ` (+${diff} idag)` : ''}</span></div>`;
-  $('#sumNotes').innerHTML = r.levelUps.map(u => `<li>Ny nivå i ${esc(areaById(u.id).name.toLowerCase())}: nivå ${u.level}</li>`).join('') + `<li>Vill du fortsätta? I fri lek finns ingen klocka.</li>`;
+  $('#sumNotes').innerHTML = r.levelUps.map(u => `<li>Ny nivå i ${esc(areaById(u.id).name.toLowerCase())}: nivå ${u.level}</li>`).join('') + `<li>Vill du fortsätta? När du utforskar finns ingen klocka.</li>`;
   show('summary');
 }
 

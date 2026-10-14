@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Mattelabbet">
+<meta name="apple-mobile-web-app-title" content="Mattetemplet">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#070f1b">
-<title>Mattelabbet</title>
+<title>Mattetemplet</title>
 <link rel="apple-touch-icon" data-asset="icon-180.png" href="assets/icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" data-asset="icon-32.png" href="assets/icon-32.png">
 <link rel="manifest" href="assets/manifest.webmanifest">
@@ -24,7 +24,7 @@
   <!-- START -->
   <section id="home" class="screen home scroll">
     <header class="home-top">
-      <span class="brand"><img data-asset="icon_mountain.png" alt="">Mattelabbet</span>
+      <span class="brand"><img data-asset="icon_mountain.png" alt="">Mattetemplet</span>
       <span class="home-actions"><span class="snd-slot"></span><button class="gear-btn" id="toParent" aria-label="Föräldraläge" title="Föräldraläge"><img data-asset="gear.png" alt=""></button></span>
     </header>
     <div class="home-main">
@@ -39,7 +39,7 @@
         </button>
         <button class="tile tile-free" id="startFree">
           <span class="tile-kicker">Ingen klocka</span>
-          <span class="tile-title">Fri lek</span>
+          <span class="tile-title">Utforska</span>
           <span class="tile-text">Välj själv: träna tabeller, bygg med klossar eller vik kuber.</span>
           <svg viewBox="0 0 120 120" aria-hidden="true"><g fill="rgba(0,0,0,.12)" stroke="rgba(0,0,0,.25)" stroke-width="1.5"><rect x="44" y="8" width="24" height="24"/><rect x="20" y="32" width="24" height="24"/><rect x="44" y="32" width="24" height="24"/><rect x="68" y="32" width="24" height="24"/><rect x="44" y="56" width="24" height="24"/><rect x="44" y="80" width="24" height="24"/></g></svg>
         </button>
@@ -48,10 +48,10 @@
     </div>
   </section>
 
-  <!-- FRI LEK -->
+  <!-- UTFORSKA (fri träning utan klocka) -->
   <section id="free" class="screen scroll" hidden>
     <div class="wrap">
-      <header class="bar"><button class="ghost-btn" data-go="home">← Start</button><h2>Fri lek</h2><span class="snd-slot" style="width:80px"></span></header>
+      <header class="bar"><button class="ghost-btn" data-go="home">← Start</button><h2>Utforska</h2><span class="snd-slot" style="width:80px"></span></header>
       <div class="free-grid">
         <article class="card">
           <span class="card-kicker">Tabeller</span>
@@ -74,9 +74,9 @@
         </article>
         <article class="card">
           <span class="card-kicker">Geometri</span>
-          <h3>Utforska kroppar</h3>
+          <h3>Kroppar i 3D</h3>
           <p>Snurra på kroppar och räkna ytor, kanter och hörn.</p>
-          <button class="btn" data-sandbox="explore">Utforska</button>
+          <button class="btn" data-sandbox="explore">Snurra</button>
         </article>
         <article class="card">
           <span class="card-kicker">Geometri</span>
@@ -118,7 +118,7 @@
       <p class="lead" id="sumLead" style="margin:0"></p>
       <div class="sum-stats" id="sumStats"></div>
       <ul class="obs" id="sumNotes"></ul>
-      <div class="row"><button class="btn primary" data-go="free">Fortsätt i fri lek</button><button class="btn" data-go="home">Till start</button></div>
+      <div class="row"><button class="btn primary" data-go="free">Fortsätt utforska</button><button class="btn" data-go="home">Till start</button></div>
     </div>
   </section>
 

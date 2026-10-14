@@ -47,7 +47,7 @@ function sbBuild() {
 function sbExplore() {
   let id = 'kub', what = null, obj = null;
   const body = $('#panelBody');
-  body.innerHTML = `<div class="sb"><div class="q-kicker">Utforska kroppar</div><div class="chips" id="exShapes">${Object.keys(SOLIDS).map(k => `<button class="chip" data-id="${k}">${cap(SOLIDS[k].name)}</button>`).join('')}</div>
+  body.innerHTML = `<div class="sb"><div class="q-kicker">Kroppar i 3D</div><div class="chips" id="exShapes">${Object.keys(SOLIDS).map(k => `<button class="chip" data-id="${k}">${cap(SOLIDS[k].name)}</button>`).join('')}</div>
     <div class="seg" id="exWhat"><button data-w="f">Ytor</button><button data-w="e">Kanter</button><button data-w="v">Hörn</button></div>
     <div class="facts" id="exFacts"></div><p class="q-sub" id="exClue"></p></div>`;
   function draw() {

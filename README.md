@@ -1,11 +1,11 @@
-# Mattelabbet
+# Mattetemplet
 
 En svensk matteapp med dinosaurietema där barn tränar multiplikation och geometri genom interaktiva uppgifter och 3D-visualiseringar. Appen utvecklas för att användas i webbläsaren på surfplatta och dator.
 
 ## Funktioner
 
 - Dagens pass med de områden och den fördelning som föräldern har valt.
-- Fri träning inom olika områden.
+- Utforska: fri träning utan klocka inom olika områden.
 - Visuellt stöd med byggstenar och geometriska former i 3D.
 - Föräldraläge med statistik, val av områden och vikter för dagens pass samt passets längd.
 - Export och import av sparade framsteg för säkerhetskopiering eller flytt mellan enheter.
@@ -33,9 +33,9 @@ webb/                 Appen, som den publiceras
     curriculum.js     Alla övningsområden: ordning, Lgr22-rubrik, årskurs och standardvikt
     areas/            Ett övningsområde per fil, med uppgifter och svårighetsnivåer
     levels.js         Hur barnet flyttas mellan nivåer
-    engine.js         Spelmotorn: dagens pass, fri lek, svar och återkoppling
-    home.js           Startsidan och fri lek
-    sandbox.js        Bygga, utforska och vika utan uppgifter
+    engine.js         Spelmotorn: dagens pass, Utforska, svar och återkoppling
+    home.js           Startsidan och Utforska (fri träning)
+    sandbox.js        Bygga, snurra kroppar och vika utan uppgifter
     parent.js         Föräldraläget
     store.js          Lagring och tvätt av sparad data
     three/            3D-scen och 2D-figurer som uppgifterna ritar med
@@ -46,7 +46,7 @@ koncept/              Konceptbilder och grafiskt arbetsmaterial
 
 ## Ändra områden och svårighetsgrad
 
-- **Ordning, årskurs och standardval för dagens pass:** ändra listan `CURRICULUM` i `webb/js/curriculum.js`. Ordningen i listan är ordningen i föräldraläget och i fri lek.
+- **Ordning, årskurs och standardval för dagens pass:** ändra listan `CURRICULUM` i `webb/js/curriculum.js`. Ordningen i listan är ordningen i föräldraläget och under Utforska.
 - **Svårighetsnivåer inom ett område:** ändra listan `levels` i områdets fil i `webb/js/areas/`. Nivå 1 är den första i listan. Nivåer kan flyttas, tas bort eller läggas till.
 - **Nytt område:** skapa en fil i `webb/js/areas/` med samma form som de befintliga (`id`, `name`, `short`, `levels` och `gen`) och lägg till den i `CURRICULUM`.
 
@@ -77,7 +77,7 @@ Arbetsflödet i `.github/workflows/pages.yml` publicerar appen automatiskt vid �
 
 I repots **Settings → Pages** ska **Source** vara **GitHub Actions**. När den första publiceringen är klar finns appen på:
 
-**[Öppna Mattelabbet](https://aldatroid.github.io/MatteApp/)**
+**[Öppna Mattetemplet](https://aldatroid.github.io/MatteApp/)**
 
 På iPad kan du öppna adressen i Safari och välja **Dela → Lägg till på hemskärmen** för att få en genväg till appen.
 

@@ -94,7 +94,7 @@ export function renderParent() {
   Object.entries(S.tags).filter(([, x]) => x.n >= 2).sort((a, b) => b[1].n - a[1].n).forEach(([k, x]) => { const txt = tagText(k); if (txt) obs.push(`${esc(txt)} <span class="sub">(${x.n} gånger)</span>`); });
   const levelRows = leveledAreas().map(a => { const g = S.geo[a.id]; const max = a.levels.length; const lv = Math.min(g?.level || 1, max); const pct = g?.seen ? Math.round(g.right / g.seen * 100) + ' %' : '–'; return `<tr><td>${esc(a.name)}</td><td><span class="pips">${[...Array(max).keys()].map(i => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</span> ${lv} av ${max}</td><td>${g?.seen || 0}</td><td>${pct}</td></tr>`; }).join('');
   const recent = [...S.log].reverse().slice(0, 20).map(x => { const dt = new Date(x.t); return `<tr><td>${dt.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} ${dt.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}</td><td>${esc(areaById(x.s)?.short || x.s)}</td><td>${esc(x.q)}</td><td>${x.g1 ? esc(x.g1) + ' → ' : ''}${esc(x.g)}${x.ok ? '' : ` <span class="sub">(${esc(x.a ?? '')})</span>`}</td><td class="${x.ok ? 'okc' : 'noc'}">${x.ok ? (x.g1 ? 'Rätt, 2:a försöket' : 'Rätt') : 'Fel'}${x.h ? ' · tips' : ''}</td><td>${(x.ms / 1000).toFixed(1).replace('.', ',')} s</td></tr>`; }).join('');
-  const sess = [...S.sessions].reverse().slice(0, 6).map(x => { const dt = new Date(x.start); const typ = x.mode === 'pass' ? 'Dagens pass' : x.mode === 'sandbox' ? 'Fri lek (bygga/utforska)' : 'Fri lek'; return `<tr><td>${dt.toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' })}</td><td>${typ}</td><td>${fmtMin(x.ms)}</td><td>${x.n ? `${x.right} av ${x.n} rätt` : '–'}</td></tr>`; }).join('');
+  const sess = [...S.sessions].reverse().slice(0, 6).map(x => { const dt = new Date(x.start); const typ = x.mode === 'pass' ? 'Dagens pass' : x.mode === 'sandbox' ? 'Utforska (bygga, kroppar, vika)' : 'Utforska'; return `<tr><td>${dt.toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' })}</td><td>${typ}</td><td>${fmtMin(x.ms)}</td><td>${x.n ? `${x.right} av ${x.n} rätt` : '–'}</td></tr>`; }).join('');
   const seg = (name, opts, cur) => `<div class="seg" data-seg="${name}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(v) === String(cur) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   el.innerHTML = `
     <header class="bar"><h2>Så går det</h2><span class="row"><span class="snd-slot"></span><button class="btn" data-go="home">Stäng</button></span></header>
@@ -129,7 +129,7 @@ export function renderParent() {
       <div class="field">Tema ${seg('theme', [['auto', 'Automatiskt'], ...Object.entries(THEMES).map(([id, t]) => [id, esc(t.name)])], S.settings.theme || 'auto')}
         <span class="sub" id="themeNote"></span></div>
     </div>
-    <div class="section"><h3>Integritet</h3><p class="sub">Mattelabbet samlar inte in några uppgifter. Namn, svar och framsteg sparas bara i webbläsaren på den här enheten och skickas aldrig någonstans. Appen använder inga kakor, ingen spårning och ingen reklam.</p>
+    <div class="section"><h3>Integritet</h3><p class="sub">Mattetemplet samlar inte in några uppgifter. Namn, svar och framsteg sparas bara i webbläsaren på den här enheten och skickas aldrig någonstans. Appen använder inga kakor, ingen spårning och ingen reklam.</p>
       <p class="sub">Webbläsaren kan ibland rensa sparad data, till exempel om appen inte används på länge eller om webbplatsdata raderas. Ta gärna en säkerhetskopia då och då.</p>
     </div>
     <div class="section"><h3>Säkerhetskopia</h3><p class="sub">Kopiera texten och spara den någonstans om du vill flytta framstegen till en annan enhet eller webbläsare.</p>
@@ -166,7 +166,7 @@ export function renderParent() {
   let importArmed = null;
   const doImport = txt => {
     let d; try { d = JSON.parse(txt); } catch (e) { $('#importMsg').textContent = 'Texten gick inte att läsa. Kontrollera att hela säkerhetskopian är med.'; return; }
-    if (!d || d.v !== 1 || typeof d.facts !== 'object') { $('#importMsg').textContent = 'Det här ser inte ut som en säkerhetskopia från Mattelabbet.'; return; }
+    if (!d || d.v !== 1 || typeof d.facts !== 'object') { $('#importMsg').textContent = 'Det här ser inte ut som en säkerhetskopia från Mattetemplet.'; return; }
     if (importArmed !== txt) { importArmed = txt; $('#importMsg').textContent = 'Det här ersätter all nuvarande data. Tryck på Läs in igen för att fortsätta.'; return; }
     replaceData(migrate(d)); save(); renderParent(); $('#importMsg').textContent = 'Inläst.';
   };

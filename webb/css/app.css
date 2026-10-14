@@ -78,7 +78,7 @@ p{margin:0}
 .pill b{color:var(--ink);font-weight:600}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--st-good)}
 
-/* fri lek */
+/* Utforska (fri träning) */
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .bar h2{font-size:32px}
 .free-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}

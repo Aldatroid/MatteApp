@@ -2,7 +2,7 @@
    Här bestäms vilka områden appen har, i vilken ordning de visas för föräldern och hur dagens pass
    fördelas om föräldern inte har ändrat något.
 
-   - Ordningen i listan = ordningen i föräldraläget och i fri lek.
+   - Ordningen i listan = ordningen i föräldraläget och under Utforska.
    - topic   = rubrik enligt det centrala innehållet i Lgr22 (matematik).
    - grades  = årskurser området passar för (visas för föräldern, och används när årskursval byggs).
    - on      = med i dagens pass från början.
@@ -46,7 +46,7 @@ export const CURRICULUM = [
 const byId = Object.fromEntries(CURRICULUM.map(e => [e.area.id, e]));
 export const areaById = id => byId[id]?.area;
 export const allAreas = () => CURRICULUM.map(e => e.area);
-// Områden med nivåer (allt utom tabellerna); visas som uppdrag i fri lek.
+// Områden med nivåer (allt utom tabellerna); visas som uppdrag under Utforska.
 export const leveledAreas = () => allAreas().filter(a => a.levels);
 export const gradeText = g => g.length > 1 ? `åk ${g[0]}–${g[g.length - 1]}` : `åk ${g[0]}`;
 

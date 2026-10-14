@@ -1,4 +1,4 @@
-/* ============ Start & fri lek ============ */
+/* ============ Startsidan och Utforska ============ */
 import { $, $$, esc, dayKey, show, onShow } from './util.js';
 import { S } from './store.js';
 import { leveledAreas, passAreas } from './curriculum.js';
