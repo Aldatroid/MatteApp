@@ -1,0 +1,170 @@
+[
+  {
+    "name": "bg.jpg",
+    "transparent": false,
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-84e6f7ea-394e-42fe-b60d-dc7bcf564e5e.png",
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Snowy Christmas version of the moonlit dinosaur temple valley. Preserve skull-shaped temple, cascading waterfalls, rope bridges and stairs. Snow caps on ancient stonework, frosty fir greenery replacing tropical vines, sparse soft snowfall, warm amber lantern illumination and a single lit fir near temple entrance. Inviting winter adventure, retain landscape."
+  },
+  {
+    "name": "dino.png",
+    "transparent": true,
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-100e0d08-5b8a-4b8a-b756-2b06136ea8ae.png",
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Keep the exact adorable orange dinosaur identity, face and right-facing pose in circular portrait. Replace mining hat with soft red Santa hat with simple white fur trim, deep green wool scarf. Dark fir green circular interior, no outer metal rim. Transparent outside circular silhouette."
+  },
+  {
+    "name": "dino_ring.png",
+    "transparent": true,
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-f82118a4-86d3-481d-b984-1988f216951e.png",
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Keep exact orange dinosaur identity and right-facing face pose in circular portrait badge. Simple red Santa hat with white trim and dark green scarf, dark fir circular interior. Preserve outer circular ring restyled champagne gold. Transparent outside badge."
+  },
+  {
+    "name": "panel.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Rectangular beveled UI panel. Dark matte fir green stone face, thin champagne gold bevel, empty calm opaque center. Preserve clipped corner shape. No decorative objects. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-4480ec8e-2a41-46b6-9cd9-3b9a48ac3d88.png"
+  },
+  {
+    "name": "topbar.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Very wide horizontal UI bar with round inset at each end and recessed central field. Matte fir green with slim champagne gold rim, muted deep red circular insets. Entire central field blank. Preserve silhouette and transparent canvas padding. No decorations.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-88666b83-638c-4fa7-8631-2990f363cfe9.png"
+  },
+  {
+    "name": "header.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Very wide angular UI header bar with the mountain symbol at left, divider near right. Dark fir green face, slim champagne gold edge, gold mountain icon. Keep empty blank middle and exact shape. Transparent outside.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-eca42315-9ea8-4b98-b6b9-4f698c030e0b.png"
+  },
+  {
+    "name": "hintbar.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Thin wide rounded clipped-corner hint bar: bulb left, right-facing chevron right, blank middle. Matte fir green face, fine warm gold outline and gold symbols. No extra embellishments. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-5f449713-b867-4813-9449-20e741cee5c4.png"
+  },
+  {
+    "name": "bubble.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Rounded speech bubble with left-facing pointer. Matte deep fir green fill, thin champagne gold rim. Completely blank calm opaque center for dialogue text. No objects or decorations. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-aece20c7-9d3a-41d4-a6ec-4b28569d3b1c.png"
+  },
+  {
+    "name": "btn_pass.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Wide rectangular gold pass button with clipped corners and small dark three-toed dinosaur footprint at bottom right. Soft champagne gold face, dark green footprint. Preserve exact footprint and empty face. No additional motifs. Transparent outside.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-e16fd34f-5a5b-4e0e-9af9-c30454629ea6.png"
+  },
+  {
+    "name": "gear.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Circular settings button with large centered toothed gear, perfectly recognizable gear and hole. Dark fir green disc, warm gold gear, fine gold outer rim. Minimal, front-facing, transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-7034d605-06d0-41df-996a-06281683275b.png"
+  },
+  {
+    "name": "glowframe.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Hollow luminous rounded clipped-corner square border. Warm soft champagne gold glow, very thin red outer light accent. Center must remain completely transparent, also transparent exterior. Only frame, no solid panel, no objects.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-db5ef484-552b-418b-93f6-fd0d898a34fa.png"
+  },
+  {
+    "name": "icon_back.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Single backspace icon: left-pointing outlined tag with centered X. Champagne gold outline and X, dark green opaque interior. Same symbol and silhouette, no decoration. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-806da154-b776-47d4-9b44-4dc26564dbe9.png"
+  },
+  {
+    "name": "icon_bulb.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. One simple glowing light bulb hint icon. Warm gold bulb, short simple gold base, soft restrained glow. Same silhouette, transparent exterior, no christmas motifs.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-0b384cb5-49f6-47f5-b966-f7b6614c405c.png"
+  },
+  {
+    "name": "icon_chev.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. One thick right-pointing chevron arrow in champagne gold, subtle polished bevel. Exact original simple symbol. Transparent exterior, no extra objects.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-a4564d58-9833-4aa9-a3f3-83e7f80d86a5.png"
+  },
+  {
+    "name": "icon_foot.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Single three-toed dinosaur footprint solid dark fir green with subtle satin bevel. Preserve three toes and shape. Strong readable simple silhouette, no decorations, transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-4210dc50-c441-4063-a23c-930975f9988f.png"
+  },
+  {
+    "name": "icon_mountain.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Single outline mountain peaks achievement symbol in warm champagne gold with very subtle bevel. Preserve number of peaks and clean recognizable shape. Transparent exterior, no extra objects.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-40737809-9ca2-4cb3-bd9f-453b81c4150d.png"
+  },
+  {
+    "name": "icon-512.png",
+    "transparent": false,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Square app icon, preserve exact orange dinosaur face identity, right-facing head and shoulders framing. Simple red Santa hat with white trim and dark green scarf. Deep fir green subtle background, warm friendly light. Entire square image opaque. No circular ring or text.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-aac6c46f-710c-4023-af89-befa9ea7ad05.png"
+  },
+  {
+    "name": "key.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Standard rounded square blank keypad button, dark matte fir green face, very thin champagne gold edge, subtle bevel. Same exact rounded rectangular silhouette, clear empty center. No symbols, text, motifs or ornaments. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-89325d9a-c400-42da-9ffd-418bd7b3604e.png"
+  },
+  {
+    "name": "key_dark.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Rounded square blank keypad button in very deep dark fir green, slim subtle champagne gold rim. Darker than standard key. Same shape, clear empty center. No symbols or ornaments. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-1102966f-7845-48ae-b2d8-d581486d248c.png"
+  },
+  {
+    "name": "key_light.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Rounded square blank keypad button in lighter muted sage green, thin champagne gold rim, soft satin bevel. Lighter than standard key. Clear blank center, no motifs or symbols. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-a6740c8a-0e79-4c43-92b8-2baf729333c3.png"
+  },
+  {
+    "name": "key_wide.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Wide rounded rectangular blank keypad button. Matte fir green face, thin champagne gold rim and soft bevel. Same horizontal silhouette. Center entirely blank, no symbols, motifs or ornaments. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-d51a8811-ea94-470a-8257-894a792862e5.png"
+  },
+  {
+    "name": "key_ok.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Wide rounded rectangular confirmation key. Rich restrained Christmas red satin face, thin champagne gold rim, single dark fir green three-toed dinosaur footprint at right. Keep blank left space for app label. No other decorations or symbols. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-19f7dbbd-334d-424b-a949-8456185477e2.png"
+  },
+  {
+    "name": "key_back.png",
+    "transparent": true,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Rounded square backspace keypad button. Matte fir green face, fine champagne gold edge, original centered backspace tag outline with X in warm gold. Preserve exact recognizable symbol. No extra decorations. Transparent exterior.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-c06982c0-7c21-4e2f-9a17-5a5cc5db26b9.png"
+  },
+  {
+    "name": "levels/door.jpg",
+    "transparent": false,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Ancient temple closed door entrance at Christmas in original centered perspective. Snow-dusted stone steps and masonry, simple pine wreath with small plain red ribbon on the door, warm golden lanterns, evergreen foliage replacing vines. Keep circular golden door mechanism and geometry. Sparse snow, no text, no characters.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-9113247b-2da6-43c1-a30b-26f0135acbbd.png"
+  },
+  {
+    "name": "levels/progress1.jpg",
+    "transparent": false,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Snowy Christmas temple corridor at original low ground-level centered perspective. Light snow on stone edges and floor margins, restrained pine garland along distant arch, warm golden lanterns, icy blue night skylight. Keep original architecture and clear unobstructed central path, no text or characters.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-74e5119f-2b66-44cb-9558-792bcabbd7e1.png"
+  },
+  {
+    "name": "levels/progress2.jpg",
+    "transparent": false,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Christmas winter temple corridor, preserve original centered long perspective and stepping floor. Snow on column ledges and walkway edges, warm amber lamps, a few simple green pine swags with restrained red ribbons high on columns. Blue winter moon above open ceiling. Empty central walkway, no text or characters.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-a29e222f-917b-48ab-ad4d-3baebbe84ccb.png"
+  },
+  {
+    "name": "levels/progress3.jpg",
+    "transparent": false,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Christmas temple corridor, preserve original centered perspective and large dinosaur relief at far end. Frost and snow on stone edges, pine foliage, warm amber lanterns, blue moonlit snowy sky through roof. A subtle red ribbon on distant pine swag, clear central floor, no text or characters.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-9389b299-0408-4087-9ae3-6229d4509169.png"
+  },
+  {
+    "name": "levels/final.jpg",
+    "transparent": false,
+    "prompt": "Use case: style-transfer. Edit target is the referenced original asset from a children's math adventure app. Create a tasteful cohesive Christmas version in polished stylized 3D game art: deep fir green, restrained warm Christmas red, champagne gold, snowy winter blue in environments. Preserve the original composition, silhouette, visual function, aspect ratio, and text-free usable spaces. Keep UI exceptionally clean: NO holly sprigs, baubles, snowflake patterns, garlands, tiny decorative ornaments, or visual clutter on buttons and panels. No added text or watermark. Christmas version of majestic final temple hall, preserve architecture and blue light shafts. Snow dusted ancient stone edges, warm candlelight, one elegant medium fir Christmas tree with warm white lights off to side at far platform. Quiet magical winter arrival, open uncluttered center, no text or characters.",
+    "source": "C:\\Users\\Alexander\\.codex\\generated_images\\01a13aee-9c09-7cc0-8575-e861e567c8e2\\exec-30da57f8-cbdc-406d-a0b3-0615aaf4b0a1.png"
+  }
+]

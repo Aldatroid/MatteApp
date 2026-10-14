@@ -33,6 +33,16 @@ export const THEMES = {
       '--shade': '14,8,22', '--paper': '#100a18',
     },
   },
+  christmas: {
+    name: 'Jul', dir: 'assets/themes/christmas/', files: ALL, season: ['12-01', '01-06'],
+    colors: {
+      '--btn-top': '#1f5a40', '--btn-mid': '#174a34', '--btn-bot': '#0f3524', '--btn-border': '#c9a45a', '--btn-shine': 'rgba(240,225,180,.30)',
+      '--btn-on-top': '#c8333a', '--btn-on-mid': '#ac262e', '--btn-on-bot': '#8e1c24', '--btn-on-border': '#f0c86a',
+      '--gold': 'linear-gradient(180deg,#fbe7a8 0%,#e8c46a 55%,#c99a3c 100%)', '--accent': '#e8c46a', '--sun': '#e8c46a',
+      '--bubble-top': '#1a4f38', '--bubble-bot': '#0f3524', '--bubble-border': '#c9a45a',
+      '--shade': '6,18,14', '--paper': '#06120d',
+    },
+  },
 };
 
 const md = d => String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
