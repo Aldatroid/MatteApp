@@ -33,11 +33,21 @@ mattelabbet.html   Källfil med appens HTML, CSS och JavaScript
 webb/             Webbversionen som kan publiceras
   index.html      Genereras av tools/build.ps1
   assets/         Bilder och texturer som appen använder
+    fonts/        Typsnitten Fredoka och Lexend (OFL-licens)
+    lib/          Three.js 0.160.0 (MIT-licens)
 tools/            Skript för bygge, lokal server och bildbearbetning
 koncept/          Konceptbilder och grafiskt arbetsmaterial
 ```
 
 Gör ändringar i `mattelabbet.html` och kör byggskriptet för att uppdatera `webb/index.html`.
+
+## Integritet och säkerhet
+
+Appen är helt statisk och har ingen server, databas eller inloggning. All data sparas i webbläsarens `localStorage` på den egna enheten och skickas aldrig någonstans.
+
+- Typsnitt och Three.js ligger i `webb/assets/`, så sidan gör inga anrop till andra domäner.
+- `tools/build.ps1` lägger till en Content-Security-Policy som bara tillåter egna filer och det inbyggda skriptet (via dess SHA-256-hash). Hashen räknas om vid varje bygge.
+- Sparad och importerad data tvättas i `migrate()` så att en manipulerad säkerhetskopia inte kan föra in HTML eller skript.
 
 ## Publicering med GitHub Pages
 

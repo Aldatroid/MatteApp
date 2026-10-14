@@ -1,8 +1,10 @@
 <title>Mattelabbet</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Lexend:wght@400;500;600&display=swap">
+<link rel="preload" href="assets/fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/lexend.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* Typsnitten ligger lokalt (variabla fonter, OFL-licens) så att inga anrop går till Google. */
+@font-face{font-family:'Fredoka';font-style:normal;font-weight:300 700;font-display:swap;src:url(assets/fonts/fredoka.woff2) format('woff2')}
+@font-face{font-family:'Lexend';font-style:normal;font-weight:100 900;font-display:swap;src:url(assets/fonts/lexend.woff2) format('woff2')}
 /* Layout: enskärmsapp. Spelläge = 3D-scen + svarspanel bredvid (liggande) eller under (stående).
    Tema: "Dinoäventyr" från asset-arket – mörk sten, stålblå knappar, guld som accent. Medvetet ett enda mörkt tema. */
 :root{
@@ -478,7 +480,7 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(assets/
 </div>
 
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import * as THREE from './assets/lib/three.module.js';  // three@0.160.0, MIT
 
 /* ============ Hjälpare ============ */
 const $ = (s, r = document) => r.querySelector(s);
@@ -547,9 +549,26 @@ const KEY = 'mattelabbet.v1';
 const FAST_MS = 5000;
 let storageOK = true;
 function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, mix: 0.6 }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {} }; }
+// Sparad och importerad data tvättas fält för fält: bara kända nycklar, och siffror blir siffror.
+// Då kan en manipulerad säkerhetskopia aldrig smyga in HTML i vyerna.
+const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+const str = (v, max = 200) => v == null ? '' : String(v).slice(0, max);
+const obj = v => v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+const arr = v => Array.isArray(v) ? v : [];
+const nums = (o, keys) => Object.fromEntries(keys.map(k => [k, num(o[k])]));
+const mapObj = (o, keyRe, f) => Object.fromEntries(Object.entries(obj(o)).filter(([k]) => keyRe.test(k)).map(([k, v]) => [k, f(obj(v))]));
 function migrate(d) {
-  const b = defaults();
-  return { ...b, ...d, settings: { ...b.settings, ...(d.settings || {}) }, facts: d.facts || {}, geo: d.geo || {}, days: d.days || {}, sessions: d.sessions || [], log: d.log || [], tags: d.tags || {} };
+  d = obj(d); const b = defaults(); const st = obj(d.settings);
+  return {
+    v: 1, created: num(d.created) || b.created, name: str(d.name, 20),
+    settings: { passMin: [5, 7, 10].includes(st.passMin) ? st.passMin : b.settings.passMin, mix: [0.75, 0.6, 0.4].includes(st.mix) ? st.mix : b.settings.mix },
+    facts: mapObj(d.facts, /^\d{1,2}x\d{1,2}$/, f => nums(f, ['box', 'n', 'r', 'ms', 'last'])),
+    geo: mapObj(d.geo, /^[a-z]{1,20}$/, g => ({ ...nums(g, ['seen', 'right', 'last']), level: clamp(Math.round(num(g.level)) || 1, 1, 9), recent: arr(g.recent).slice(-5).map(num) })),
+    days: mapObj(d.days, /^\d{4}-\d{2}-\d{2}$/, x => nums(x, ['ms', 'n', 'right'])),
+    sessions: arr(d.sessions).slice(-200).map(obj).map(x => ({ ...nums(x, ['start', 'ms', 'n', 'right']), mode: str(x.mode, 20), kind: str(x.kind, 20) })),
+    log: arr(d.log).slice(-300).map(obj).map(x => ({ ...nums(x, ['t', 'ms', 'h']), s: str(x.s, 20), q: str(x.q), g: str(x.g, 40), a: str(x.a, 40), ok: x.ok === true, ...(x.g1 != null ? { g1: str(x.g1, 40) } : {}) })),
+    tags: mapObj(d.tags, /^[\w-]{1,40}$/, x => nums(x, ['n', 'last'])),
+  };
 }
 function load() {
   try { const raw = localStorage.getItem(KEY); return raw ? migrate(JSON.parse(raw)) : defaults(); }
@@ -1286,7 +1305,7 @@ const GEO = {
   area: { name: 'Area och omkrets', short: 'Area & omkrets', max: 5, gen: genArea },
   nets: { name: 'Utfällningar', short: 'Utfällningar', max: 3, gen: genNets },
 };
-const geoState = id => (S.geo[id] ||= { level: 1, recent: [], seen: 0, right: 0, last: 0 });
+const geoState = id => { const g = S.geo[id] ||= { level: 1, recent: [], seen: 0, right: 0, last: 0 }; g.level = clamp(g.level, 1, GEO[id].max); return g; };
 const kick = (id, lvl) => `${GEO[id].name} · nivå ${lvl}`;
 
 function genShapes(level) {
@@ -1973,7 +1992,7 @@ function renderParent() {
   if (slow.length) obs.push(`Svarar rätt men långsamt på ${slow.map(([a, b]) => `${a} · ${b}`).join(', ')}. Kan dem, men behöver mer flyt.`);
   Object.entries(S.tags).filter(([, x]) => x.n >= 2).sort((a, b) => b[1].n - a[1].n).forEach(([k, x]) => TAGTEXT[k] && obs.push(`${TAGTEXT[k]} <span class="sub">(${x.n} gånger)</span>`));
   const geoRows = Object.keys(GEO).map(id => { const g = S.geo[id]; const lv = g?.level || 1; const pct = g?.seen ? Math.round(g.right / g.seen * 100) + ' %' : '–'; return `<tr><td>${GEO[id].name}</td><td><span class="pips">${[...Array(GEO[id].max).keys()].map(i => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</span> ${lv} av ${GEO[id].max}</td><td>${g?.seen || 0}</td><td>${pct}</td></tr>`; }).join('');
-  const recent = [...S.log].reverse().slice(0, 20).map(x => { const dt = new Date(x.t); return `<tr><td>${dt.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} ${dt.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}</td><td>${x.s === 'mul' ? 'Tabeller' : GEO[x.s]?.short || x.s}</td><td>${esc(x.q)}</td><td>${x.g1 ? esc(x.g1) + ' → ' : ''}${esc(x.g)}${x.ok ? '' : ` <span class="sub">(${esc(x.a ?? '')})</span>`}</td><td class="${x.ok ? 'okc' : 'noc'}">${x.ok ? (x.g1 ? 'Rätt, 2:a försöket' : 'Rätt') : 'Fel'}${x.h ? ' · tips' : ''}</td><td>${(x.ms / 1000).toFixed(1).replace('.', ',')} s</td></tr>`; }).join('');
+  const recent = [...S.log].reverse().slice(0, 20).map(x => { const dt = new Date(x.t); return `<tr><td>${dt.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} ${dt.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}</td><td>${x.s === 'mul' ? 'Tabeller' : esc(GEO[x.s]?.short || x.s)}</td><td>${esc(x.q)}</td><td>${x.g1 ? esc(x.g1) + ' → ' : ''}${esc(x.g)}${x.ok ? '' : ` <span class="sub">(${esc(x.a ?? '')})</span>`}</td><td class="${x.ok ? 'okc' : 'noc'}">${x.ok ? (x.g1 ? 'Rätt, 2:a försöket' : 'Rätt') : 'Fel'}${x.h ? ' · tips' : ''}</td><td>${(x.ms / 1000).toFixed(1).replace('.', ',')} s</td></tr>`; }).join('');
   const sess = [...S.sessions].reverse().slice(0, 6).map(x => { const dt = new Date(x.start); const typ = x.mode === 'pass' ? 'Dagens pass' : x.mode === 'sandbox' ? 'Fri lek (bygga/utforska)' : 'Fri lek'; return `<tr><td>${dt.toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' })}</td><td>${typ}</td><td>${fmtMin(x.ms)}</td><td>${x.n ? `${x.right} av ${x.n} rätt` : '–'}</td></tr>`; }).join('');
   const seg = (name, opts, cur) => `<div class="seg" data-seg="${name}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(v) === String(cur) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   el.innerHTML = `
@@ -2003,7 +2022,10 @@ function renderParent() {
       <div class="field">Längd på dagens pass ${seg('passMin', [[5, '5 min'], [7, '7 min'], [10, '10 min']], S.settings.passMin)}</div>
       <div class="field">Fördelning i dagens pass ${seg('mix', [[0.75, 'Mest tabeller'], [0.6, 'Lite mer tabeller'], [0.4, 'Mest geometri']], S.settings.mix)}</div>
     </div>
-    <div class="section"><h3>Säkerhetskopia</h3><p class="sub">Allt sparas bara på den här enheten. Kopiera texten och spara den någonstans om du vill flytta framstegen till en annan enhet eller webbläsare.</p>
+    <div class="section"><h3>Integritet</h3><p class="sub">Mattelabbet samlar inte in några uppgifter. Namn, svar och framsteg sparas bara i webbläsaren på den här enheten och skickas aldrig någonstans. Appen använder inga kakor, ingen spårning och ingen reklam.</p>
+      <p class="sub">Webbläsaren kan ibland rensa sparad data, till exempel om appen inte används på länge eller om webbplatsdata raderas. Ta gärna en säkerhetskopia då och då.</p>
+    </div>
+    <div class="section"><h3>Säkerhetskopia</h3><p class="sub">Kopiera texten och spara den någonstans om du vill flytta framstegen till en annan enhet eller webbläsare.</p>
       <textarea id="exportTxt" readonly>${esc(JSON.stringify(S))}</textarea>
       <div class="row"><button class="btn small" id="copyBtn">Kopiera</button><span class="msg" id="copyMsg"></span></div>
       <textarea id="importTxt" placeholder="Klistra in en säkerhetskopia här"></textarea>
