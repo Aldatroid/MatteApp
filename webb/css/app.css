@@ -369,6 +369,34 @@ body{background:linear-gradient(rgba(var(--shade),.80),rgba(var(--shade),.92)),v
 @media (max-height:620px){#panel{padding:16px 18px}.topbar{height:46px}.chip{min-height:38px;font-size:15px}.chips{gap:6px}.netgrid{max-width:230px;gap:5px}.q-kicker{min-height:36px}.fact{padding:6px 10px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
+/* ===== Mangatema: ljust kritpapper (färgerna i js/themes.js), här de mörka detaljer som inte är variabler ===== */
+:root[data-theme="manga"]{color-scheme:light}
+[data-theme="manga"] #stage{background:radial-gradient(80% 70% at 50% 45%,rgba(255,250,238,.25) 0%,rgba(205,192,165,.45) 100%)}
+[data-theme="manga"] #stage .lvl-bg::after{background:linear-gradient(180deg,rgba(238,232,216,.10),rgba(238,232,216,.30))}
+[data-theme="manga"] .key,[data-theme="manga"] .btn,[data-theme="manga"] .ghost-btn,[data-theme="manga"] .chip,[data-theme="manga"] .seg button,[data-theme="manga"] .stepper button,[data-theme="manga"] .netgrid button,[data-theme="manga"] .choice,[data-theme="manga"] .stage-exit{box-shadow:inset 0 1.5px 0 var(--btn-shine),inset 0 -3px 0 rgba(90,70,40,.18),0 2px 5px rgba(60,45,25,.25)}
+[data-theme="manga"] .chip.on,[data-theme="manga"] .seg button.on,[data-theme="manga"] .netgrid button.on{box-shadow:inset 0 1.5px 0 rgba(255,255,255,.25),inset 0 -3px 0 rgba(0,0,0,.2),0 2px 5px rgba(60,45,25,.25)}
+[data-theme="manga"] .choice:disabled,[data-theme="manga"] .key:disabled{background:linear-gradient(180deg,#98aaa7,#849794);border-color:#5f706d;color:#f4eee0;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 2px 4px rgba(60,45,25,.2)}
+[data-theme="manga"] .choice.ok{background:linear-gradient(180deg,var(--bubble-top),var(--bubble-bot));color:var(--good)}
+[data-theme="manga"] .choice.no{background:linear-gradient(180deg,#ece3cf,#dccfb3);border-color:var(--bad);color:var(--bad)}
+[data-theme="manga"] .key.ok,[data-theme="manga"] .btn.primary,[data-theme="manga"] .next-btn{border:1.5px solid var(--btn-border);box-shadow:inset 0 2px 0 rgba(255,240,205,.55),inset 0 -3px 0 rgba(120,60,0,.3),0 2px 6px rgba(60,45,25,.3)}
+[data-theme="manga"] .feedback::before{background:var(--bubble-top)}
+[data-theme="manga"] .hero-bubble::before{background:#f2ebdc;border-color:var(--bubble-border)}
+[data-theme="manga"] #mascot .m-bubble{box-shadow:0 6px 18px rgba(60,45,25,.25)}
+[data-theme="manga"] .hero-dino,[data-theme="manga"] #mascot img,[data-theme="manga"] .say-dino{filter:drop-shadow(0 6px 12px rgba(60,45,25,.35))}
+[data-theme="manga"] .slot{border-bottom-color:var(--accent);color:var(--accent)}
+[data-theme="manga"] .slot.filled{color:var(--ink)}
+[data-theme="manga"] .slot.ok{color:var(--good);border-color:var(--good)}
+[data-theme="manga"] .slot.no{color:var(--bad);border-color:var(--bad)}
+[data-theme="manga"] .topbar .progress{background:rgba(0,0,0,.35)}
+[data-theme="manga"] .topbar .count{color:#e5d7bc}
+[data-theme="manga"] .stepper,[data-theme="manga"] .area-row{background:rgba(41,75,75,.07)}
+[data-theme="manga"] .pill{background:rgba(255,252,244,.75)}
+[data-theme="manga"] .heat button{color:rgba(29,51,53,.7)}
+[data-theme="manga"] .lbl{box-shadow:0 2px 8px rgba(60,45,25,.3)}
+/* DNA-spiralen är hög i stället för bred som berget */
+[data-theme="manga"] .brand img{width:auto;height:38px}
+[data-theme="manga"] .tile-free::after{width:56px;height:96px}
+
 /* ===== Hemskärmsapp: undvik iPhones/iPads systemfält ===== */
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 
