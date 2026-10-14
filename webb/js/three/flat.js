@@ -5,7 +5,7 @@ import { setView, onClear } from './scene.js';
 export const flat = $('#flat');
 export const SVGNS = 'http://www.w3.org/2000/svg';
 export let FL = null;
-onClear(() => { flat.setAttribute('hidden', ''); flat.innerHTML = ''; FL = null; });
+onClear(() => { flat.setAttribute('hidden', ''); flat.innerHTML = ''; flat.style.pointerEvents = ''; FL = null; });
 export function svgEl(tag, attrs, parent = flat) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; }
 export const ptsStr = pts => pts.map(p => p.join(',')).join(' ');
 export const partPts = p => p.kind === 'rect' ? [[p.x, p.y], [p.x + p.w, p.y], [p.x + p.w, p.y + p.h], [p.x, p.y + p.h]] : p.pts;

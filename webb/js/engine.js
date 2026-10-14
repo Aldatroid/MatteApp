@@ -127,8 +127,10 @@ function renderTask(t) {
   const slotRow = t.input === 'num' && !t.inlineSlot ? `<div class="q-answer"><span class="slot">?</span>${t.unit ? `<span class="unit">${esc(t.unit)}</span>` : ''}</div>` : '';
   body.innerHTML = `<div class="task-layout"><div class="q-area"><div class="q-kicker">${esc(t.kicker)}</div><div class="q-text${t.big ? ' big' : ''}">${t.text}</div>${slotRow}${t.sub ? `<p class="q-sub">${esc(t.sub)}</p>` : ''}</div><div class="spacer"></div><div class="input-area" id="inputArea"></div></div>`;
   const ia = $('#inputArea');
-  ia.classList.toggle('num', t.input === 'num');
+  ia.classList.toggle('num', t.input === 'num'); ia.classList.toggle('custom', t.input === 'custom');
   if (t.input === 'num') keypad(ia, d => { if (run.phase !== 'ask' || run.input.length >= 4) return; run.input = (run.input === '0' ? '' : run.input) + d; updateSlot(); }, () => { if (run.phase !== 'ask') return; run.input = run.input.slice(0, -1); updateSlot(); }, submit);
+  // custom: området ritar egen inmatning (t.ex. rutor att trycka på) och skickar svaret med answer(värde)
+  else if (t.input === 'custom') t.renderInput(ia, v => { if (run.phase === 'ask') handleAnswer(v); });
   else {
     ia.innerHTML = `<div class="choices">${t.choices.map(c => `<button class="choice" data-v="${esc(c.value)}" aria-label="${esc(c.label)}">${c.html ?? esc(c.label)}</button>`).join('')}</div>`;
     ia.querySelectorAll('.choice').forEach(b => b.addEventListener('click', () => { if (run.phase === 'ask') handleAnswer(b.dataset.v, b); }));
@@ -161,7 +163,7 @@ function mascotHide(animated = false) {
   const done = () => { m.hidden = true; m.classList.remove('show', 'out', 'nudge'); if (fb) fb.innerHTML = ''; };
   if (animated && !m.hidden) { m.classList.remove('show', 'nudge'); m.classList.add('out'); mascotTimer = setTimeout(done, 360); } else done();
 }
-const canRetry = t => t.input === 'num' || (t.choices && t.choices.length >= 3);
+const canRetry = t => t.input === 'num' || t.input === 'custom' || (t.choices && t.choices.length >= 3);
 function handleAnswer(value, btn) {
   const t = run.task; tick();
   const ok = String(value) === String(t.answer);

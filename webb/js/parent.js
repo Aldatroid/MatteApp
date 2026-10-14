@@ -36,7 +36,7 @@ function areaRow(e) {
   const levels = a.levels ? `<details><summary>${a.levels.length} nivåer, barnet är på nivå ${Math.min(cur, a.levels.length)}</summary><ol>${a.levels.map((L, i) => `<li class="${i + 1 === cur ? 'cur' : ''}">${esc(L.text)}</li>`).join('')}</ol></details>`
     : '<details><summary>Anpassas per gångertal</summary><p>Nya och felsvarade gångertal kommer oftare, de som sitter kommer mer sällan.</p></details>';
   return `<div class="area-row${s.on ? ' on' : ''}" data-area="${a.id}">
-    <label class="area-check"><input type="checkbox"${s.on ? ' checked' : ''}><span><b>${esc(a.name)}</b><small>${gradeText(e.grades)} · <span class="share"></span></small></span></label>
+    <label class="area-check"><input type="checkbox"${s.on ? ' checked' : ''}><span><b>${esc(a.name)}</b><small>${gradeText(e.grades)}${e.book ? ` · <span class="book">Koll på matematik ${esc(e.book)}</span>` : ""} · <span class="share"></span></small></span></label>
     <div class="seg" role="group" aria-label="Hur mycket av passet">${WEIGHTS.map(([v, l]) => `<button data-v="${v}" class="${s.w === v ? 'on' : ''}"${s.on ? '' : ' disabled'}>${l}</button>`).join('')}</div>
     ${levels}
   </div>`;

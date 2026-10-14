@@ -7,12 +7,16 @@
    - grades  = årskurser området passar för (visas för föräldern, och används när årskursval byggs).
    - on      = med i dagens pass från början.
    - weight  = standardvikt: 1 = lite, 2 = normalt, 4 = mycket (se WEIGHTS i store.js).
+   - book    = var området finns i läroboken (valfritt). Visas i föräldraläget så att det är lätt att
+               välja det klassen arbetar med. Just nu: Koll på matematik 5A/5B (Sanoma).
 
    Svårighetsnivåerna inom varje område ligger i områdets egen fil under areas/ (listan `levels`).
    Ett nytt område läggs till genom att skapa en fil i areas/ och lägga in den i listan nedan. */
 import { S } from './store.js';
 import mul from './areas/mul.js';
 import fractions from './areas/fractions.js';
+import length from './areas/length.js';
+import symmetry from './areas/symmetry.js';
 import area from './areas/area.js';
 import count from './areas/count.js';
 import shapes from './areas/shapes.js';
@@ -29,8 +33,10 @@ export const TOPICS = {
 
 export const CURRICULUM = [
   { area: mul, topic: 'tal', grades: [3, 4, 5], on: true, weight: 4 },
-  { area: fractions, topic: 'tal', grades: [4, 5], on: true, weight: 2 },
-  { area: area, topic: 'geometri', grades: [3, 4, 5], on: true, weight: 2 },
+  { area: fractions, topic: 'tal', grades: [4, 5], on: true, weight: 2, book: '5A kap 3, 5B kap 8' },
+  { area: length, topic: 'geometri', grades: [4, 5], on: true, weight: 2, book: '5A kap 2' },
+  { area: area, topic: 'geometri', grades: [3, 4, 5], on: true, weight: 2, book: '5A kap 2' },
+  { area: symmetry, topic: 'geometri', grades: [4, 5], on: true, weight: 2, book: '5A kap 2' },
   { area: count, topic: 'geometri', grades: [3, 4], on: true, weight: 1 },
   { area: shapes, topic: 'geometri', grades: [3, 4], on: true, weight: 1 },
   { area: nets, topic: 'geometri', grades: [4, 5], on: true, weight: 1 },

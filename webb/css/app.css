@@ -411,3 +411,20 @@ body{background:linear-gradient(rgba(var(--shade),.80),rgba(var(--shade),.92)),v
 #flat .win{fill:none;stroke:var(--hl)}
 #flat g.pop{opacity:0;animation:pop .35s ease-out forwards}
 .nw{white-space:nowrap}
+
+/* ===== Längd och symmetri ===== */
+#flat .fr.to{fill:var(--pA)}
+#flat text.step{fill:var(--muted)}
+#flat .cell{fill:rgba(255,255,255,.04);stroke:var(--ink);stroke-opacity:.35;transition:fill .2s}
+#flat .cell.tap{fill:rgba(255,255,255,.09);cursor:pointer}
+#flat .cell.on{fill:var(--pB);stroke-opacity:.6}
+#flat .cell.miss{fill:rgba(255,197,49,.18);stroke:var(--hl);stroke-opacity:1;stroke-dasharray:.18 .12}
+#flat .cell.mark{fill:none;stroke:var(--hl);stroke-opacity:1}
+#flat .cell.bad{fill:var(--bad-bg);stroke:var(--bad);stroke-opacity:1}
+#flat .symline{stroke:var(--hl);stroke-linecap:round;fill:none}
+#flat .mirror{fill:none;stroke:var(--hl);stroke-linejoin:round;stroke-dasharray:.25 .15}
+#flat line.pop{opacity:0;animation:pop .35s ease-out forwards}
+.choice.sym-done{background:var(--gold);color:var(--accent-ink);border-color:transparent}
+.area-check small .book{color:var(--ink);opacity:.8}
+#flat .cell.pick{fill:var(--pA);stroke-opacity:.7}
+.input-area.custom.revealed .choices{opacity:.3}
