@@ -98,7 +98,6 @@ p{margin:0}
   #play{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 58%}
   #panel{border-left:0;border-top:1px solid var(--line);border-radius:var(--r-lg) var(--r-lg) 0 0}
   .keypad,.choices,.input-area .next-btn{max-width:520px;width:100%;margin:0 auto}
-  .input-area{height:clamp(190px,27vh,300px)}
 }
 @media (max-height:620px){.q-sub{display:none}.sb{gap:10px}.sb-eq{font-size:34px}.stepper{padding:6px}.stepper button{height:42px}.stepper b{font-size:24px}.eqs{font-size:20px}.explain p{display:none}}
 #flat{position:absolute;inset:0;width:100%;height:100%;padding:20px;box-sizing:border-box;pointer-events:none;color:var(--ink)}
@@ -152,9 +151,12 @@ p{margin:0}
 .feedback.tip strong{color:var(--tip)}
 .lvl{display:block;margin-top:6px;font-weight:600;color:var(--accent)}
 /* Fast layout: fråga överst, återkoppling i mitten (scrollar själv vid behov), knappar alltid på samma plats längst ner */
-.task-layout{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;flex:1;min-height:0}
+/* knappytan tar den plats som blir kvar under frågan (minst 150px, högst --keys-max), så panelen aldrig blir för lång */
+.task-layout{display:grid;grid-template-rows:auto 0 minmax(150px,1fr);gap:10px;flex:1;min-height:0;--keys-max:320px}
 .fb-zone{min-height:0;overflow-y:auto}
-.input-area{height:clamp(200px,46vh,340px);display:flex;flex-direction:column}
+.input-area{height:100%;max-height:var(--keys-max);align-self:end;display:flex;flex-direction:column;min-height:0}
+@media (max-aspect-ratio:1/1){.task-layout{--keys-max:280px}}
+@media (max-aspect-ratio:1/1){#flat{padding-bottom:clamp(90px,13vh,150px)}}
 .keypad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:10px;height:100%}
 .input-area{position:relative}
 .input-area.revealed .keypad{opacity:.22;pointer-events:none;filter:saturate(.4)}
@@ -302,9 +304,15 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(assets/
 @keyframes glowIn{0%{opacity:0;transform:scale(.96)}25%{opacity:1;transform:scale(1)}100%{opacity:.85}}
 /* maskot som poppar upp */
 #mascot{position:absolute;left:14px;bottom:14px;display:flex;align-items:flex-end;gap:10px;pointer-events:none;z-index:5;max-width:calc(100% - 28px)}
-#mascot img{width:clamp(110px,16vh,160px);height:auto;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
-#mascot .m-bubble{position:relative;margin-bottom:24px;padding:12px 16px;background:linear-gradient(180deg,#22324f,#17243b);border:1.5px solid var(--sun);border-radius:14px;font-family:var(--f-display);font-weight:600;font-size:clamp(18px,2.4vh,24px);color:var(--ink);box-shadow:0 0 22px rgba(255,180,60,.25)}
-#mascot .m-bubble::before{content:'';position:absolute;left:-8px;bottom:18px;width:13px;height:13px;background:#1b2942;border-left:1.5px solid var(--sun);border-bottom:1.5px solid var(--sun);transform:rotate(45deg)}
+#mascot img{width:clamp(84px,14vh,150px);height:auto;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+#mascot .m-bubble{position:relative;margin-bottom:18px;padding:12px 16px;background:linear-gradient(180deg,#22324f,#17243b);border:1.5px solid #4f6c9c;border-radius:14px;font-family:var(--f-body);font-size:16px;line-height:1.4;color:var(--ink);box-shadow:0 6px 22px rgba(0,0,0,.45);max-width:560px;flex:0 1 auto;max-height:46vh;overflow-y:auto;pointer-events:auto;min-width:0}
+#mascot[data-kind="ok"] .m-bubble{border-color:var(--good)} #mascot[data-kind="no"] .m-bubble{border-color:var(--bad)} #mascot[data-kind="tip"] .m-bubble,#mascot[data-kind="pop"] .m-bubble{border-color:var(--sun);box-shadow:0 0 22px rgba(255,180,60,.25)}
+#mascot[data-kind="pop"] .m-bubble{font-family:var(--f-display);font-weight:600;font-size:clamp(18px,2.4vh,22px)}
+#mascot .feedback,#mascot .feedback.ok,#mascot .feedback.no,#mascot .feedback.tip{background:none;border:0;padding:0;border-radius:0;flex:none}
+#mascot .feedback::before{display:none}
+#mascot.nudge img{animation:mascotNudge .45s ease-out}
+@keyframes mascotNudge{40%{transform:translateY(-10px) rotate(-4deg)}}
+#mascot .m-bubble::before{content:'';position:absolute;left:-8px;bottom:18px;width:13px;height:13px;background:#1b2942;border-left:1.5px solid;border-bottom:1.5px solid;border-color:inherit;transform:rotate(45deg)}
 #mascot.show{animation:mascotIn .6s cubic-bezier(.3,1.6,.5,1) both}
 #mascot.show img{animation:mascotBob 1.4s ease-in-out .6s infinite}
 #mascot.out{animation:mascotOut .35s ease-in both}
@@ -428,7 +436,7 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(assets/
       <div id="labels"></div>
       <div class="stage-hint" id="stageHint">Snurra med fingret</div>
       <div id="no3d" hidden>3D-bilden kan inte visas på den här enheten, men uppgifterna fungerar ändå.</div>
-      <div id="mascot" hidden><img src="assets/dino_ring.png" alt=""><div class="m-bubble" id="mascotTxt"></div></div>
+      <div id="mascot" hidden><img src="assets/dino_ring.png" alt=""><div class="m-bubble"><div class="feedback" id="fb" aria-live="polite"></div></div></div>
     </div>
     <div id="panel">
       <div class="topbar">
@@ -1274,7 +1282,7 @@ function nextMul(pool) {
 const GEO = {
   shapes: { name: 'Känna igen kroppar', short: 'Kroppar', max: 3, gen: genShapes },
   count: { name: 'Ytor, kanter och hörn', short: 'Ytor, kanter, hörn', max: 4, gen: genCount },
-  volume: { name: 'Volym', short: 'Volym', max: 4, gen: genVolume },
+  // volume: { name: 'Volym', short: 'Volym', max: 4, gen: genVolume },  // pausad tills vidare – för tidigt för volym
   area: { name: 'Area och omkrets', short: 'Area & omkrets', max: 5, gen: genArea },
   nets: { name: 'Utfällningar', short: 'Utfällningar', max: 3, gen: genNets },
 };
@@ -1298,10 +1306,13 @@ function genShapes(level) {
     reveal(ok) { return { text: `Det är ${def.art} ${def.name}. ${def.clue}`, auto: ok ? 2600 : 0 }; },
   };
 }
+let lastCount = '';
 function genCount(level) {
-  const pools = { 1: ['kub', 'ratblock'], 2: ['kub', 'ratblock'], 3: ['kub', 'ratblock', 'pyramid', 'triprisma', 'pyramid', 'triprisma'], 4: POLY_IDS };
-  const id = pick(pools[level]); const def = SOLIDS[id];
-  const what = level === 1 ? 'f' : pick(['f', 'e', 'v']);
+  // kuben är lätt, så den blandas med fler kroppar redan från början; samma fråga kommer aldrig två gånger i rad
+  const pools = { 1: ['kub', 'ratblock', 'pyramid'], 2: ['kub', 'ratblock', 'pyramid', 'triprisma'], 3: ['ratblock', 'pyramid', 'triprisma', 'tripyr', 'hexprisma'], 4: POLY_IDS };
+  let id, what;
+  do { id = pick(pools[level]); what = level === 1 ? pick(['f', 'v']) : pick(['f', 'e', 'v']); } while (id + what === lastCount);
+  lastCount = id + what; const def = SOLIDS[id];
   const n = def[what]; let obj;
   return {
     skill: 'count', level, kicker: kick('count', level), text: `Hur många ${WHAT[what]} har ${def.art} ${def.name}?`, sub: 'Snurra på kroppen så att du ser baksidan också.',
@@ -1554,9 +1565,11 @@ function chooseArea() {
   if (run.streakMul >= 6) return 'geo';
   return Math.random() < S.settings.mix ? 'mul' : 'geo';
 }
+// hur ofta varje geometriområde väljs i dagens pass (area och omkrets oftast)
+const GEO_WEIGHT = { area: 3.5, count: 0.6, shapes: 0.9, nets: 1 };
 function chooseGeo() {
   const ids = Object.keys(GEO).filter(id => id !== run.lastGeo);
-  const ws = ids.map(id => { const g = geoState(id); return (id === 'area' ? 2.2 : 1) * (g.level < GEO[id].max ? 1.5 : 0.7) / (1 + g.seen * 0.03); });
+  const ws = ids.map(id => { const g = geoState(id); return (GEO_WEIGHT[id] ?? 1) * (g.level < GEO[id].max ? 1.5 : 0.7) / (1 + g.seen * 0.03); });
   let r = Math.random() * ws.reduce((a, b) => a + b, 0);
   for (let i = 0; i < ids.length; i++) { r -= ws[i]; if (r <= 0) return ids[i]; }
   return ids[0];
@@ -1627,9 +1640,10 @@ function keypad(container, onDigit, onDel, onOk) {
   container.querySelectorAll('.key').forEach(b => b.addEventListener('click', () => { const k = b.dataset.k; if (k === 'del') onDel(); else if (k === 'ok') onOk(); else onDigit(k); }));
 }
 function renderTask(t) {
+  mascotHide();
   const body = $('#panelBody');
   const slotRow = t.input === 'num' && !t.inlineSlot ? `<div class="q-answer"><span class="slot">?</span>${t.unit ? `<span class="unit">${esc(t.unit)}</span>` : ''}</div>` : '';
-  body.innerHTML = `<div class="task-layout"><div class="q-area"><div class="q-kicker">${esc(t.kicker)}</div><div class="q-text${t.big ? ' big' : ''}">${t.text}</div>${slotRow}${t.sub ? `<p class="q-sub">${esc(t.sub)}</p>` : ''}</div><div class="fb-zone"><div class="say"><img class="say-dino" src="assets/dino_ring.png" alt=""><div class="feedback" id="fb" aria-live="polite"></div></div></div><div class="input-area" id="inputArea"></div></div>`;
+  body.innerHTML = `<div class="task-layout"><div class="q-area"><div class="q-kicker">${esc(t.kicker)}</div><div class="q-text${t.big ? ' big' : ''}">${t.text}</div>${slotRow}${t.sub ? `<p class="q-sub">${esc(t.sub)}</p>` : ''}</div><div class="spacer"></div><div class="input-area" id="inputArea"></div></div>`;
   const ia = $('#inputArea');
   if (t.input === 'num') keypad(ia, d => { if (run.phase !== 'ask' || run.input.length >= 4) return; run.input = (run.input === '0' ? '' : run.input) + d; updateSlot(); }, () => { if (run.phase !== 'ask') return; run.input = run.input.slice(0, -1); updateSlot(); }, submit);
   else {
@@ -1646,15 +1660,24 @@ const MASCOT = {
   level: ['Ny nivå! Nu blir det lite klurigare.', 'Du klättrade upp en nivå!', 'Nivå upp! Bra jobbat!'],
   retry: ['Snyggt att du klurade ut det!', 'Där satt den!', 'Bra kämpat!'],
 };
+// All återkoppling (rätt/fel, förklaringar, tips, pepp) visas av maskoten i 3D-vyn.
+// kind: ok | no | tip | pop styr bubblans färg. ms > 0 = försvinn efter så lång tid.
 let mascotTimer = 0;
-function mascotPop(text, ms = 2800) {
-  const m = $('#mascot'); if (!m) return;
+function say(html, kind = '', ms = 0) {
+  const m = $('#mascot'), fb = $('#fb'); if (!m || !fb) return;
   clearTimeout(mascotTimer);
-  $('#mascotTxt').textContent = text; $('#stageHint').style.opacity = 0;
-  m.hidden = false; m.classList.remove('out', 'show'); void m.offsetWidth; m.classList.add('show');
-  mascotTimer = setTimeout(() => { m.classList.remove('show'); m.classList.add('out'); mascotTimer = setTimeout(() => { m.hidden = true; m.classList.remove('out'); }, 360); }, ms);
+  fb.className = 'feedback ' + kind; fb.innerHTML = html; m.dataset.kind = kind;
+  $('#stageHint').style.opacity = 0;
+  const wasHidden = m.hidden;
+  m.hidden = false; m.classList.remove('out', 'show', 'nudge'); void m.offsetWidth; m.classList.add(wasHidden ? 'show' : 'nudge');
+  if (ms) mascotTimer = setTimeout(() => mascotHide(true), ms);
 }
-function mascotHide() { clearTimeout(mascotTimer); const m = $('#mascot'); if (m) { m.hidden = true; m.classList.remove('show', 'out'); } }
+function mascotPop(text, ms = 2800) { say(esc(text), 'pop', ms); }
+function mascotHide(animated = false) {
+  clearTimeout(mascotTimer); const m = $('#mascot'), fb = $('#fb'); if (!m) return;
+  const done = () => { m.hidden = true; m.classList.remove('show', 'out', 'nudge'); if (fb) fb.innerHTML = ''; };
+  if (animated && !m.hidden) { m.classList.remove('show', 'nudge'); m.classList.add('out'); mascotTimer = setTimeout(done, 360); } else done();
+}
 const canRetry = t => t.input === 'num' || (t.choices && t.choices.length >= 3);
 function handleAnswer(value, btn) {
   const t = run.task; tick();
@@ -1666,8 +1689,7 @@ function handleAnswer(value, btn) {
     if (tag) addTag(tag);
     let extra = '';
     if (t.hint && !run.hintUsed) { run.hintUsed = true; extra = t.hint(); $('#hintBtn').disabled = true; }
-    const fb = $('#fb'); fb.className = 'feedback no';
-    fb.innerHTML = `<strong>Inte riktigt.</strong> Försök en gång till!${extra ? `<br><strong>Tips:</strong> ${extra}` : ''}`;
+    say(`<strong>Inte riktigt.</strong> Försök en gång till!${extra ? `<br><strong>Tips:</strong> ${extra}` : ''}`, 'no');
     if (t.input === 'num') { run.input = ''; const s = $('.slot'); s.textContent = '?'; s.classList.remove('filled', 'shake'); void s.offsetWidth; s.classList.add('shake'); }
     else if (btn) { btn.classList.add('no'); btn.disabled = true; }
     return;
@@ -1678,18 +1700,15 @@ function handleAnswer(value, btn) {
   run.n++; if (ok) run.right++; if (first) run.first++;
   run.streak = first ? (run.streak || 0) + 1 : 0;
   if (ok && t.input === 'num') ($('.q-answer') || $('.q-text'))?.classList.add('glow');
-  if (change > 0) mascotPop(pick(MASCOT.level));
-  else if ([3, 6, 10, 15, 20, 30].includes(run.streak)) mascotPop(pick(MASCOT.streak).replace('{n}', run.streak));
-  else if (ok && !first) mascotPop(pick(MASCOT.retry), 2000);
+  // pepp läggs till i samma bubbla som återkopplingen
+  const cheer = change > 0 ? pick(MASCOT.level) : [3, 6, 10, 15, 20, 30].includes(run.streak) ? pick(MASCOT.streak).replace('{n}', run.streak) : (ok && !first) ? pick(MASCOT.retry) : '';
   run.phase = 'reveal';
   $('#hintBtn').disabled = true;
   const slot = $('.slot');
   if (slot) { slot.classList.add(ok ? 'ok' : 'no'); if (!ok) slot.insertAdjacentHTML('afterend', ` <span class="slot ok">${esc(t.answer)}</span>`); }
   if (t.input === 'choice') $$('.choice').forEach(b => { if (b.dataset.v === String(t.answer)) b.classList.add('ok'); else if (b === btn) b.classList.add('no'); b.disabled = true; });
   const r = t.reveal(ok) || {};
-  const fb = $('#fb');
-  fb.className = 'feedback ' + (ok ? 'ok' : 'no');
-  fb.innerHTML = `<strong>${ok ? (first ? pick(RIGHT) : 'Rätt på andra försöket!') : 'Inte riktigt.'}</strong> ${r.text || ''}${change > 0 ? `<span class="lvl">Ny nivå i ${esc(GEO[t.skill].name.toLowerCase())}!</span>` : ''}`;
+  say(`<strong>${ok ? (first ? pick(RIGHT) : 'Rätt på andra försöket!') : 'Inte riktigt.'}</strong> ${r.text || ''}${change > 0 ? `<span class="lvl">Ny nivå i ${esc(GEO[t.skill].name.toLowerCase())}!</span>` : cheer ? `<span class="lvl">${esc(cheer)}</span>` : ''}`, ok ? 'ok' : 'no');
   if (!first && t.remake) run.queue.push({ make: t.remake, due: 3 });
   const ia = $('#inputArea');
   ia.classList.add('revealed');
@@ -1890,7 +1909,7 @@ $('#exitBtn').addEventListener('click', () => finishRun());
 $('#hintBtn').addEventListener('click', () => {
   if (!run || run.phase !== 'ask' || run.hintUsed || !run.task?.hint) return;
   run.hintUsed = true; const txt = run.task.hint();
-  const fb = $('#fb'); fb.className = 'feedback tip'; fb.innerHTML = `<strong>Tips:</strong> ${txt}`;
+  say(`<strong>Tips:</strong> ${txt}`, 'tip');
   $('#hintBtn').disabled = true;
 });
 document.addEventListener('keydown', e => {
