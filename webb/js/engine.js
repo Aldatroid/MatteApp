@@ -6,6 +6,7 @@ import { areaById, leveledAreas, passAreas } from './curriculum.js';
 import { currentLevel, levelState, updateLevel } from './levels.js';
 import { countGood } from './areas/mul.js';
 import { asset } from './themes.js';
+import { playRight } from './sound.js';
 
 export let run = null;
 const RIGHT = ['Rätt!', 'Snyggt!', 'Precis!', 'Ja!', 'Bra!', 'Klockrent!'];
@@ -184,6 +185,7 @@ function handleAnswer(value, btn) {
   const change = record(t, ok, first, ms, tag, value);
   run.n++; if (ok) run.right++; if (first) run.first++;
   run.streak = first ? (run.streak || 0) + 1 : 0;
+  if (ok) playRight();
   if (ok && t.input === 'num') ($('.q-answer') || $('.q-text'))?.classList.add('glow');
   // pepp läggs till i samma bubbla som återkopplingen
   const cheer = change > 0 ? pick(MASCOT.level) : [3, 6, 10, 15, 20, 30].includes(run.streak) ? pick(MASCOT.streak).replace('{n}', run.streak) : (ok && !first) ? pick(MASCOT.retry) : '';
