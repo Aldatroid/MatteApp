@@ -8,7 +8,8 @@ export const WEIGHTS = [[1, 'Lite'], [2, 'Normalt'], [4, 'Mycket']];
 let storageOK = true;
 export const storageWorks = () => storageOK;
 // settings.areas: { [områdes-id]: { on: bool, w: vikt } }. Saknas ett område gäller standardvärdet i curriculum.js.
-export function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, areas: {}, theme: 'auto' }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {} }; }
+// settings.sound: volym 0-100 och på/av för effekter och musik. Musiken är avstängd från början.
+export function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, areas: {}, theme: 'auto', sound: { fx: 80, music: 50, fxOn: true, musicOn: false } }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {} }; }
 // Sparad och importerad data tvättas fält för fält: bara kända nycklar, och siffror blir siffror.
 // Då kan en manipulerad säkerhetskopia aldrig smyga in HTML i vyerna.
 const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
@@ -18,6 +19,8 @@ const arr = v => Array.isArray(v) ? v : [];
 const nums = (o, keys) => Object.fromEntries(keys.map(k => [k, num(o[k])]));
 const mapObj = (o, keyRe, f) => Object.fromEntries(Object.entries(obj(o)).filter(([k]) => keyRe.test(k)).map(([k, v]) => [k, f(obj(v))]));
 const WEIGHT_VALUES = WEIGHTS.map(w => w[0]);
+const vol = (v, d) => Number.isFinite(v) ? clamp(Math.round(v), 0, 100) : d;
+const sound = (o, d) => ({ fx: vol(o.fx, d.fx), music: vol(o.music, d.music), fxOn: typeof o.fxOn === 'boolean' ? o.fxOn : d.fxOn, musicOn: o.musicOn === true });
 export function migrate(d) {
   d = obj(d); const b = defaults(); const st = obj(d.settings);
   return {
@@ -25,6 +28,7 @@ export function migrate(d) {
     settings: {
       passMin: [5, 7, 10].includes(st.passMin) ? st.passMin : b.settings.passMin,
       theme: /^[a-z]{1,20}$/.test(st.theme) ? st.theme : 'auto',
+      sound: sound(obj(st.sound), b.settings.sound),
       areas: mapObj(st.areas, /^[a-z]{1,20}$/, a => ({ on: a.on !== false, w: WEIGHT_VALUES.includes(a.w) ? a.w : 2 })),
     },
     facts: mapObj(d.facts, /^\d{1,2}x\d{1,2}$/, f => nums(f, ['box', 'n', 'r', 'ms', 'last'])),

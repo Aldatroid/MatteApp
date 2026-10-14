@@ -1,7 +1,7 @@
 # Minimal statisk webbserver för lokal testning (endast localhost).
 param([int]$Port = 8765, [string]$Root = (Join-Path $PSScriptRoot '..\webb'))
 $Root = (Resolve-Path $Root).Path
-$types = @{ '.html' = 'text/html; charset=utf-8'; '.js' = 'text/javascript'; '.css' = 'text/css'; '.json' = 'application/json'; '.svg' = 'image/svg+xml'; '.png' = 'image/png'; '.webp' = 'image/webp'; '.jpg' = 'image/jpeg'; '.woff2' = 'font/woff2'; '.txt' = 'text/plain; charset=utf-8'; '.webmanifest' = 'application/manifest+json'; '.wav' = 'audio/wav' }
+$types = @{ '.html' = 'text/html; charset=utf-8'; '.js' = 'text/javascript'; '.css' = 'text/css'; '.json' = 'application/json'; '.svg' = 'image/svg+xml'; '.png' = 'image/png'; '.webp' = 'image/webp'; '.jpg' = 'image/jpeg'; '.woff2' = 'font/woff2'; '.txt' = 'text/plain; charset=utf-8'; '.webmanifest' = 'application/manifest+json'; '.wav' = 'audio/wav'; '.mp3' = 'audio/mpeg' }
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://localhost:$Port/")
 $listener.Start()

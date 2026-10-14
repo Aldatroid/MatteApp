@@ -5,6 +5,7 @@ import { CURRICULUM, TOPICS, allAreas, areaById, leveledAreas, gradeText, areaSe
 import { ALL_FACTS, hardestFacts, countGood, factStatus } from './areas/mul.js';
 import { keypad } from './engine.js';
 import { THEMES, applyTheme, activeThemeId } from './themes.js';
+import { dockSoundBtn } from './sound.js';
 
 // Under temavalet: vad "Automatiskt" betyder just nu.
 function themeNote() {
@@ -96,7 +97,7 @@ export function renderParent() {
   const sess = [...S.sessions].reverse().slice(0, 6).map(x => { const dt = new Date(x.start); const typ = x.mode === 'pass' ? 'Dagens pass' : x.mode === 'sandbox' ? 'Fri lek (bygga/utforska)' : 'Fri lek'; return `<tr><td>${dt.toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' })}</td><td>${typ}</td><td>${fmtMin(x.ms)}</td><td>${x.n ? `${x.right} av ${x.n} rätt` : '–'}</td></tr>`; }).join('');
   const seg = (name, opts, cur) => `<div class="seg" data-seg="${name}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(v) === String(cur) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   el.innerHTML = `
-    <header class="bar"><h2>Så går det</h2><button class="btn" data-go="home">Stäng</button></header>
+    <header class="bar"><h2>Så går det</h2><span class="row"><span class="snd-slot"></span><button class="btn" data-go="home">Stäng</button></span></header>
     ${storageWorks() ? '' : '<div class="warn">Webbläsaren sparar inte data just nu (till exempel i privat läge). Framstegen försvinner när fliken stängs.</div>'}
     <div class="kpis">
       <div class="stat"><b>${fmtMin(ms7)}</b><span>tid senaste 7 dagarna</span></div>
@@ -150,6 +151,7 @@ export function renderParent() {
   }));
   $('#childName').addEventListener('input', e => { S.name = e.target.value.trim(); save(); });
   themeNote();
+  dockSoundBtn('parent');
   el.querySelectorAll('[data-seg]').forEach(sg => sg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const isTheme = sg.dataset.seg === 'theme';
     S.settings[sg.dataset.seg] = isTheme ? b.dataset.v : Number(b.dataset.v); save();

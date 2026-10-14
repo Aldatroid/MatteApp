@@ -25,7 +25,7 @@
   <section id="home" class="screen home scroll">
     <header class="home-top">
       <span class="brand"><img data-asset="icon_mountain.png" alt="">Mattelabbet</span>
-      <button class="gear-btn" id="toParent" aria-label="Föräldraläge" title="Föräldraläge"><img data-asset="gear.png" alt=""></button>
+      <span class="home-actions"><span class="snd-slot"></span><button class="gear-btn" id="toParent" aria-label="Föräldraläge" title="Föräldraläge"><img data-asset="gear.png" alt=""></button></span>
     </header>
     <div class="home-main">
       <div class="hero"><img class="hero-dino" data-asset="dino_ring.png" alt="Dino, din guide"><div class="hero-bubble"><h1 id="hello">Hej!</h1>
@@ -51,7 +51,7 @@
   <!-- FRI LEK -->
   <section id="free" class="screen scroll" hidden>
     <div class="wrap">
-      <header class="bar"><button class="ghost-btn" data-go="home">← Start</button><h2>Fri lek</h2><span style="width:80px"></span></header>
+      <header class="bar"><button class="ghost-btn" data-go="home">← Start</button><h2>Fri lek</h2><span class="snd-slot" style="width:80px"></span></header>
       <div class="free-grid">
         <article class="card">
           <span class="card-kicker">Tabeller</span>
@@ -96,6 +96,7 @@
       <svg id="flat" hidden aria-hidden="true" preserveAspectRatio="xMidYMid meet"></svg>
       <div id="labels"></div>
       <div class="stage-hint" id="stageHint">Snurra med fingret</div>
+      <div class="snd-slot stage-snd"></div>
       <div id="no3d" hidden>3D-bilden kan inte visas på den här enheten, men uppgifterna fungerar ändå.</div>
       <div id="mascot" hidden><img data-asset="dino_ring.png" alt=""><div class="m-bubble"><div class="feedback" id="fb" aria-live="polite"></div></div></div>
     </div>
