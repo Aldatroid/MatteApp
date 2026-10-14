@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><title>Utklipp</title>
+<style>
+body{margin:0;padding:20px;font:14px system-ui;background:#0b1220;color:#dde}
+.grid{display:flex;flex-wrap:wrap;gap:16px}
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.chk{background:repeating-conic-gradient(#d0d4dc 0 25%,#fff 0 50%) 0 0/16px 16px;padding:8px}
+.dark{background:#0b1220;padding:8px;border:1px solid #2c3f5e}
+.pair{display:flex;gap:8px}
+img{display:block;max-width:240px;max-height:160px;width:auto;height:auto}
+</style></head><body>
+<div class="grid" id="g"></div>
+<script>
+const names=['btn_pass','icon_foot','icon_back','icon_mountain','icon_bulb','dino_ring','gear','topbar','panel','header'];
+g.innerHTML=names.map(n=>`<figure><div class="pair"><div class="chk"><img src="assets/${n}.png"></div><div class="dark"><img src="assets/${n}.png"></div></div><figcaption>${n}</figcaption></figure>`).join('');
+</script></body></html>

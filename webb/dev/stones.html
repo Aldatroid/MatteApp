@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><title>Stentexturer</title>
+<style>body{margin:0;padding:12px;background:#0b1220;color:#ccd;font:12px system-ui}.row{display:flex;gap:6px;margin-bottom:6px;align-items:center}img{width:120px;height:120px;display:block}span{width:60px}</style></head><body>
+<div id="g"></div>
+<script>
+let h='';
+for(let i=1;i<=6;i++) h+=`<div class="row"><span>kub ${i}</span><img src="../assets/stone/cube${i}_top.jpg"><img src="../assets/stone/cube${i}_left.jpg"><img src="../assets/stone/cube${i}_right.jpg"><span>platta ${i}</span><img src="../assets/stone/tile${i}.jpg"></div>`;
+g.innerHTML=h;
+</script></body></html>

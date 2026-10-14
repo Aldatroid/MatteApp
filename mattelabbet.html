@@ -1,0 +1,2039 @@
+<title>Mattelabbet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout: enskärmsapp. Spelläge = 3D-scen + svarspanel bredvid (liggande) eller under (stående).
+   Tema: "Dinoäventyr" från asset-arket – mörk sten, stålblå knappar, guld som accent. Medvetet ett enda mörkt tema. */
+:root{
+  --paper:#070f1b; --grid:transparent; --surface:#111c2e; --surface-2:#1a2840; --ink:#e9eefb; --muted:#9fb0cf; --line:#2c3f5e;
+  --accent:#f6b93b; --accent-ink:#3b2405; --blue:#86a9ff; --sun:#f6b93b; --sun-ink:#3b2405;
+  --good:#5fdc9c; --good-bg:#10301f; --bad:#ff8a70; --bad-bg:#3a1a17; --tip:#ffd166; --tip-bg:#2e2410;
+  --st-none:#22324f; --st-learn:#a8493f; --st-mid:#a8812c; --st-good:#2b9464;
+  --edge3d:#0a1220; --ghost3d:#2a3b5c; --floor3d:#1b263d;
+  --shape:#2b3f66; --pA:#4d6fc0; --pB:#a17d23; --pC:#2c8466; --hl:#ffc531;
+  --f-display:'Fredoka','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r-lg:24px; --r-md:16px; --r-sm:10px;
+  --shadow:0 1px 0 rgba(0,0,0,.2),0 8px 24px rgba(0,0,0,.4);
+  --gold:linear-gradient(180deg,#ffdc85 0%,#f7b940 55%,#e39a22 100%);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{height:100%;box-sizing:border-box}
+body{height:100%;margin:0;background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+button:disabled{cursor:default;opacity:.45}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+input,textarea{-webkit-user-select:text;user-select:text;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.1;margin:0;text-wrap:balance}
+p{margin:0}
+#app{height:100%;position:relative}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wrap{width:100%;max-width:1040px;margin:0 auto;padding:20px 20px 48px;display:flex;flex-direction:column;gap:20px}
+.narrow{max-width:640px}
+
+/* knappar */
+.btn{min-height:48px;padding:0 20px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);font-weight:600;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.danger{background:var(--bad);color:#fff;border-color:transparent}
+.btn.small{min-height:40px;padding:0 14px;font-size:14px}
+.ghost-btn{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:transparent;font-weight:600;font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;min-width:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);font-weight:600;font-size:16px;font-family:var(--f-display)}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2)}
+.seg button{min-height:42px;padding:0 14px;border:0;background:transparent;font-weight:600;font-size:14px}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+
+/* start */
+.home{padding:20px}
+.home-top{display:flex;justify-content:space-between;align-items:center;max-width:1040px;width:100%;margin:0 auto}
+.brand{font-family:var(--f-display);font-weight:600;font-size:22px;display:flex;align-items:center;gap:10px}
+.brand svg{width:30px;height:30px}
+.home-main{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:1040px;width:100%;margin:0 auto;gap:8px}
+#hello{font-size:clamp(44px,8vw,84px);letter-spacing:-.01em}
+.lead{font-size:20px;color:var(--muted);margin-bottom:24px}
+.home-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;border:0;border-radius:var(--r-lg);padding:28px;min-height:210px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.tile:active{transform:scale(.985)}
+.tile-pass{background:var(--accent);color:var(--accent-ink)}
+.tile-free{background:var(--sun);color:var(--sun-ink)}
+.tile-kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;opacity:.85}
+.tile-title{font-family:var(--f-display);font-size:46px;font-weight:600;line-height:1}
+.tile-text{font-size:17px;max-width:26ch;opacity:.92;position:relative;z-index:1}
+.tile svg{position:absolute;right:18px;bottom:16px;width:120px;height:120px;opacity:.9}
+.home-status{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:14px;color:var(--muted)}
+.pill b{color:var(--ink);font-weight:600}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--st-good)}
+
+/* fri lek */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bar h2{font-size:32px}
+.free-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h3{font-size:24px}
+.card p{color:var(--muted)}
+.card .btn{align-self:flex-start}
+.card-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--accent)}
+
+/* spelläge */
+#play{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(340px,1fr)}
+#stage{position:relative;min-height:0;min-width:0;overflow:hidden}
+#scene{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+/* banans bakgrund bakom 3D-scenen (dagens pass), nedtonad så att den inte stör */
+#stage .lvl-bg{position:absolute;inset:0;background:center/cover no-repeat;opacity:0;transition:opacity 1.4s ease;pointer-events:none}
+#stage .lvl-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,22,.50),rgba(6,12,22,.66))}
+#stage .lvl-bg.on{opacity:1}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.stage-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);padding:6px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;color:var(--muted);pointer-events:none;transition:opacity .4s}
+#no3d{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--muted)}
+#panel{display:flex;flex-direction:column;min-height:0;background:var(--surface);border-left:1px solid var(--line);padding:12px 18px 16px;gap:10px;overflow-y:auto}
+@media (max-aspect-ratio:1/1){
+  #play{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 58%}
+  #panel{border-left:0;border-top:1px solid var(--line);border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .keypad,.choices,.input-area .next-btn{max-width:520px;width:100%;margin:0 auto}
+  .input-area{height:clamp(190px,27vh,300px)}
+}
+@media (max-height:620px){.q-sub{display:none}.sb{gap:10px}.sb-eq{font-size:34px}.stepper{padding:6px}.stepper button{height:42px}.stepper b{font-size:24px}.eqs{font-size:20px}.explain p{display:none}}
+#flat{position:absolute;inset:0;width:100%;height:100%;padding:20px;box-sizing:border-box;pointer-events:none;color:var(--ink)}
+#flat text{font-family:var(--f-display);font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-linejoin:round}
+#flat text.hl{fill:var(--accent)}
+#flat .part{fill:var(--shape);transition:fill .45s}
+#flat .part.pA{fill:var(--pA)} #flat .part.pB{fill:var(--pB)} #flat .part.pC{fill:var(--pC)}
+#flat .outline{fill:none;stroke:var(--ink);stroke-linejoin:round}
+#flat .dash{fill:none;stroke:var(--ink);opacity:.75}
+#flat .gridl{stroke:var(--ink);opacity:.25}
+#flat .ghost{fill:var(--pB);fill-opacity:.3;stroke:var(--ink)}
+#flat .rowfill{fill:var(--pB);fill-opacity:.75}
+#flat .trace{fill:none;stroke:var(--hl);stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw .35s ease-out forwards}
+#flat .pop{opacity:0;animation:pop .35s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{to{opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.slot.shake{animation:shake .3s}
+.explain{display:flex;flex-direction:column;gap:10px;font-size:15px;color:var(--muted)}
+.eqs{display:flex;flex-direction:column;gap:6px;font-family:var(--f-display);font-weight:600;font-size:24px;color:var(--ink);font-variant-numeric:tabular-nums}
+.eqs div{display:flex;align-items:center;gap:10px}
+.sw{width:18px;height:18px;border-radius:5px;display:inline-block}
+.sw-a{background:#4C7BF4}.sw-b{background:#FFC531}
+.sw-p0{background:var(--pA)}.sw-p1{background:var(--pB)}.sw-p2{background:var(--pC)}
+.feedback .sw{width:14px;height:14px;vertical-align:-2px}
+.eqs .eq-sum{border-top:2px solid var(--line);padding-top:6px}
+.topbar{display:flex;align-items:center;gap:10px}
+.progress{flex:1;height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .6s linear}
+.count{flex:1;font-size:14px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+#panelBody{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
+.q-area{display:flex;flex-direction:column;gap:8px}
+.q-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--accent)}
+.q-text{font-family:var(--f-display);font-weight:600;font-size:clamp(22px,2.6vw,28px);line-height:1.2}
+.q-text.big{font-size:clamp(36px,min(6vw,8vh),64px);letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.q-sub{color:var(--muted);font-size:15px}
+.q-answer{font-family:var(--f-display);font-weight:600;font-size:clamp(30px,5vh,40px);display:flex;align-items:baseline;gap:10px}
+.unit{font-size:24px;color:var(--muted)}
+.slot{display:inline-block;min-width:2.1em;text-align:center;border-bottom:5px solid var(--accent);color:var(--accent);padding:0 .1em;line-height:1.1}
+.slot.filled{color:var(--ink)}
+.slot.ok{color:var(--good);border-color:var(--good)}
+.slot.no{color:var(--bad);border-color:var(--bad);text-decoration:line-through;text-decoration-thickness:3px;font-size:.55em;min-width:0;border-bottom-width:3px}
+.q-text.big{white-space:nowrap}
+.feedback{min-height:0;border-radius:var(--r-md);font-size:16px;line-height:1.4}
+.feedback:not(:empty){padding:12px 14px}
+.feedback.ok{background:var(--good-bg);color:var(--ink)}
+.feedback.ok strong{color:var(--good)}
+.feedback.no{background:var(--bad-bg);color:var(--ink)}
+.feedback.no strong{color:var(--bad)}
+.feedback.tip{background:var(--tip-bg);color:var(--ink)}
+.feedback.tip strong{color:var(--tip)}
+.lvl{display:block;margin-top:6px;font-weight:600;color:var(--accent)}
+/* Fast layout: fråga överst, återkoppling i mitten (scrollar själv vid behov), knappar alltid på samma plats längst ner */
+.task-layout{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;flex:1;min-height:0}
+.fb-zone{min-height:0;overflow-y:auto}
+.input-area{height:clamp(200px,46vh,340px);display:flex;flex-direction:column}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:10px;height:100%}
+.input-area{position:relative}
+.input-area.revealed .keypad{opacity:.22;pointer-events:none;filter:saturate(.4)}
+.input-area.revealed .choices{pointer-events:none}
+.input-area .next-btn{position:absolute;left:0;right:0;bottom:0;height:clamp(60px,10vh,84px);font-size:30px;z-index:2}
+.key{height:auto;min-height:0;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-2);font-family:var(--f-display);font-size:30px;font-weight:600}
+.key:active{transform:scale(.96);background:var(--line)}
+.key.ok{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-size:24px}
+.key.del{font-size:22px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{min-height:60px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-2);font-family:var(--f-display);font-size:22px;font-weight:600;padding:8px}
+.choice:active{transform:scale(.97)}
+.choice.ok{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.choice.no{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.next-btn{min-height:64px;border-radius:var(--r-md);border:0;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-size:26px;font-weight:600}
+.next-btn:active{transform:scale(.98)}
+
+/* etiketter i 3D */
+.lbl{position:absolute;left:0;top:0;font-family:var(--f-display);font-weight:600;font-size:15px;background:var(--surface);color:var(--ink);padding:2px 9px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.15);white-space:nowrap;transition:opacity .2s;will-change:transform}
+.lbl.big{font-size:28px;padding:4px 16px}
+.lbl.num{min-width:26px;height:26px;padding:0 6px;display:flex;align-items:center;justify-content:center;background:var(--accent);color:var(--accent-ink);font-size:14px}
+.lbl.sun{background:var(--sun);color:var(--sun-ink)}
+.lbl.letter{font-size:22px;background:transparent;box-shadow:none;color:#18203A;padding:0}
+
+/* sandlåda */
+.sb{display:flex;flex-direction:column;gap:14px}
+.sb-eq{font-family:var(--f-display);font-weight:600;font-size:clamp(36px,5vw,54px);font-variant-numeric:tabular-nums}
+.steppers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stepper{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:6px;background:var(--surface-2);border-radius:var(--r-md);padding:8px;border:1px solid var(--line)}
+.stepper span{grid-column:1/-1;font-size:13px;color:var(--muted);text-align:center;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.stepper b{text-align:center;font-family:var(--f-display);font-size:30px;font-variant-numeric:tabular-nums}
+.stepper button{height:52px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:26px;font-weight:600}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{padding:10px 14px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--line);font-size:15px}
+.fact b{font-family:var(--f-display);font-size:22px;margin-right:4px}
+.netgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:300px}
+.netgrid button{aspect-ratio:1;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);max-width:100%}
+.netgrid button.on{background:var(--accent);border-color:transparent}
+
+/* sammanfattning */
+.big-title{font-size:clamp(40px,7vw,64px)}
+.sum-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;gap:4px}
+.stat b{font-family:var(--f-display);font-size:34px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.stat span{font-size:14px;color:var(--muted)}
+
+/* föräldrar */
+.gate{align-items:center;justify-content:center;padding:20px}
+.gate-box{width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow)}
+.section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.section h3{font-size:22px}
+.section .sub{color:var(--muted);font-size:14px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.chart{display:grid;grid-template-columns:repeat(14,1fr);gap:6px;align-items:end;height:140px}
+.chart .col{display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;min-width:0}
+.chart .barv{width:100%;max-width:28px;border-radius:6px 6px 2px 2px;background:var(--accent);min-height:3px}
+.chart .barv.zero{background:var(--surface-2)}
+.chart .col.today .barv{background:var(--sun)}
+.chart small{font-size:11px;color:var(--muted)}
+.chart .v{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.heat-wrap{overflow-x:auto}
+.heat{display:grid;grid-template-columns:28px repeat(10,minmax(26px,1fr));gap:4px;min-width:320px;max-width:520px}
+.heat .h{font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:600;font-variant-numeric:tabular-nums}
+.heat button{aspect-ratio:1;border:0;border-radius:6px;padding:0;font-size:10px;color:rgba(0,0,0,.55);font-variant-numeric:tabular-nums}
+.heat button.sel{outline:3px solid var(--ink);outline-offset:1px}
+.st-none{background:var(--st-none)} .st-learn{background:var(--st-learn)} .st-mid{background:var(--st-mid)} .st-good{background:var(--st-good)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px}
+.detail{font-size:14px;min-height:1.4em}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+.okc{color:var(--good);font-weight:600} .noc{color:var(--bad);font-weight:600}
+.pips{display:inline-flex;gap:4px;vertical-align:middle}
+.pips i{width:18px;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line)}
+.pips i.on{background:var(--accent);border-color:transparent}
+.obs{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.obs li{padding:10px 12px;border-radius:var(--r-sm);background:var(--surface-2);font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
+.field input{max-width:320px}
+textarea{width:100%;min-height:90px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;resize:vertical}
+.warn{padding:10px 14px;border-radius:var(--r-sm);background:var(--bad-bg);font-size:14px}
+.msg{font-size:14px;color:var(--muted);min-height:1.2em}
+
+/* ===== Dinotema: grafik ur asset-arket (assets/*.png), skalbar via border-image ===== */
+/* bakgrund: konceptets djungeltempel, suddig och nedtonad överallt; skarp på startsidan */
+body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(assets/bg_blur.jpg) center/cover no-repeat,#070f1b}
+#home{background:linear-gradient(180deg,rgba(5,10,20,.30) 0%,rgba(5,10,20,.50) 45%,rgba(5,10,20,.88) 100%),url(assets/bg.jpg) center/cover no-repeat}
+#stage{background:radial-gradient(80% 70% at 50% 45%,rgba(20,38,74,.30) 0%,rgba(6,12,23,.55) 100%)}
+/* stenpaneler */
+#panel,.card,.section,.gate-box,.stat{background:none;border:0;border-radius:0;box-shadow:none;border-image:url(assets/panel.png) 80 fill / 20px stretch}
+#panel{padding:22px 24px 24px}
+.stat{padding:20px}
+@media (max-aspect-ratio:1/1){#panel{border-radius:0;border-top:0}}
+/* stålblå knappar */
+.key,.btn,.ghost-btn,.chip,.seg button,.stepper button,.netgrid button,.choice{border:1.5px solid #3d5476;border-radius:12px;color:var(--ink);background:linear-gradient(180deg,#2d4362 0%,#23384f 45%,#172a3f 100%);box-shadow:inset 0 1.5px 0 rgba(170,200,240,.32),inset 0 -3px 0 rgba(0,0,0,.28),0 3px 7px rgba(0,0,0,.45)}
+.choice{border-radius:14px}
+.key:active,.btn:active,.ghost-btn:active,.chip:active,.choice:active,.stepper button:active,.chip.on,.seg button.on,.netgrid button.on{background:linear-gradient(180deg,#5c7eb0 0%,#4a6a9d 50%,#3d5b90 100%);border-color:#86ade3;color:#fff;box-shadow:inset 0 1.5px 0 rgba(215,235,255,.6),inset 0 -3px 0 rgba(0,0,0,.2),0 2px 6px rgba(0,0,0,.4)}
+.key:active,.btn:active,.ghost-btn:active,.chip:active,.choice:active,.stepper button:active{transform:scale(.97)}
+.choice:disabled,.key:disabled{background:linear-gradient(180deg,#1f2e41,#122031);border-color:#2c3c55;box-shadow:inset 0 1px 0 rgba(130,155,190,.18),0 2px 5px rgba(0,0,0,.4);opacity:.75}
+.choice.ok{background:linear-gradient(180deg,#13202f,#0b1420);border:2px solid #ffb43a;color:var(--good);opacity:1;box-shadow:0 0 16px rgba(255,170,40,.65),inset 0 0 12px rgba(255,170,40,.3)}
+.choice.no{background:linear-gradient(180deg,#1f2e41,#122031);border-color:#6b3a36;color:var(--bad);opacity:1}
+.seg{border:0;background:none;gap:6px;overflow:visible}
+.stepper{background:rgba(0,0,0,.25);border-color:var(--line)}
+.key{position:relative;font-size:32px}
+.key.del{font-size:0}
+.key.del::after{content:'';position:absolute;inset:0;background:url(assets/icon_back.png) center/auto 40% no-repeat}
+/* guldknappar */
+.key.ok,.btn.primary,.next-btn,.tile-pass{border-image:none;border:1px solid #ffe3a3;border-radius:14px;background:var(--gold);color:var(--accent-ink);box-shadow:0 0 18px rgba(255,170,40,.4),inset 0 2px 0 rgba(255,255,255,.55),inset 0 -3px 0 rgba(150,80,0,.35)}
+.key.ok{font-size:0}
+.key.ok::after{content:'';position:absolute;inset:0;background:url(assets/icon_foot.png) center/auto 52% no-repeat}
+.key.ok:active,.btn.primary:active,.next-btn:active{filter:brightness(1.08);transform:scale(.97)}
+.btn.danger{border-image:none;background:var(--bad);color:#2a0d08;border-radius:14px}
+.next-btn{display:flex;align-items:center;justify-content:center;gap:14px}
+.next-btn::after{content:'';width:1.1em;height:1.1em;background:url(assets/icon_foot.png) center/contain no-repeat}
+/* rubrikrad med berg */
+.q-kicker,.card-kicker{display:flex;align-items:center;min-height:42px;padding:0 64px 0 62px;color:var(--sun);border-image:url(assets/header.png) 44 280 44 240 fill / 11px 70px 11px 60px stretch;align-self:stretch}
+/* topprad med två runda fack: avsluta till vänster, tips till höger */
+.topbar{position:relative;height:54px;padding:0 60px;border-image:url(assets/topbar.png) 60 240 60 240 fill / 15px 60px 15px 60px stretch}
+.topbar .ghost-btn{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;min-height:0;padding:0;border:0;box-shadow:none;border-radius:50%;font-size:0;background:transparent}
+#exitBtn{left:11px}
+#exitBtn::before{content:'✕';font-size:18px;color:var(--ink)}
+#hintBtn{right:11px;background:url(assets/icon_bulb.png) center/62% no-repeat}
+#hintBtn:disabled{opacity:.3}
+#hintBtn:not(:disabled){animation:hintPulse 2.4s ease-in-out infinite}
+@keyframes hintPulse{50%{filter:drop-shadow(0 0 6px rgba(255,200,80,.9))}}
+.topbar .progress{position:absolute;left:62px;right:62px;top:50%;height:14px;transform:translateY(-50%);background:rgba(0,0,0,.45);border-radius:7px}
+.topbar .progress i{background:var(--gold);box-shadow:0 0 10px rgba(255,180,60,.6)}
+.topbar .count{position:absolute;left:62px;right:62px;top:50%;transform:translateY(-50%);color:var(--muted)}
+/* maskoten pratar: återkoppling i pratbubbla */
+.say{display:flex;gap:12px;align-items:flex-start}
+.say-dino{width:58px;height:58px;flex:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.say:has(#fb:empty) .say-dino{display:none}
+.feedback,.feedback.ok,.feedback.no,.feedback.tip{position:relative;flex:1;min-width:0;background:linear-gradient(180deg,#22324f,#17243b);border:1.5px solid #4f6c9c;border-radius:14px;color:var(--ink)}
+.feedback.ok{border-color:var(--good)} .feedback.no{border-color:var(--bad)} .feedback.tip{border-color:var(--sun)}
+.feedback::before{content:'';position:absolute;left:-8px;top:18px;width:13px;height:13px;background:#1f2e4a;border-left:1.5px solid;border-bottom:1.5px solid;border-color:inherit;transform:rotate(45deg)}
+.feedback:empty{border:0;background:none}
+.feedback:empty::before{display:none}
+.slot{border-bottom-color:var(--sun);color:var(--sun)}
+.q-text,.q-answer{position:relative}
+.q-text.big,.q-answer{align-self:flex-start;padding-right:8px}
+.glow::after{content:"";position:absolute;inset:-6px -10px;pointer-events:none;border:2px solid #ffb43a;border-radius:12px;box-shadow:0 0 16px rgba(255,170,40,.65),inset 0 0 12px rgba(255,170,40,.3);animation:glowIn .9s ease-out forwards}
+@keyframes glowIn{0%{opacity:0;transform:scale(.96)}25%{opacity:1;transform:scale(1)}100%{opacity:.85}}
+/* maskot som poppar upp */
+#mascot{position:absolute;left:14px;bottom:14px;display:flex;align-items:flex-end;gap:10px;pointer-events:none;z-index:5;max-width:calc(100% - 28px)}
+#mascot img{width:clamp(110px,16vh,160px);height:auto;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+#mascot .m-bubble{position:relative;margin-bottom:24px;padding:12px 16px;background:linear-gradient(180deg,#22324f,#17243b);border:1.5px solid var(--sun);border-radius:14px;font-family:var(--f-display);font-weight:600;font-size:clamp(18px,2.4vh,24px);color:var(--ink);box-shadow:0 0 22px rgba(255,180,60,.25)}
+#mascot .m-bubble::before{content:'';position:absolute;left:-8px;bottom:18px;width:13px;height:13px;background:#1b2942;border-left:1.5px solid var(--sun);border-bottom:1.5px solid var(--sun);transform:rotate(45deg)}
+#mascot.show{animation:mascotIn .6s cubic-bezier(.3,1.6,.5,1) both}
+#mascot.show img{animation:mascotBob 1.4s ease-in-out .6s infinite}
+#mascot.out{animation:mascotOut .35s ease-in both}
+@keyframes mascotIn{from{transform:translateY(130%) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes mascotOut{to{transform:translateY(130%);opacity:0}}
+@keyframes mascotBob{50%{transform:translateY(-6px) rotate(2deg)}}
+/* startsidan */
+.brand img{width:34px;height:auto}
+.gear-btn{width:56px;height:56px;padding:0;border:0;background:none;border-radius:50%}
+.gear-btn img{width:100%;height:100%}
+.gear-btn:active{transform:rotate(30deg) scale(.95)}
+.hero{display:flex;align-items:center;gap:clamp(12px,3vw,28px);margin-bottom:28px}
+.hero-dino{width:clamp(120px,18vw,200px);height:auto;flex:none;filter:drop-shadow(0 8px 18px rgba(0,0,0,.6));animation:mascotBob 3s ease-in-out infinite}
+.hero-bubble{position:relative;padding:20px 26px;background:linear-gradient(180deg,#22324f,#17243b);border:1.5px solid #4f6c9c;border-radius:20px;min-width:0}
+.hero-bubble::before{content:'';position:absolute;left:-10px;top:50%;width:18px;height:18px;margin-top:-9px;background:#1d2c47;border-left:1.5px solid #4f6c9c;border-bottom:1.5px solid #4f6c9c;transform:rotate(45deg)}
+.hero-bubble .lead{margin:6px 0 0}
+#hello{font-size:clamp(40px,7vw,72px)}
+.tile{border-radius:18px}
+.tile-free{background:none;border-image:url(assets/panel.png) 80 fill / 20px stretch;color:var(--ink);box-shadow:none}
+.tile-pass .tile-kicker{opacity:.75}
+.tile svg{display:none}
+/* Dagens pass: guldplattan (fotspåret ligger i hörnet som inte töjs) */
+.tile-pass{border:0;border-radius:0;box-shadow:none;border-image:none;background:url(assets/btn_pass.png) center/100% 100% no-repeat;aspect-ratio:1217/513;min-height:0;padding:clamp(18px,5%,40px) clamp(22px,6%,48px);filter:drop-shadow(0 8px 20px rgba(255,170,40,.22))}
+.tile{transition:transform .12s ease-out,filter .12s}
+.tile.tile-pass:active{transform:scale(.97);filter:drop-shadow(0 4px 10px rgba(255,170,40,.35)) brightness(1.08)}
+.tile:active{transform:scale(.97);filter:brightness(1.12)}
+/* Ramar som ritats ihop till en bild (se bakeFrames): inga skarvar när de skalas */
+.baked{position:relative;isolation:isolate;border-image:none!important}
+.frame-cv{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:block}
+.tile{min-height:0}
+.tile-free{padding:clamp(18px,5%,40px) clamp(22px,6%,48px)}
+.home-tiles{grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))}
+@media (min-aspect-ratio:1/1){.home-tiles{grid-template-columns:1fr 1fr}}
+.tile-title{font-size:clamp(28px,4.2vw,46px)}
+.tile-text{font-size:clamp(14px,1.6vw,17px)}
+@media (max-aspect-ratio:1/1){.tile-title{font-size:clamp(34px,7vw,58px)}.tile-text{font-size:clamp(16px,2.6vw,21px);max-width:30ch}.tile-kicker{font-size:14px}}
+@media (max-height:640px){.hero{margin-bottom:16px}.hero-dino{width:clamp(90px,14vw,150px)}.home-status{margin-top:14px}}
+.tile-free::after{content:'';position:absolute;right:24px;bottom:22px;width:96px;height:62px;background:url(assets/icon_mountain.png) center/contain no-repeat;opacity:.9}
+.pill{background:rgba(0,0,0,.3)}
+.heat button{color:rgba(255,255,255,.75)}
+#flat text.hl{fill:var(--blue)}
+.lbl{box-shadow:0 2px 10px rgba(0,0,0,.5)}
+@media (max-height:620px){#panel{padding:16px 18px}.topbar{height:46px}.chip{min-height:38px;font-size:15px}.chips{gap:6px}.netgrid{max-width:230px;gap:5px}.q-kicker{min-height:36px}.fact{padding:6px 10px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="app">
+  <!-- START -->
+  <section id="home" class="screen home scroll">
+    <header class="home-top">
+      <span class="brand"><img src="assets/icon_mountain.png" alt="">Mattelabbet</span>
+      <button class="gear-btn" id="toParent" aria-label="Föräldraläge" title="Föräldraläge"><img src="assets/gear.png" alt=""></button>
+    </header>
+    <div class="home-main">
+      <div class="hero"><img class="hero-dino" src="assets/dino_ring.png" alt="Dino, din guide"><div class="hero-bubble"><h1 id="hello">Hej!</h1>
+      <p class="lead">Vad vill du göra idag?</p></div></div>
+      <div class="home-tiles">
+        <button class="tile tile-pass" id="startPass">
+          <span class="tile-kicker" id="passLen">ca 7 minuter</span>
+          <span class="tile-title">Dagens pass</span>
+          <span class="tile-text">Tabeller och geometri som blir lagom svåra för dig.</span>
+          <svg viewBox="0 0 120 120" aria-hidden="true"><g stroke="rgba(0,0,0,.18)" stroke-width="1.5"><path d="M60 30l22 12-22 12-22-12z" fill="rgba(255,255,255,.55)"/><path d="M38 42v24l22 12V54z" fill="rgba(255,255,255,.3)"/><path d="M82 42v24L60 78V54z" fill="rgba(255,255,255,.18)"/><path d="M82 66l22 12-22 12-22-12z" fill="rgba(255,255,255,.55)"/><path d="M60 78v24l22 12V90z" fill="rgba(255,255,255,.3)"/><path d="M104 78v24L82 114V90z" fill="rgba(255,255,255,.18)"/></g></svg>
+        </button>
+        <button class="tile tile-free" id="startFree">
+          <span class="tile-kicker">Ingen klocka</span>
+          <span class="tile-title">Fri lek</span>
+          <span class="tile-text">Välj själv: träna tabeller, bygg med klossar eller vik kuber.</span>
+          <svg viewBox="0 0 120 120" aria-hidden="true"><g fill="rgba(0,0,0,.12)" stroke="rgba(0,0,0,.25)" stroke-width="1.5"><rect x="44" y="8" width="24" height="24"/><rect x="20" y="32" width="24" height="24"/><rect x="44" y="32" width="24" height="24"/><rect x="68" y="32" width="24" height="24"/><rect x="44" y="56" width="24" height="24"/><rect x="44" y="80" width="24" height="24"/></g></svg>
+        </button>
+      </div>
+      <div class="home-status" id="homeStatus"></div>
+    </div>
+  </section>
+
+  <!-- FRI LEK -->
+  <section id="free" class="screen scroll" hidden>
+    <div class="wrap">
+      <header class="bar"><button class="ghost-btn" data-go="home">← Start</button><h2>Fri lek</h2><span style="width:80px"></span></header>
+      <div class="free-grid">
+        <article class="card">
+          <span class="card-kicker">Tabeller</span>
+          <h3>Träna tabellerna</h3>
+          <p>Välj vilka tabeller du vill öva på. Ingen tid, sluta när du vill.</p>
+          <div class="chips" id="tableChips"></div>
+          <button class="btn primary" id="startTables">Kör</button>
+        </article>
+        <article class="card">
+          <span class="card-kicker">Tabeller</span>
+          <h3>Bygg gångertal</h3>
+          <p>Bygg med klossar och se varför 4 · 6 är lika mycket som 6 · 4.</p>
+          <button class="btn" data-sandbox="build">Bygg</button>
+        </article>
+        <article class="card">
+          <span class="card-kicker">Geometri</span>
+          <h3>Geometriuppdrag</h3>
+          <p>Välj ett område och kör.</p>
+          <div class="chips" id="geoChips"></div>
+        </article>
+        <article class="card">
+          <span class="card-kicker">Geometri</span>
+          <h3>Utforska kroppar</h3>
+          <p>Snurra på kroppar och räkna ytor, kanter och hörn.</p>
+          <button class="btn" data-sandbox="explore">Utforska</button>
+        </article>
+        <article class="card">
+          <span class="card-kicker">Geometri</span>
+          <h3>Vik en kub</h3>
+          <p>Rita en egen utfällning med sex rutor. Blir det en kub?</p>
+          <button class="btn" data-sandbox="fold">Vik</button>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPEL -->
+  <section id="play" class="screen" hidden>
+    <div id="stage">
+      <div class="lvl-bg" aria-hidden="true"></div><div class="lvl-bg" aria-hidden="true"></div>
+      <canvas id="scene"></canvas>
+      <svg id="flat" hidden aria-hidden="true" preserveAspectRatio="xMidYMid meet"></svg>
+      <div id="labels"></div>
+      <div class="stage-hint" id="stageHint">Snurra med fingret</div>
+      <div id="no3d" hidden>3D-bilden kan inte visas på den här enheten, men uppgifterna fungerar ändå.</div>
+      <div id="mascot" hidden><img src="assets/dino_ring.png" alt=""><div class="m-bubble" id="mascotTxt"></div></div>
+    </div>
+    <div id="panel">
+      <div class="topbar">
+        <button class="ghost-btn" id="exitBtn">Avsluta</button>
+        <div class="progress" id="progress"><i></i></div>
+        <span class="count" id="countTxt" hidden></span>
+        <button class="ghost-btn" id="hintBtn">Tips</button>
+      </div>
+      <div id="panelBody"></div>
+    </div>
+  </section>
+
+  <!-- SAMMANFATTNING -->
+  <section id="summary" class="screen scroll" hidden>
+    <div class="wrap narrow" style="padding-top:48px">
+      <div class="hero"><img class="hero-dino" src="assets/dino_ring.png" alt=""><div class="hero-bubble"><h2 class="big-title" id="sumTitle">Bra jobbat!</h2></div></div>
+      <p class="lead" id="sumLead" style="margin:0"></p>
+      <div class="sum-stats" id="sumStats"></div>
+      <ul class="obs" id="sumNotes"></ul>
+      <div class="row"><button class="btn primary" data-go="free">Fortsätt i fri lek</button><button class="btn" data-go="home">Till start</button></div>
+    </div>
+  </section>
+
+  <!-- FÖRÄLDRASPÄRR -->
+  <section id="gate" class="screen gate" hidden>
+    <div class="gate-box">
+      <h2>Föräldraläge</h2>
+      <p class="q-sub">Svara på frågan för att gå vidare.</p>
+      <div class="q-text big" id="gateQ"></div>
+      <div id="gatePad"></div>
+      <button class="ghost-btn" data-go="home">Avbryt</button>
+    </div>
+  </section>
+
+  <!-- FÖRÄLDRAVY -->
+  <section id="parent" class="screen scroll" hidden>
+    <div class="wrap" id="parentBody"></div>
+  </section>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+/* ============ Hjälpare ============ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const dayKey = (t = Date.now()) => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const fmtMin = ms => { const m = Math.round(ms / 60000); if (m < 1) return 'under en minut'; if (m < 60) return m + ' min'; return Math.floor(m / 60) + ' h ' + (m % 60) + ' min'; };
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#888888';
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============ Bildramar utan skarvar ============
+   CSS border-image ritar nio separata bitar, som glipar när ett element skalas (t.ex. vid tryck).
+   Här ritas varje ram ihop till EN canvas i elementets storlek, på hela skärmpixlar och med lite överlapp,
+   och läggs bakom innehållet. Ritas om när storleken ändras. */
+const FRAMES = [
+  { sel: '#panel,.card,.section,.gate-box,.stat,.tile-free', src: 'assets/panel.png', slice: [80, 80, 80, 80], width: [20, 20, 20, 20] },
+  { sel: '.q-kicker,.card-kicker', src: 'assets/header.png', slice: [44, 280, 44, 240], width: [11, 70, 11, 60] },
+  { sel: '.topbar', src: 'assets/topbar.png', slice: [60, 240, 60, 240], width: [15, 60, 15, 60] },
+];
+FRAMES.forEach(f => { f.img = new Image(); f.img.src = f.src; f.ready = f.img.decode().then(() => true, () => false); });
+const frameOf = new WeakMap();
+const frameRO = new ResizeObserver(entries => entries.forEach(e => drawFrame(e.target)));
+function drawFrame(el) {
+  const f = frameOf.get(el); const cv = el.querySelector(':scope > .frame-cv');
+  if (!f || !cv || !f.img.naturalWidth) return;
+  const dpr = Math.min(3, window.devicePixelRatio || 1);
+  const W = el.offsetWidth, H = el.offsetHeight; if (!W || !H) return;
+  const w = Math.round(W * dpr), h = Math.round(H * dpr);
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, w, h); ctx.imageSmoothingQuality = 'high';
+  const img = f.img, iw = img.naturalWidth, ih = img.naturalHeight;
+  const [st, sr, sb, sl] = f.slice; let [dt, dr, db, dl] = f.width.map(v => Math.round(v * dpr));
+  const k = Math.min(1, w / (dl + dr), h / (dt + db)); if (k < 1) { dt = Math.floor(dt * k); db = Math.floor(db * k); dl = Math.floor(dl * k); dr = Math.floor(dr * k); }
+  const sx = [0, sl, iw - sr, iw], sy = [0, st, ih - sb, ih], dx = [0, dl, w - dr, w], dy = [0, dt, h - db, h];
+  // ordning: mitt, kanter, hörn – varje bit 1 px större inåt så att grannarna överlappar
+  const order = [[1, 1], [1, 0], [1, 2], [0, 1], [2, 1], [0, 0], [2, 0], [0, 2], [2, 2]];
+  for (const [i, j] of order) {
+    const pw = dx[i + 1] - dx[i], ph = dy[j + 1] - dy[j]; if (pw <= 0 || ph <= 0) continue;
+    const ox0 = i > 0 ? 1 : 0, ox1 = i < 2 ? 1 : 0, oy0 = j > 0 ? 1 : 0, oy1 = j < 2 ? 1 : 0;
+    ctx.drawImage(img, sx[i], sy[j], sx[i + 1] - sx[i], sy[j + 1] - sy[j], dx[i] - ox0, dy[j] - oy0, pw + ox0 + ox1, ph + oy0 + oy1);
+  }
+}
+function bakeFrame(el, f) {
+  if (!el.querySelector(':scope > .frame-cv')) { const cv = document.createElement('canvas'); cv.className = 'frame-cv'; cv.setAttribute('aria-hidden', 'true'); el.prepend(cv); }
+  if (frameOf.get(el) !== f) { frameOf.set(el, f); frameRO.observe(el); }
+  el.classList.add('baked');
+  f.ready.then(ok => ok && drawFrame(el));
+}
+function bakeFrames(root = document) {
+  for (const f of FRAMES) {
+    if (root.nodeType === 1 && root.matches(f.sel)) bakeFrame(root, f);
+    root.querySelectorAll?.(f.sel).forEach(el => bakeFrame(el, f));
+  }
+}
+new MutationObserver(muts => { for (const m of muts) { bakeFrames(m.target); m.addedNodes.forEach(n => n.nodeType === 1 && bakeFrames(n)); } })
+  .observe(document.getElementById('app'), { childList: true, subtree: true });
+bakeFrames();
+
+/* ============ Lagring ============ */
+const KEY = 'mattelabbet.v1';
+const FAST_MS = 5000;
+let storageOK = true;
+function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, mix: 0.6 }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {} }; }
+function migrate(d) {
+  const b = defaults();
+  return { ...b, ...d, settings: { ...b.settings, ...(d.settings || {}) }, facts: d.facts || {}, geo: d.geo || {}, days: d.days || {}, sessions: d.sessions || [], log: d.log || [], tags: d.tags || {} };
+}
+function load() {
+  try { const raw = localStorage.getItem(KEY); return raw ? migrate(JSON.parse(raw)) : defaults(); }
+  catch (e) { storageOK = false; return defaults(); }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); storageOK = true; } catch (e) { storageOK = false; } }
+let S = load();
+const today = () => (S.days[dayKey()] ||= { ms: 0, n: 0, right: 0 });
+
+/* ============ Three.js-scen ============ */
+const canvas = $('#scene'), stage = $('#stage'), labelLayer = $('#labels');
+let has3D = true, renderer, scene, camera, world, content;
+const VIEW_DEFAULT = { dist: 10, elev: 0.5, rotY: 0.6, rotX: 0, allowRotate: true, autoSpin: false, clampX: [-0.6, 0.9], y: 0 };
+const view = { ...VIEW_DEFAULT };
+let rotTY = 0, rotTX = 0, velY = 0, dragging = false, lastInteract = 0, px = 0, py = 0;
+let disposables = [], labels = [], tweens = [];
+const G = {};
+const C = { blue: '#4f7fd6', blue2: '#6c96e6', sun: '#f6b93b', sun2: '#ffcf66', coral: '#FF7A59', mint: '#3CC8A0', solid: '#86A4F7', tile: '#8FAAF6', red: '#E5484D' };
+const FACE_COLORS = ['#5B8CFF', '#FFC531', '#FF7A59', '#3CC8A0', '#B27CFF', '#FF6FAE', '#48C1F0', '#9BD13F'];
+
+function initThree() {
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  } catch (e) { has3D = false; $('#no3d').hidden = false; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.AgXToneMapping; renderer.toneMappingExposure = 1.7;
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(35, 1, 0.1, 300);
+  // Ljussättning: varmt huvudljus uppe till vänster (kastar skuggor), svagt fyllnadsljus, kantljus bakifrån,
+  // och en varm glöd underifrån (punktljus + varm markreflex) så att skuggsidorna inte blir kalla och mörka
+  scene.add(new THREE.HemisphereLight(0xc4d2ff, 0xb8622a, 0.45));
+  const d1 = new THREE.DirectionalLight(0xfff0dc, 4.0); d1.position.set(-7, 10, 3); d1.castShadow = true;
+  const sc = d1.shadow.camera; sc.left = -9; sc.right = 9; sc.top = 9; sc.bottom = -9; sc.near = 1; sc.far = 40;
+  d1.shadow.mapSize.set(2048, 2048); d1.shadow.bias = -0.0004; d1.shadow.normalBias = 0.02; d1.shadow.radius = 3; scene.add(d1);
+  const d2 = new THREE.DirectionalLight(0x9fb2ff, 0.25); d2.position.set(6, 2, 6); scene.add(d2);
+  glow = new THREE.PointLight(0xff8a2a, 30, 0, 2); scene.add(glow);
+  const d3 = new THREE.DirectionalLight(0xa9c0ff, 1.5); d3.position.set(2, 6, -8); scene.add(d3);
+  world = new THREE.Group(); scene.add(world);
+  content = new THREE.Group(); world.add(content);
+  G.box = new THREE.BoxGeometry(1, 1, 1);
+  G.rod = new THREE.CylinderGeometry(1, 1, 1, 12);
+  G.ball = new THREE.SphereGeometry(1, 20, 14);
+  loadStones();
+  new ResizeObserver(resize).observe(stage);
+  resize();
+  canvas.addEventListener('pointerdown', e => {
+    if (!view.allowRotate) return;
+    dragging = true; px = e.clientX; py = e.clientY; velY = 0; lastInteract = performance.now();
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    $('#stageHint').style.opacity = 0;
+  });
+  canvas.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - px, dy = e.clientY - py; px = e.clientX; py = e.clientY;
+    rotTY += dx * 0.012; velY = dx * 0.012;
+    rotTX = clamp(rotTX + dy * 0.008, view.clampX[0], view.clampX[1]);
+    lastInteract = performance.now();
+  });
+  const up = () => { dragging = false; lastInteract = performance.now(); };
+  canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+  document.addEventListener('gesturestart', e => e.preventDefault());
+}
+function resize() {
+  if (!has3D) return;
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+function setView(v) {
+  Object.assign(view, VIEW_DEFAULT, v);
+  rotTY = view.rotY; rotTX = view.rotX; velY = 0;
+  if (world) world.rotation.set(rotTX, rotTY - 0.5, 0);
+  $('#stageHint').style.opacity = view.allowRotate ? 1 : 0;
+  lastInteract = performance.now();
+}
+let glow = null;
+function placeCamera() {
+  const k = camera.aspect < 1.1 ? 1.1 / camera.aspect : 1;
+  const d = view.dist * k;
+  camera.position.set(0, Math.sin(view.elev) * d + view.y, Math.cos(view.elev) * d);
+  camera.lookAt(0, view.y, 0);
+  // glöden underifrån: större scen => ljuset längre ner (jämnare över hela rutnätet), styrkan kompenseras för avståndet
+  if (glow) { const depth = 1.5 + Math.max(0, view.dist - 9.5) * 0.25; glow.position.set(0.5, -depth, 2 + view.dist * 0.1); glow.intensity = 30 * (depth / 1.5) ** 2; }
+}
+function clearScene() {
+  tweens.length = 0;
+  labels.forEach(l => l.el.remove()); labels = [];
+  flat.setAttribute('hidden', ''); flat.innerHTML = ''; FL = null; mulGhosts = null;
+  if (!has3D) return;
+  for (const o of [...content.children]) content.remove(o);
+  disposables.forEach(d => d.dispose()); disposables = [];
+}
+function stdMat(color, extra = {}) {
+  const m = new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.02, ...extra });
+  disposables.push(m); return m;
+}
+const v3 = p => new THREE.Vector3(p[0], p[1], p[2]);
+function anchorAt(parent, x, y, z) { const o = new THREE.Object3D(); o.position.set(x, y, z); parent.add(o); return o; }
+function addLabel(html, anchor, { cls = '', normal = null, hideBack = false } = {}) {
+  const el = document.createElement('div'); el.className = 'lbl ' + cls; el.innerHTML = html; el.style.opacity = 0;
+  labelLayer.appendChild(el);
+  const L = { el, anchor, normal: normal ? normal.clone().normalize() : null, hideBack }; labels.push(L); return L;
+}
+function removeLabels(list) { list.forEach(L => { L.el.remove(); const i = labels.indexOf(L); if (i >= 0) labels.splice(i, 1); }); }
+const _v = new THREE.Vector3(), _n = new THREE.Vector3(), _c = new THREE.Vector3();
+function updateLabels() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  for (const L of labels) {
+    if (!L.anchor.parent) { L.el.style.opacity = 0; continue; }
+    L.anchor.getWorldPosition(_v);
+    let facing = 1;
+    if (L.normal) { _n.copy(L.normal).transformDirection(L.anchor.matrixWorld); _c.copy(camera.position).sub(_v).normalize(); facing = _n.dot(_c); }
+    _v.project(camera);
+    const x = (_v.x * 0.5 + 0.5) * w, y = (-_v.y * 0.5 + 0.5) * h;
+    L.el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-50%)`;
+    L.el.style.opacity = _v.z > 1 ? 0 : facing < 0 ? (L.hideBack ? 0 : 0.3) : 1;
+  }
+}
+const ease = {
+  out: p => 1 - Math.pow(1 - p, 3),
+  inOut: p => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2,
+  back: p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); },
+};
+function tween(dur, fn, { delay = 0, e = ease.out, done = null } = {}) {
+  const t = { start: performance.now() + delay, dur: Math.max(1, dur), fn, e, done }; tweens.push(t); return t;
+}
+const later = (ms, fn) => tween(1, () => {}, { delay: ms, done: fn });
+function runTweens(now) {
+  for (const t of [...tweens]) {
+    if (now < t.start) continue;
+    const p = clamp((now - t.start) / t.dur, 0, 1);
+    t.fn(t.e(p));
+    if (p >= 1) { const i = tweens.indexOf(t); if (i >= 0) tweens.splice(i, 1); t.done && t.done(); }
+  }
+}
+let rafOn = false, lastT = 0;
+function loop(t) {
+  if (!rafOn) return;
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.05, (t - lastT) / 1000 || 0); lastT = t;
+  runTweens(t);
+  content.traverse(o => { if (o.isMesh && !o.userData.shadowSet) { o.castShadow = o.receiveShadow = true; o.userData.shadowSet = true; } });
+  if (!dragging) {
+    if (view.autoSpin && !reducedMotion && t - lastInteract > 1800) rotTY += dt * 0.35;
+    else { rotTY += velY; velY *= 0.9; }
+  }
+  world.rotation.y += (rotTY - world.rotation.y) * 0.2;
+  world.rotation.x += (rotTX - world.rotation.x) * 0.2;
+  placeCamera();
+  renderer.render(scene, camera);
+  updateLabels();
+}
+function startLoop() { if (rafOn || !has3D) return; rafOn = true; lastT = performance.now(); requestAnimationFrame(loop); }
+function stopLoop() { rafOn = false; }
+function popIn(mesh, s, delay, dur = 260) {
+  mesh.scale.setScalar(0.0001);
+  tween(dur, p => mesh.scale.set(s[0] * p, s[1] * p, s[2] * p), { delay, e: ease.back });
+}
+
+/* ============ Stenklossar: texturer ur konceptets sten-ark (tools/stones.ps1) ============ */
+const STONE = { cubes: [], tiles: [], mats: new Map() };
+// Kub med avfasade kanter: BoxGeometry med 3 segment där de inre rutnätslinjerna flyttas ut till kanten (0.5 - r)
+// och kantpunkterna dras in längs en båge. UV följer med så att texturens kant hamnar på fasen.
+// Låda med avfasade kanter i verkliga mått (w,h,d), så att fasen r blir lika stor åt alla håll även för platta former.
+function bevelBoxGeometry(w, h, d, r) {
+  const g = new THREE.BoxGeometry(w, h, d, 3, 3, 3);
+  const pos = g.attributes.position, nor = g.attributes.normal, uv = g.attributes.uv;
+  const size = [w, h, d], inner = size.map(s => s / 2 - r), near = (t, x) => Math.abs(t - x) < 1e-5;
+  // BoxGeometry bygger sidorna i ordningen +x,-x,+y,-y,+z,-z med 16 hörn var; u/v följer dessa axlar
+  const faceAxes = [[2, 1], [2, 1], [0, 2], [0, 2], [0, 1], [0, 1]];
+  const remapUV = (t, s) => near(t, 1 / 3) ? r / s : near(t, 2 / 3) ? 1 - r / s : t;
+  const p = [0, 0, 0], c = new THREE.Vector3(), o = new THREE.Vector3(), v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    p[0] = pos.getX(i); p[1] = pos.getY(i); p[2] = pos.getZ(i);
+    for (let k = 0; k < 3; k++) if (near(Math.abs(p[k]), size[k] / 6)) p[k] = Math.sign(p[k]) * inner[k];
+    v.set(p[0], p[1], p[2]);
+    c.set(clamp(v.x, -inner[0], inner[0]), clamp(v.y, -inner[1], inner[1]), clamp(v.z, -inner[2], inner[2]));
+    o.subVectors(v, c);
+    if (o.lengthSq() > 1e-12) { o.normalize(); v.copy(c).addScaledVector(o, r); nor.setXYZ(i, o.x, o.y, o.z); }
+    pos.setXYZ(i, v.x, v.y, v.z);
+    const [au, av] = faceAxes[Math.floor(i / 16)];
+    uv.setXY(i, remapUV(uv.getX(i), size[au]), remapUV(uv.getY(i), size[av]));
+  }
+  pos.needsUpdate = nor.needsUpdate = uv.needsUpdate = true;
+  return g;
+}
+const bevelCubeGeometry = (r = 0.1) => bevelBoxGeometry(1, 1, 1, r);
+// Gråskalekopia (ljusad) av en textur – används för guldmarkerade stenar, så att guldtonen inte blandas med stenens blå
+function grayTexture(src, an) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 512;
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = an;
+  const draw = () => {
+    const ctx = cv.getContext('2d', { willReadFrequently: true }); ctx.drawImage(src.image, 0, 0, 512, 512);
+    const d = ctx.getImageData(0, 0, 512, 512), p = d.data;
+    for (let i = 0; i < p.length; i += 4) { const l = Math.min(255, (p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11) * 2.1); p[i] = p[i + 1] = p[i + 2] = l; }
+    ctx.putImageData(d, 0, 0); t.needsUpdate = true;
+  };
+  (src.userData.onLoad ||= []).push(draw);
+  return t;
+}
+// Normal map räknad ur texturens ljushet: mörka sprickor blir fördjupningar, så att 3D-ljuset ger dem skugga och högdager.
+function normalTexture(src, an, strength = 3.2) {
+  const N = 512, cv = document.createElement('canvas'); cv.width = cv.height = N;
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.NoColorSpace; t.anisotropy = an;
+  const draw = () => {
+    const ctx = cv.getContext('2d', { willReadFrequently: true }); ctx.drawImage(src.image, 0, 0, N, N);
+    const d = ctx.getImageData(0, 0, N, N), p = d.data, H = new Float32Array(N * N), B = new Float32Array(N * N);
+    for (let i = 0; i < N * N; i++) H[i] = (p[i * 4] * 0.3 + p[i * 4 + 1] * 0.59 + p[i * 4 + 2] * 0.11) / 255;
+    // lätt utjämning så att JPEG-brus inte blir gropigt
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      let s = 0, n = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const xx = Math.min(N - 1, Math.max(0, x + i)), yy = Math.min(N - 1, Math.max(0, y + j)); s += H[yy * N + xx]; n++; }
+      B[y * N + x] = s / n;
+    }
+    const h = (x, y) => B[Math.min(N - 1, Math.max(0, y)) * N + Math.min(N - 1, Math.max(0, x))];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const dx = (h(x + 1, y - 1) + 2 * h(x + 1, y) + h(x + 1, y + 1)) - (h(x - 1, y - 1) + 2 * h(x - 1, y) + h(x - 1, y + 1));
+      const dy = (h(x - 1, y + 1) + 2 * h(x, y + 1) + h(x + 1, y + 1)) - (h(x - 1, y - 1) + 2 * h(x, y - 1) + h(x + 1, y - 1));
+      let nx = -dx * strength, ny = dy * strength, nz = 1; const l = Math.hypot(nx, ny, nz); nx /= l; ny /= l; nz /= l;
+      const i = (y * N + x) * 4; p[i] = (nx * 0.5 + 0.5) * 255; p[i + 1] = (ny * 0.5 + 0.5) * 255; p[i + 2] = (nz * 0.5 + 0.5) * 255; p[i + 3] = 255;
+    }
+    ctx.putImageData(d, 0, 0); t.needsUpdate = true;
+  };
+  (src.userData.onLoad ||= []).push(draw);
+  return t;
+}
+function loadStones() {
+  const L = new THREE.TextureLoader(), an = renderer.capabilities.getMaxAnisotropy();
+  const tex = p => { const t = L.load(p, tt => (tt.userData.onLoad || []).forEach(f => f())); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = an; return t; };
+  for (let i = 1; i <= 6; i++) {
+    const c = { top: tex(`assets/stone/cube${i}_top.jpg`), left: tex(`assets/stone/cube${i}_left.jpg`), right: tex(`assets/stone/cube${i}_right.jpg`) };
+    c.gray = { top: grayTexture(c.top, an), left: grayTexture(c.left, an), right: grayTexture(c.right, an) };
+    c.normal = { top: normalTexture(c.top, an), left: normalTexture(c.left, an), right: normalTexture(c.right, an) };
+    STONE.cubes.push(c);
+  }
+  for (let i = 1; i <= 6; i++) { const t = tex(`assets/stone/tile${i}.jpg`); STONE.tiles.push({ map: t, normal: normalTexture(t, an) }); }
+  G.stoneCube = bevelCubeGeometry(0.1);
+  // plattor: smal fas, annars pressas fasen ihop till en synlig ram när kuben plattas till
+  G.stoneTile = bevelBoxGeometry(0.92, 0.14, 0.92, 0.045);
+}
+// Toner: base/alt = vanliga stenar (alt lite mörkare för varannan rad), gold = markerad del (glöd i stenens mönster), ghost = tom plats
+const STONE_TINT = {
+  base: { color: '#ffffff' }, alt: { color: '#cdd7ee' },
+  gold: { color: '#ffa20f', emissive: '#8a4500', ei: 0.75, gray: true }, gold2: { color: '#ffb52e', emissive: '#985000', ei: 0.75, gray: true },
+  ghost: { color: '#b4bfdb' },
+};
+function stoneMats(kind, v, tint) {
+  const key = kind + v + tint; if (STONE.mats.has(key)) return STONE.mats.get(key);
+  const T = STONE_TINT[tint] || STONE_TINT.base;
+  const mk = (map, normalMap) => new THREE.MeshStandardMaterial({ map, normalMap, normalScale: new THREE.Vector2(1, 1), roughness: 0.78, metalness: 0, color: T.color, emissive: T.emissive || '#000000', emissiveMap: T.emissive ? map : null, emissiveIntensity: T.ei || 1 });
+  let mats;
+  if (kind === 'cube') { const c = STONE.cubes[v], t = T.gray ? c.gray : c, n = c.normal; const top = mk(t.top, n.top), left = mk(t.left, n.left), right = mk(t.right, n.right); mats = [right, left, top, top, left, right]; }
+  else { const s = STONE.tiles[v], top = mk(s.map, s.normal), side = new THREE.MeshStandardMaterial({ color: '#3a4768', roughness: 0.85 }); mats = [side, side, top, top, side, side]; }
+  STONE.mats.set(key, mats); return mats;
+}
+const stoneSeed = (...n) => Math.abs(n.reduce((h, x) => (h * 31 + x * 17 + 7) | 0, 11)) % 6;
+const stoneCube = (seed, tint = 'base') => new THREE.Mesh(G.stoneCube, stoneMats('cube', seed, tint));
+const stoneTile = (seed, tint = 'ghost') => new THREE.Mesh(G.stoneTile, stoneMats('tile', seed, tint));
+
+/* ============ Byggstenar: multiplikation ============ */
+function mulOrigin(a, cols) { return { ox: -(cols - 1) / 2, oz: -(a - 1) / 2 }; }
+function mulBase(a, b, cols, fmt) {
+  if (!has3D) return;
+  const s = Math.max(a, cols, 3);
+  setView({ dist: s * 1.55 + 5, elev: 1.0, rotY: 0, rotX: 0, clampX: [-0.45, 0.35] });
+  const { ox, oz } = mulOrigin(a, cols);
+  const n = fmt === 'prod' ? b : 1;
+  mulGhosts = new THREE.Group(); content.add(mulGhosts);
+  for (let i = 0; i < a; i++) for (let j = 0; j < n; j++) {
+    const t = stoneTile(stoneSeed(i, j)); t.position.set(ox + j, 0.07, oz + i); mulGhosts.add(t); mulGhosts.userData[i + "," + j] = t;
+  }
+  if (fmt !== 'prod') {
+    addLabel(`${a} rader`, anchorAt(content, ox - 1.4, 0.2, 0));
+    addLabel('? i varje', anchorAt(content, ox + 2.2, 0.2, oz));
+  }
+}
+const GAP = 0.9;
+let mulGhosts = null;
+function buildGrid(a, b, ox, oz, { anim = 'fast', split = null, rowLabels = false } = {}) {
+  const grp = new THREE.Group(); content.add(grp);
+  if (split && mulGhosts) mulGhosts.visible = false;
+  const per = Math.min(14, 700 / (a * b));
+  for (let i = 0; i < a; i++) for (let j = 0; j < b; j++) {
+    const part = split ? (split.axis === 'col' ? (j < split.at ? 0 : 1) : (i < split.at ? 0 : 1)) : 0;
+    const gx = part && split.axis === 'col' ? GAP : 0, gz = part && split.axis === 'row' ? GAP : 0;
+    const m = stoneCube(stoneSeed(i, j, 3), part ? (i % 2 ? 'gold2' : 'gold') : (i % 2 ? 'alt' : 'base')); m.position.set(ox + j + gx, 0.59, oz + i + gz); grp.add(m);
+    const s = [0.9, 0.9, 0.9];
+    // plattan under kuben göms när kuben dyker upp
+    const tile = mulGhosts?.userData[i + "," + j], delay = anim === 'rows' ? 250 + i * 420 + j * 18 : (i * b + j) * per;
+    if (anim === 'none') { m.scale.set(...s); if (tile) tile.visible = false; }
+    else { popIn(m, s, delay); if (tile) later(delay + 120, () => { tile.visible = false; }); }
+  }
+  if (rowLabels) for (let i = 0; i < a; i++) later(250 + i * 420 + b * 18, () => addLabel(String(b * (i + 1)), anchorAt(grp, ox + b + 0.4, 0.5, oz + i), { cls: 'num' }));
+  return grp;
+}
+
+/* ============ Byggstenar: kroppar ============ */
+function boxPoly(w, h, d) {
+  const x = w / 2, y = h / 2, z = d / 2;
+  return { V: [[-x, -y, -z], [x, -y, -z], [x, y, -z], [-x, y, -z], [-x, -y, z], [x, -y, z], [x, y, z], [-x, y, z]], F: [[0, 3, 2, 1], [4, 5, 6, 7], [0, 4, 7, 3], [1, 2, 6, 5], [3, 7, 6, 2], [0, 1, 5, 4]] };
+}
+function prismPoly(n, r, h, rot = 0) {
+  const V = [];
+  for (let k = 0; k < 2; k++) for (let i = 0; i < n; i++) { const a = rot + i * 2 * Math.PI / n; V.push([r * Math.cos(a), k ? h / 2 : -h / 2, r * Math.sin(a)]); }
+  const F = [[...Array(n).keys()], [...Array(n).keys()].map(i => n + i)];
+  for (let i = 0; i < n; i++) F.push([i, (i + 1) % n, n + (i + 1) % n, n + i]);
+  return { V, F };
+}
+function pyramidPoly(n, r, h, rot = 0) {
+  const V = [];
+  for (let i = 0; i < n; i++) { const a = rot + i * 2 * Math.PI / n; V.push([r * Math.cos(a), -h / 2, r * Math.sin(a)]); }
+  V.push([0, h / 2, 0]);
+  const F = [[...Array(n).keys()]];
+  for (let i = 0; i < n; i++) F.push([i, (i + 1) % n, n]);
+  return { V, F };
+}
+const SOLIDS = {
+  kub: { name: 'kub', art: 'en', poly: () => boxPoly(2.2, 2.2, 2.2), f: 6, e: 12, v: 8, clue: 'Alla sex sidor är lika stora kvadrater.' },
+  ratblock: { name: 'rätblock', art: 'ett', poly: () => boxPoly(3.2, 1.6, 1.9), f: 6, e: 12, v: 8, clue: 'Sidorna är rektanglar, som en skokartong.' },
+  pyramid: { name: 'pyramid', art: 'en', poly: () => pyramidPoly(4, 1.65, 2.3, Math.PI / 4), f: 5, e: 8, v: 5, clue: 'Fyrkantig botten och trianglar som möts i en spets.' },
+  tripyr: { name: 'tresidig pyramid', art: 'en', poly: () => pyramidPoly(3, 1.6, 2.2, -Math.PI / 2), f: 4, e: 6, v: 4, clue: 'Bara trianglar, fyra stycken. Botten är också en triangel.' },
+  triprisma: { name: 'tresidigt prisma', art: 'ett', poly: () => prismPoly(3, 1.3, 3.0, 0), rotZ: Math.PI / 2, y: -0.33, f: 5, e: 9, v: 6, clue: 'Två likadana trianglar med tre rektanglar emellan, som ett tält.' },
+  hexprisma: { name: 'sexsidigt prisma', art: 'ett', poly: () => prismPoly(6, 1.25, 2.2, 0), f: 8, e: 18, v: 12, clue: 'Två sexhörningar med rektanglar runt om, som en blyertspenna.' },
+  klot: { name: 'klot', art: 'ett', curved: 'sphere', clue: 'Runt åt alla håll, som en boll.' },
+  cylinder: { name: 'cylinder', art: 'en', curved: 'cyl', clue: 'Två cirklar och en böjd yta emellan, som en burk.' },
+  kon: { name: 'kon', art: 'en', curved: 'cone', clue: 'En rund botten och en spets, som en glasstrut.' },
+};
+const POLY_IDS = ['kub', 'ratblock', 'pyramid', 'tripyr', 'triprisma', 'hexprisma'];
+const WHAT = { f: 'sidoytor', e: 'kanter', v: 'hörn' };
+
+function rod(A, B, r, mat) {
+  const m = new THREE.Mesh(G.rod, mat);
+  m.scale.set(r, A.distanceTo(B), r);
+  m.position.copy(A).add(B).multiplyScalar(0.5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
+  return m;
+}
+function polyObject(P, color, parent) {
+  const g = new THREE.Group(); parent.add(g);
+  const matOpts = { flatShading: true, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 };
+  const base = stdMat(color, matOpts);
+  const o = { group: g, base, matOpts, faces: [], edges: [], verts: [], _fm: [], _he: null };
+  for (const loop0 of P.F) {
+    const pts = loop0.map(i => v3(P.V[i]));
+    const cen = pts.reduce((s, p) => s.add(p), new THREE.Vector3()).multiplyScalar(1 / pts.length);
+    let n = pts[1].clone().sub(pts[0]).cross(pts[2].clone().sub(pts[0])).normalize();
+    let loop = loop0;
+    if (n.dot(cen) < 0) { n.negate(); loop = [...loop0].reverse(); }
+    const pos = [];
+    for (let k = 1; k < loop.length - 1; k++) pos.push(...P.V[loop[0]], ...P.V[loop[k]], ...P.V[loop[k + 1]]);
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.computeVertexNormals(); disposables.push(geo);
+    const mesh = new THREE.Mesh(geo, base); g.add(mesh);
+    o.faces.push({ mesh, n, cen });
+  }
+  o.edgeMat = stdMat(cssVar('--edge3d'));
+  const seen = new Set();
+  for (const loop of P.F) loop.forEach((i, k) => {
+    const j = loop[(k + 1) % loop.length]; const key = i < j ? i + '-' + j : j + '-' + i;
+    if (seen.has(key)) return; seen.add(key);
+    const A = v3(P.V[i]), B = v3(P.V[j]);
+    const mesh = rod(A, B, 0.022, o.edgeMat); g.add(mesh);
+    o.edges.push({ mesh, mid: A.clone().add(B).multiplyScalar(0.5) });
+  });
+  const vMat = stdMat(C.coral);
+  for (const p of P.V) { const mesh = new THREE.Mesh(G.ball, vMat); mesh.scale.setScalar(0.11); mesh.position.set(...p); mesh.visible = false; g.add(mesh); o.verts.push({ mesh, pos: v3(p) }); }
+  return o;
+}
+function faceMat(o, i) { return o._fm[i] ||= stdMat(FACE_COLORS[i % FACE_COLORS.length], o.matOpts); }
+function hlEdge(o) { return o._he ||= stdMat('#FFB800'); }
+function setRodR(m, r) { m.scale.x = r; m.scale.z = r; }
+function highlightSolid(o, what) {
+  o.faces.forEach((f, i) => f.mesh.material = what === 'f' ? faceMat(o, i) : o.base);
+  o.edges.forEach(e => { const on = what === 'e'; e.mesh.material = on ? hlEdge(o) : o.edgeMat; setRodR(e.mesh, on ? 0.055 : 0.022); });
+  o.verts.forEach(v => v.mesh.visible = what === 'v');
+}
+function countSequence(o, what, step = 380, startDelay = 250) {
+  highlightSolid(o, null);
+  const items = what === 'f' ? o.faces : what === 'e' ? o.edges : o.verts;
+  const made = [];
+  items.forEach((it, idx) => later(startDelay + idx * step, () => {
+    if (what === 'f') it.mesh.material = faceMat(o, idx);
+    else if (what === 'e') { it.mesh.material = hlEdge(o); setRodR(it.mesh, 0.055); }
+    else it.mesh.visible = true;
+    const pos = what === 'f' ? it.cen.clone().add(it.n.clone().multiplyScalar(0.18)) : (what === 'e' ? it.mid : it.pos).clone().multiplyScalar(what === 'e' ? 1.14 : 1.18);
+    const nrm = what === 'f' ? it.n : (what === 'e' ? it.mid : it.pos).clone().normalize();
+    made.push(addLabel(String(idx + 1), anchorAt(o.group, pos.x, pos.y, pos.z), { cls: 'num', normal: nrm }));
+  }));
+  return { ms: startDelay + items.length * step, labels: made };
+}
+function buildSolid(id) {
+  const def = SOLIDS[id];
+  if (!has3D) return null;
+  const holder = new THREE.Group(); content.add(holder);
+  if (def.curved) {
+    let geo;
+    if (def.curved === 'sphere') geo = new THREE.SphereGeometry(1.4, 48, 32);
+    else if (def.curved === 'cyl') geo = new THREE.CylinderGeometry(1.15, 1.15, 2.4, 56);
+    else geo = new THREE.ConeGeometry(1.35, 2.5, 56);
+    disposables.push(geo);
+    holder.add(new THREE.Mesh(geo, stdMat(C.solid, { roughness: 0.45 })));
+    return { group: holder, curved: true };
+  }
+  const o = polyObject(def.poly(), C.solid, holder);
+  if (def.rotZ) o.group.rotation.z = def.rotZ;
+  if (def.y) o.group.position.y = def.y;
+  return o;
+}
+function solidView(spin = true) { setView({ dist: 9.5, elev: 0.32, rotY: 0.7, rotX: 0.18, autoSpin: spin, clampX: [-0.7, 0.9] }); }
+
+/* ============ Byggstenar: volym ============ */
+function buildBlock(l, w, h, s = 1) {
+  const layers = [];
+  const ox = -(l - 1) / 2 * s, oz = -(w - 1) / 2 * s, oy = -(h - 1) / 2 * s;
+  const root = new THREE.Group(); content.add(root);
+  for (let y = 0; y < h; y++) {
+    const L = new THREE.Group(); L.position.y = oy + y * s; root.add(L); layers.push(L);
+    for (let x = 0; x < l; x++) for (let z = 0; z < w; z++) {
+      const m = stoneCube(stoneSeed(x, y, z), y % 2 ? 'alt' : 'base'); m.scale.setScalar(0.95 * s); m.position.set(ox + x * s, 0, oz + z * s); L.add(m);
+    }
+  }
+  return { root, layers, oy, s };
+}
+function explodeLayers(B, l, w, withLabels = true) {
+  const gap = 0.7 * B.s; const made = [];
+  B.layers.forEach((L, y) => {
+    const y0 = L.position.y, y1 = B.oy + y * B.s + (y - (B.layers.length - 1) / 2) * gap;
+    tween(600, p => L.position.y = y0 + (y1 - y0) * p, { e: ease.inOut });
+    if (withLabels) later(650 + y * 250, () => made.push(addLabel(`${l} · ${w} = ${l * w}`, anchorAt(L, (l / 2) * B.s + 1.1, 0, 0), { cls: y === 0 ? 'sun' : '' })));
+  });
+  return made;
+}
+
+/* ============ Byggstenar: 2D-figurer (area & omkrets) ============ */
+const flat = $('#flat');
+const SVGNS = 'http://www.w3.org/2000/svg';
+let FL = null;
+function svgEl(tag, attrs, parent = flat) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; }
+const ptsStr = pts => pts.map(p => p.join(',')).join(' ');
+const partPts = p => p.kind === 'rect' ? [[p.x, p.y], [p.x + p.w, p.y], [p.x + p.w, p.y + p.h], [p.x, p.y + p.h]] : p.pts;
+const centroid = pts => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
+const partArea = p => p.kind === 'rect' ? p.w * p.h : p.b * p.h / 2;
+const partExpr = p => p.kind === 'rect' ? `${p.w} · ${p.h} = ${p.w * p.h}` : `${p.b} · ${p.h} / 2 = ${p.b * p.h / 2}`;
+const polyPerim = pts => pts.reduce((s, p, i) => { const q = pts[(i + 1) % pts.length]; return s + Math.hypot(q[0] - p[0], q[1] - p[1]); }, 0);
+function inPoly([x, y], poly) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; }
+  return c;
+}
+function flatText(str, x, y, { cls = '', size = 1, delay = 0, parent = flat } = {}) {
+  const t = svgEl('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': FL.fs * size, 'stroke-width': FL.fs * 0.3, class: cls }, parent);
+  if (delay) t.style.animationDelay = delay + 'ms';
+  t.textContent = str; return t;
+}
+function sideLabel(s, opts = {}) {
+  const [ax, ay] = s.a, [bx, by] = s.b; const mx = (ax + bx) / 2, my = (ay + by) / 2;
+  let nx = -(by - ay), ny = bx - ax; const L = Math.hypot(nx, ny) || 1; nx /= L; ny /= L;
+  if (s.down) { nx = 0; ny = 1; }
+  else if (inPoly([mx + nx * 0.05, my + ny * 0.05], FL.spec.outline)) { nx = -nx; ny = -ny; }
+  const d = FL.fs * (0.85 + 1.25 * Math.abs(nx)) * (s.far ? 2.3 : 1);
+  return flatText(s.text, mx + nx * d, my + ny * d, opts);
+}
+function drawFlat(spec) {
+  flat.innerHTML = ''; flat.removeAttribute('hidden');
+  setView({ allowRotate: false });
+  const xs = spec.outline.map(p => p[0]), ys = spec.outline.map(p => p[1]);
+  const minX = Math.min(...xs), minY = Math.min(...ys), W = Math.max(...xs) - minX, H = Math.max(...ys) - minY;
+  const pad = Math.max(W, H) * 0.25 + 2.4;
+  flat.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${W + 2 * pad} ${H + 2 * pad}`);
+  const fs = Math.max(W, H, 4) * 0.075 + 0.2;
+  FL = { fs, sw: fs * 0.12, spec, parts: [], dash: `${fs * 0.3} ${fs * 0.22}` };
+  spec.parts.forEach(p => {
+    const el = svgEl('polygon', { points: ptsStr(partPts(p)), class: 'part' });
+    if (spec.dashed) { el.setAttribute('stroke', 'currentColor'); el.setAttribute('stroke-width', FL.sw * 0.7); el.setAttribute('stroke-dasharray', FL.dash); el.setAttribute('stroke-opacity', 0.55); }
+    FL.parts.push(el);
+  });
+  if (spec.grid) spec.parts.filter(p => p.kind === 'rect').forEach(p => innerGrid(p, flat));
+  svgEl('polygon', { points: ptsStr(spec.outline), class: 'outline', 'stroke-width': FL.sw });
+  (spec.heights || []).forEach(h => {
+    svgEl('line', { x1: h.a[0], y1: h.a[1], x2: h.b[0], y2: h.b[1], class: 'dash', 'stroke-width': FL.sw * 0.8, 'stroke-dasharray': FL.dash });
+    const vert = Math.abs(h.b[0] - h.a[0]) < Math.abs(h.b[1] - h.a[1]);
+    if (h.foot) { const s = fs * 0.45; svgEl('polyline', { points: ptsStr([[h.b[0], h.b[1] - s], [h.b[0] + s, h.b[1] - s], [h.b[0] + s, h.b[1]]]), class: 'dash', 'stroke-width': FL.sw * 0.6 }); }
+    const mx = (h.a[0] + h.b[0]) / 2, my = (h.a[1] + h.b[1]) / 2;
+    flatText(h.text, vert ? mx + fs * 1.7 : mx, vert ? my : my + fs * 0.9);
+  });
+  (spec.sides || []).forEach(s => sideLabel(s));
+  // Måttlinjer utanför figuren (för höjder som annars skulle hamna inne i delarna).
+  (spec.dims || []).forEach(dm => {
+    const x = dm.side === 'left' ? minX - fs * 1.4 : minX + W + fs * 1.4, t = fs * 0.35;
+    (dm.guides || []).forEach(([gx, gy]) => svgEl('line', { x1: gx, y1: gy, x2: x, y2: gy, class: 'dash', 'stroke-width': FL.sw * 0.5, 'stroke-dasharray': FL.dash }));
+    svgEl('line', { x1: x, y1: dm.y1, x2: x, y2: dm.y2, class: 'dash', 'stroke-width': FL.sw * 0.8 });
+    svgEl('line', { x1: x - t, y1: dm.y1, x2: x + t, y2: dm.y1, class: 'dash', 'stroke-width': FL.sw * 0.8 });
+    svgEl('line', { x1: x - t, y1: dm.y2, x2: x + t, y2: dm.y2, class: 'dash', 'stroke-width': FL.sw * 0.8 });
+    flatText(dm.text, x + (dm.side === 'left' ? -1 : 1) * fs * 1.9, (dm.y1 + dm.y2) / 2);
+  });
+  FL.fx = svgEl('g', {});
+  // Anpassa vyn efter allt som ritats (figur + etiketter), med lite luft för tips och facit.
+  try {
+    const bb = flat.getBBox(), m = fs * 1.3;
+    if (bb.width > 0) flat.setAttribute('viewBox', `${bb.x - m} ${bb.y - m} ${bb.width + 2 * m} ${bb.height + 2 * m}`);
+  } catch (e) {}
+}
+function innerGrid(R, parent = FL.fx) {
+  for (let x = 1; x < R.w; x++) svgEl('line', { x1: R.x + x, y1: R.y, x2: R.x + x, y2: R.y + R.h, class: 'gridl', 'stroke-width': FL.sw * 0.5 }, parent);
+  for (let y = 1; y < R.h; y++) svgEl('line', { x1: R.x, y1: R.y + y, x2: R.x + R.w, y2: R.y + y, class: 'gridl', 'stroke-width': FL.sw * 0.5 }, parent);
+}
+function colorParts(withNames = false) {
+  const cls = ['pA', 'pB', 'pC'];
+  FL.parts.forEach((el, i) => el.classList.add(cls[i % 3]));
+  if (withNames) FL.spec.parts.forEach((p, i) => { const [x, y] = centroid(partPts(p)); flatText(`Del ${i + 1}`, x, y, { parent: FL.fx, size: 0.8, cls: 'pop' }); });
+}
+function partAreaLabels() {
+  FL.spec.parts.forEach((p, i) => { const [x, y] = centroid(partPts(p)); flatText(String(partArea(p)), x, y, { parent: FL.fx, size: 1.25, cls: 'pop', delay: 300 + i * 450 }); });
+}
+function traceSides(sides, step = 380) {
+  sides.forEach((s, i) => {
+    const p = svgEl('path', { d: `M${s.a[0]},${s.a[1]}L${s.b[0]},${s.b[1]}`, pathLength: 1, class: 'trace', 'stroke-width': FL.sw * 2.4 }, FL.fx);
+    p.style.animationDelay = (200 + i * step) + 'ms';
+  });
+}
+function rectRows(R, step = 380) {
+  for (let y = 0; y < R.h; y++) {
+    const d = 200 + y * step;
+    const r = svgEl('rect', { x: R.x, y: R.y + y, width: R.w, height: 1, class: 'rowfill pop' }, FL.fx); r.style.animationDelay = d + 'ms';
+    flatText(String(R.w * (y + 1)), R.x + R.w + FL.fs * 1.5, R.y + y + 0.5, { parent: FL.fx, size: 0.8, cls: 'pop', delay: d });
+  }
+}
+function triBox(T) {
+  const xs = T.pts.map(p => p[0]), ys = T.pts.map(p => p[1]);
+  const x = Math.min(...xs), y = Math.min(...ys);
+  svgEl('rect', { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y, class: 'ghost', 'stroke-width': FL.sw * 0.8, 'stroke-dasharray': FL.dash }, FL.fx);
+}
+
+/* ============ Byggstenar: utfällningar ============ */
+const DIRS = [['E', 1, 0], ['W', -1, 0], ['S', 0, 1], ['N', 0, -1]];
+function roll(o, d) {
+  const { D, U, N, S: So, E, W } = o;
+  if (d === 'E') return { D: E, E: U, U: W, W: D, N, S: So };
+  if (d === 'W') return { D: W, W: U, U: E, E: D, N, S: So };
+  if (d === 'S') return { D: So, S: U, U: N, N: D, E, W };
+  return { D: N, N: U, U: So, S: D, E, W };
+}
+const OPP = { 0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4 };
+function netInfo(cells) {
+  const key = (x, y) => x + ',' + y;
+  const set = new Map(cells.map(c => [key(c[0], c[1]), c]));
+  const nb = c => DIRS.map(([d, dx, dy]) => ({ d, c: set.get(key(c[0] + dx, c[1] + dy)) })).filter(o => o.c);
+  let root = cells[0], best = -1;
+  for (const c of cells) { const k = nb(c).length; if (k > best) { best = k; root = c; } }
+  const info = new Map();
+  info.set(key(...root), { cell: root, dir: null, o: { D: 0, U: 1, N: 2, S: 3, E: 4, W: 5 }, children: [] });
+  const q = [root];
+  while (q.length) {
+    const c = q.shift(); const ci = info.get(key(...c));
+    for (const { d, c: n } of nb(c)) {
+      const k = key(...n); if (info.has(k)) continue;
+      const ni = { cell: n, dir: d, o: roll(ci.o, d), children: [] }; info.set(k, ni); ci.children.push(ni); q.push(n);
+    }
+  }
+  const counts = {}; for (const i of info.values()) counts[i.o.D] = (counts[i.o.D] || 0) + 1;
+  const connected = info.size === cells.length;
+  return { root, info, key, connected, counts, valid: connected && cells.length === 6 && Object.keys(counts).length === 6 };
+}
+function normCells(cells) { const mx = Math.min(...cells.map(c => c[0])), my = Math.min(...cells.map(c => c[1])); return cells.map(([x, y]) => [x - mx, y - my]); }
+function transformNet(cells) {
+  let c = cells.map(p => [...p]);
+  if (Math.random() < 0.5) c = c.map(([x, y]) => [-x, y]);
+  const k = rnd(0, 3); for (let i = 0; i < k; i++) c = c.map(([x, y]) => [-y, x]);
+  return normCells(c);
+}
+function buildNet(cells, { letters = null } = {}) {
+  const NI = netInfo(cells);
+  const xs = cells.map(c => c[0]), ys = cells.map(c => c[1]);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const group = new THREE.Group(); content.add(group);
+  const hinges = []; let idx = 0;
+  const OFF = { E: [1, 0], W: [-1, 0], S: [0, 1], N: [0, -1] };
+  function makeNode(ni) {
+    const node = new THREE.Group();
+    ni.color = FACE_COLORS[idx % 6]; ni.mat = stdMat(ni.color);
+    const tile = new THREE.Mesh(G.box, ni.mat); tile.scale.set(0.96, 0.06, 0.96); node.add(tile);
+    ni.node = node; ni.idx = idx; idx++;
+    if (letters) {
+      const ch = letters[NI.key(...ni.cell)];
+      if (ch) {
+        addLabel(ch, anchorAt(node, 0, 0.05, 0), { cls: 'letter', normal: new THREE.Vector3(0, 1, 0), hideBack: true });
+        addLabel(ch, anchorAt(node, 0, -0.05, 0), { cls: 'letter', normal: new THREE.Vector3(0, -1, 0), hideBack: true });
+      }
+    }
+    for (const ch of ni.children) {
+      const [dx, dz] = OFF[ch.dir];
+      const hinge = new THREE.Group(); hinge.position.set(dx * 0.5, 0, dz * 0.5); node.add(hinge);
+      const cn = makeNode(ch); cn.position.set(dx * 0.5, 0, dz * 0.5); hinge.add(cn);
+      hinges.push({ hinge, dir: ch.dir });
+    }
+    return node;
+  }
+  const rootInfo = NI.info.get(NI.key(...NI.root));
+  const rootNode = makeNode(rootInfo);
+  const rx = NI.root[0] - cx, rz = NI.root[1] - cy;
+  rootNode.position.set(rx, 0, rz); group.add(rootNode);
+  function setFold(p) {
+    const a = p * Math.PI / 2;
+    for (const { hinge, dir } of hinges) {
+      hinge.rotation.set(0, 0, 0);
+      if (dir === 'E') hinge.rotation.z = a; else if (dir === 'W') hinge.rotation.z = -a;
+      else if (dir === 'S') hinge.rotation.x = -a; else hinge.rotation.x = a;
+    }
+    group.position.set(-rx * p, -0.5 * p, -rz * p);
+  }
+  const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) + 1;
+  return { NI, group, setFold, span, rootInfo, folded: 0 };
+}
+function foldNet(net, to = 1, dur = 1700) {
+  const from = net.folded; const d0 = view.dist; const d1 = to ? 7.5 : net.span * 1.5 + 5;
+  tween(dur, p => { const f = from + (to - from) * p; net.setFold(f); net.folded = f; view.dist = d0 + (d1 - d0) * p; }, { e: ease.inOut, done: () => { if (to) { rotTY += 0.75; rotTX = 0.25; } } });
+  return dur;
+}
+function netView(span) { setView({ dist: span * 1.5 + 5, elev: 0.95, rotY: 0, rotX: 0, clampX: [-0.6, 0.6] }); }
+function markCollisions(net) {
+  for (const ni of net.NI.info.values()) if (net.NI.counts[ni.o.D] > 1) ni.mat.color.set(C.red);
+}
+const NETS_VALID = [
+  [[0, 0], [0, 1], [1, 1], [2, 1], [3, 1], [0, 2]], [[0, 0], [0, 1], [1, 1], [2, 1], [3, 1], [1, 2]],
+  [[0, 0], [0, 1], [1, 1], [2, 1], [3, 1], [2, 2]], [[0, 0], [0, 1], [1, 1], [2, 1], [3, 1], [3, 2]],
+  [[1, 0], [0, 1], [1, 1], [2, 1], [3, 1], [1, 2]], [[1, 0], [0, 1], [1, 1], [2, 1], [3, 1], [2, 2]],
+  [[0, 0], [1, 0], [1, 1], [2, 1], [3, 1], [1, 2]], [[0, 0], [1, 0], [1, 1], [2, 1], [3, 1], [2, 2]],
+  [[0, 0], [1, 0], [1, 1], [2, 1], [3, 1], [3, 2]], [[0, 0], [1, 0], [1, 1], [2, 1], [2, 2], [3, 2]],
+  [[0, 0], [1, 0], [2, 0], [2, 1], [3, 1], [4, 1]],
+];
+const NETS_EASY_VALID = NETS_VALID.slice(0, 6);
+const NETS_EASY_INVALID = [
+  [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1]], [[0, 0], [0, 1], [1, 1], [2, 1], [3, 1], [4, 1]],
+];
+const NETS_INVALID = [
+  ...NETS_EASY_INVALID,
+  [[0, 0], [1, 0], [2, 0], [3, 0], [3, 1], [3, 2]], [[0, 0], [1, 0], [0, 1], [1, 1], [2, 1], [3, 1]],
+  [[1, 0], [0, 1], [1, 1], [2, 1], [0, 2], [2, 2]], [[0, 0], [1, 0], [1, 1], [2, 1], [3, 1], [4, 1]],
+  [[0, 1], [1, 1], [2, 1], [1, 0], [2, 0], [3, 1]],
+];
+
+/* ============ Uppgifter: multiplikation ============ */
+const BOX_W = [2.5, 6, 3.5, 2, 0.8, 0.4];
+const BOX_INT = [0, 30e3, 5 * 60e3, 20 * 3600e3, 2 * 86400e3, 5 * 86400e3];
+const ALL_FACTS = []; for (let a = 1; a <= 10; a++) for (let b = 1; b <= 10; b++) ALL_FACTS.push([a, b]);
+function pickFact(pool) {
+  const now = Date.now(); let total = 0;
+  const ws = pool.map(([a, b]) => {
+    const k = a + 'x' + b; if (run.recentKeys.includes(k)) return 0;
+    const f = S.facts[k]; const box = f ? f.box : 0; let w = BOX_W[box];
+    if (f && box >= 2) { const due = now - f.last > BOX_INT[box]; w *= due ? 2 : (box >= 4 ? 0.3 : 1); }
+    if (a === 1 || b === 1 || a === 10 || b === 10) w *= 0.35; else if (a === 2 || b === 2 || a === 5 || b === 5) w *= 0.7;
+    total += w; return w;
+  });
+  if (total <= 0) return pick(pool);
+  let r = Math.random() * total;
+  for (let i = 0; i < pool.length; i++) { r -= ws[i]; if (r <= 0) return pool[i]; }
+  return pool[pool.length - 1];
+}
+function hardestFacts(n = 12) {
+  const seen = ALL_FACTS.filter(([a, b]) => S.facts[a + 'x' + b]?.n);
+  const score = ([a, b]) => { const f = S.facts[a + 'x' + b]; return f.box * 10 - (f.n - f.r) / f.n * 10 + (f.ms ? -f.ms / 2000 : 0); };
+  return seen.filter(([a, b]) => a > 1 && b > 1 && a < 10 && b < 10).sort((x, y) => score(x) - score(y)).slice(0, n);
+}
+function makeMul(a, b, fmt = 'prod') {
+  const p = a * b, slot = '<span class="slot">?</span>';
+  const cols = fmt === 'prod' ? b : 10;
+  const { ox, oz } = mulOrigin(a, cols);
+  const text = fmt === 'prod' ? `${a} · ${b} = ${slot}` : fmt === 'miss' ? `${a} · ${slot} = ${p}` : `${p} / ${a} = ${slot}`;
+  const t = {
+    skill: 'mul', key: `${a}x${b}`, a, b, fmt, kicker: 'Gångertabellen', text, big: true, inlineSlot: true, input: 'num',
+    answer: fmt === 'prod' ? p : b,
+    describe: fmt === 'prod' ? `${a} · ${b}` : fmt === 'miss' ? `${a} · ? = ${p}` : `${p} / ${a}`,
+    remake: () => makeMul(a, b, 'prod'),
+    build() { mulBase(a, b, cols, fmt); },
+    hint() {
+      if (fmt !== 'prod') {
+        const seq = [1, 2, 3].map(k => a * k).join(', ');
+        return `Vilket tal gånger ${a} blir ${p}? Räkna i hopp om ${a}: ${seq} …`;
+      }
+      let split = null, txt;
+      if (b > 5 && b < 10) { split = { axis: 'col', at: 5 }; txt = `Dela upp: ${a} · ${b} = ${a} · 5 + ${a} · ${b - 5}`; }
+      else if (a > 5 && a < 10) { split = { axis: 'row', at: 5 }; txt = `Dela upp: ${a} · ${b} = 5 · ${b} + ${a - 5} · ${b}`; }
+      else if (a === 10 || b === 10) txt = 'Gånger 10: skriv en nolla efter talet.';
+      else txt = `${a} rader med ${b} i varje. Räkna i hopp om ${b}.`;
+      if (has3D) {
+        t._hg = buildGrid(a, b, ox, oz, { split }); t._hl = [];
+        if (split?.axis === 'col') {
+          t._hl.push(addLabel(`${a} · 5 = ${a * 5}`, anchorAt(content, ox + 2, 1.2, oz - 1)));
+          t._hl.push(addLabel(`${a} · ${b - 5}`, anchorAt(content, ox + 5 + GAP + (b - 6) / 2, 1.2, oz - 1), { cls: 'sun' }));
+        } else if (split?.axis === 'row') {
+          t._hl.push(addLabel(`5 · ${b} = ${5 * b}`, anchorAt(content, ox - 1.8, 0.6, oz + 2)));
+          t._hl.push(addLabel(`${a - 5} · ${b}`, anchorAt(content, ox - 1.8, 0.6, oz + 5 + GAP + (a - 6) / 2), { cls: 'sun' }));
+        }
+      }
+      return txt;
+    },
+    reveal(ok) {
+      if (t._hg) { content.remove(t._hg); removeLabels(t._hl); }
+      if (has3D) {
+        if (ok) { buildGrid(a, b, ox, oz); later(450, () => addLabel(`${a} · ${b} = ${p}`, anchorAt(content, ox + (b - 1) / 2, 1.3, oz - 1.2), { cls: 'big' })); }
+        else buildGrid(a, b, ox, oz, { anim: 'rows', rowLabels: true });
+      }
+      if (ok) return { text: '', auto: 1300 };
+      const seq = a > 3 ? `${b}, ${2 * b}, ${3 * b} … ${p}` : [...Array(a).keys()].map(k => b * (k + 1)).join(', ');
+      if (fmt === 'prod') return { text: `${a} · ${b} = <b>${p}</b>. Räkna i hopp om ${b}: ${seq}.` };
+      if (fmt === 'miss') return { text: `${a} · <b>${b}</b> = ${p}. Det är ${a} rader med ${b} i varje.` };
+      return { text: `${p} / ${a} = <b>${b}</b>, eftersom ${a} · ${b} = ${p}.` };
+    },
+    tag(g) {
+      g = Number(g); if (fmt !== 'prod') return null;
+      if (g === a + b) return 'tab-add';
+      if ([p + a, p - a, p + b, p - b].includes(g)) return 'tab-step';
+      const s = String(p); if (s.length === 2 && String(g) === s[1] + s[0]) return 'tab-swap';
+      return null;
+    },
+  };
+  return t;
+}
+function nextMul(pool) {
+  let [a, b] = pickFact(pool);
+  const k = a + 'x' + b;
+  run.recentKeys.push(k); if (run.recentKeys.length > 4) run.recentKeys.shift();
+  const f = S.facts[k]; let fmt = 'prod';
+  if (f && f.box >= 3) { const r = Math.random(); fmt = r < 0.18 ? 'miss' : r < 0.35 ? 'div' : 'prod'; }
+  return makeMul(a, b, fmt);
+}
+
+/* ============ Uppgifter: geometri ============ */
+const GEO = {
+  shapes: { name: 'Känna igen kroppar', short: 'Kroppar', max: 3, gen: genShapes },
+  count: { name: 'Ytor, kanter och hörn', short: 'Ytor, kanter, hörn', max: 4, gen: genCount },
+  volume: { name: 'Volym', short: 'Volym', max: 4, gen: genVolume },
+  area: { name: 'Area och omkrets', short: 'Area & omkrets', max: 5, gen: genArea },
+  nets: { name: 'Utfällningar', short: 'Utfällningar', max: 3, gen: genNets },
+};
+const geoState = id => (S.geo[id] ||= { level: 1, recent: [], seen: 0, right: 0, last: 0 });
+const kick = (id, lvl) => `${GEO[id].name} · nivå ${lvl}`;
+
+function genShapes(level) {
+  const pools = { 1: ['kub', 'klot', 'cylinder', 'kon'], 2: ['kub', 'ratblock', 'klot', 'cylinder', 'kon', 'pyramid'], 3: Object.keys(SOLIDS) };
+  const CONF = { kub: ['ratblock'], ratblock: ['kub', 'triprisma'], pyramid: ['tripyr', 'kon'], tripyr: ['pyramid', 'triprisma'], triprisma: ['tripyr', 'hexprisma', 'ratblock'], hexprisma: ['triprisma', 'cylinder'], kon: ['pyramid', 'cylinder'], cylinder: ['hexprisma', 'kon'], klot: ['cylinder'] };
+  const pool = pools[level]; const id = pick(pool); const n = level === 1 ? 3 : 4;
+  const opts = [id, ...shuffle(CONF[id].filter(x => pool.includes(x)))].slice(0, n);
+  for (const x of shuffle(pool)) if (opts.length < n && !opts.includes(x)) opts.push(x);
+  const def = SOLIDS[id];
+  let obj;
+  return {
+    skill: 'shapes', level, kicker: kick('shapes', level), text: 'Vad heter kroppen?', sub: 'Snurra på den med fingret.',
+    input: 'choice', choices: shuffle(opts).map(x => ({ label: cap(SOLIDS[x].name), value: x })), answer: id, describe: `Kropp: ${def.name}`,
+    remake: () => genShapes(level),
+    build() { solidView(true); obj = buildSolid(id); },
+    hint() { return def.clue; },
+    reveal(ok) { return { text: `Det är ${def.art} ${def.name}. ${def.clue}`, auto: ok ? 2600 : 0 }; },
+  };
+}
+function genCount(level) {
+  const pools = { 1: ['kub', 'ratblock'], 2: ['kub', 'ratblock'], 3: ['kub', 'ratblock', 'pyramid', 'triprisma', 'pyramid', 'triprisma'], 4: POLY_IDS };
+  const id = pick(pools[level]); const def = SOLIDS[id];
+  const what = level === 1 ? 'f' : pick(['f', 'e', 'v']);
+  const n = def[what]; let obj;
+  return {
+    skill: 'count', level, kicker: kick('count', level), text: `Hur många ${WHAT[what]} har ${def.art} ${def.name}?`, sub: 'Snurra på kroppen så att du ser baksidan också.',
+    input: 'num', answer: n, unit: WHAT[what], describe: `${cap(WHAT[what])}: ${def.name}`,
+    remake: () => genCount(level),
+    build() { solidView(true); obj = buildSolid(id); },
+    hint() { if (obj) { highlightSolid(obj, what); view.autoSpin = true; } return `Jag har färgat alla ${WHAT[what]}. Snurra och räkna. Glöm inte baksidan!`; },
+    reveal(ok) {
+      if (obj) { if (ok) highlightSolid(obj, what); else { view.autoSpin = true; countSequence(obj, what); } }
+      return { text: `${cap(def.art)} ${def.name} har <b>${n}</b> ${WHAT[what]}.`, auto: ok ? 2600 : 0 };
+    },
+    tag(g) {
+      g = Number(g);
+      if ((what === 'e' && g === def.v) || (what === 'v' && g === def.e)) return 'kant-hörn';
+      if (g > 0 && g < n) return 'synliga';
+      return null;
+    },
+  };
+}
+function genVolume(level) {
+  let l, w, h;
+  if (level === 1) { do { l = rnd(1, 3); w = rnd(1, 3); h = rnd(1, 3); } while (l * w * h < 4); }
+  // Ett lager (l · w) ska vara högst 10 eller ett jämnt tiotal, så att lager · höjd håller sig inom tabellerna.
+  const okLayer = () => l * w <= 10 || (l * w) % 10 === 0;
+  if (level === 2) { do { l = rnd(2, 4); w = rnd(2, 3); } while (!okLayer()); h = rnd(2, 3); }
+  else if (level === 3) { do { l = rnd(3, 6); w = rnd(2, 4); } while (!okLayer()); h = rnd(2, 4); }
+  else if (level === 4) { do { l = rnd(3, 8); w = rnd(2, 5); } while (!okLayer()); h = rnd(2, 4); }
+  const V = l * w * h, solid = level === 4;
+  let B = null, box = null, labs = [];
+  const s = solid ? 4.2 / Math.max(l, w, h) : 1;
+  const showCubes = () => { if (box) { box.group.visible = false; removeLabels(labs); } if (!B) B = buildBlock(l, w, h, s); };
+  return {
+    skill: 'volume', level, kicker: kick('volume', level),
+    text: solid ? 'Vad är rätblockets volym?' : 'Hur många små kuber är rätblocket byggt av?',
+    sub: solid ? 'Måtten står vid kanterna.' : 'Snurra för att se alla sidor.',
+    input: 'num', answer: V, unit: solid ? 'cm³' : 'kuber', describe: solid ? `Volym ${l}×${w}×${h} cm` : `Kuber ${l}×${w}×${h}`,
+    remake: () => genVolume(level),
+    build() {
+      if (!has3D) return;
+      const size = solid ? 4.2 : Math.max(l, w, h);
+      setView({ dist: size * 1.9 + 5, elev: 0.55, rotY: 0.6, rotX: 0, clampX: [-0.5, 0.6] });
+      if (solid) {
+        box = polyObject(boxPoly(l * s, h * s, w * s), C.solid, content);
+        const X = l * s / 2, Y = h * s / 2, Z = w * s / 2;
+        labs = [addLabel(`${l} cm`, anchorAt(content, 0, -Y - 0.3, Z + 0.3)), addLabel(`${w} cm`, anchorAt(content, X + 0.4, -Y - 0.3, 0)), addLabel(`${h} cm`, anchorAt(content, X + 0.45, 0, Z + 0.3))];
+      } else B = buildBlock(l, w, h);
+    },
+    hint() {
+      if (has3D) { showCubes(); explodeLayers(B, l, w, true); }
+      return level === 1 ? 'Räkna kuberna i ett lager. Hur många lager finns det?' : `Ett lager har ${l} · ${w} = ${l * w} kuber. Hur många lager är det?`;
+    },
+    reveal(ok) {
+      if (has3D && !t_hinted(this)) { showCubes(); explodeLayers(B, l, w, !ok || level > 1); }
+      const u = solid ? ' cm³' : ' kuber';
+      return { text: `Varje lager har ${l} · ${w} = ${l * w}. Det är ${h} lager: ${h} · ${l * w} = <b>${V}</b>${u}.`, auto: ok ? 3000 : 0 };
+    },
+    tag(g) { g = Number(g); if (g === l * w && h > 1) return 'ett-lager'; if (g === l + w + h) return 'adderar'; return null; },
+  };
+}
+const t_hinted = t => run && run.task === t && run.hintUsed;
+function genArea(level) {
+  // derived = mått som inte står utskrivna men går att räkna ut; visas i tips och facit.
+  let parts, outline, sides, heights = [], dims = [], derived = [], ask = 'area', name = 'figurens', grid = false, dashed = false, trace = null, kind;
+  const cm = n => `${n} cm`;
+  const SD = (a, b, n) => ({ a, b, text: cm(n) });
+  if (level <= 2) {
+    // Nivå 1: rektangel/kvadrat på rutnät. Nivå 2: utan rutnät, större mått.
+    kind = 'rect';
+    let w = level === 1 ? rnd(2, 7) : rnd(3, 10), h = level === 1 ? rnd(2, 5) : rnd(2, 9);
+    const sq = Math.random() < 0.25;
+    if (sq) { w = Math.min(w, level === 1 ? 5 : 9); h = w; } else if (w === h) w++;
+    ask = Math.random() < (level === 1 ? 0.3 : 0.5) ? 'omk' : 'area';
+    parts = [{ kind: 'rect', x: 0, y: 0, w, h }]; outline = partPts(parts[0]); grid = level === 1; name = sq ? 'kvadratens' : 'rektangelns';
+    sides = [SD([0, h], [w, h], w), SD([0, 0], [0, h], h)];
+    trace = [SD([0, 0], [w, 0], w), SD([w, 0], [w, h], h), SD([w, h], [0, h], w), SD([0, h], [0, 0], h)];
+  } else if (level === 3) {
+    // Nivå 3: en triangel, rätvinklig eller med utritad höjd.
+    kind = 'tri'; name = 'triangelns';
+    let b = rnd(3, 10); const h = rnd(2, 8); if ((b * h) % 2) b++;
+    if (Math.random() < 0.5) { parts = [{ kind: 'tri', pts: [[0, 0], [0, h], [b, h]], b, h }]; sides = [SD([0, h], [b, h], b), SD([0, 0], [0, h], h)]; }
+    else { const ax = rnd(1, b - 1); parts = [{ kind: 'tri', pts: [[0, h], [ax, 0], [b, h]], b, h }]; sides = [SD([0, h], [b, h], b)]; heights = [{ a: [ax, 0], b: [ax, h], text: cm(h), foot: true }]; }
+    outline = parts[0].pts;
+  } else if (level === 4) {
+    // Nivå 4: två ihopsatta delar, med delningslinjen streckad.
+    kind = 'comp'; dashed = true; const r = Math.random();
+    if (r < 0.55) {
+      const w1 = rnd(4, 9), h1 = rnd(2, 4), w2 = rnd(2, w1 - 2), h2 = rnd(2, 4);
+      parts = [{ kind: 'rect', x: 0, y: h2, w: w1, h: h1 }, { kind: 'rect', x: 0, y: 0, w: w2, h: h2 }];
+      outline = [[0, 0], [w2, 0], [w2, h2], [w1, h2], [w1, h2 + h1], [0, h2 + h1]];
+      sides = [SD([0, 0], [w2, 0], w2), SD([0, 0], [0, h2 + h1], h1 + h2), SD([0, h2 + h1], [w1, h2 + h1], w1), SD([w1, h2], [w1, h2 + h1], h1)];
+      derived = [SD([w2, 0], [w2, h2], h2)];
+      if (r < 0.2) {
+        kind = 'lomk'; ask = 'omk'; dashed = false;
+        derived.push(SD([w2, h2], [w1, h2], w1 - w2));
+        trace = [SD([0, 0], [w2, 0], w2), SD([w2, 0], [w2, h2], h2), SD([w2, h2], [w1, h2], w1 - w2), SD([w1, h2], [w1, h2 + h1], h1), SD([w1, h2 + h1], [0, h2 + h1], w1), SD([0, h2 + h1], [0, 0], h1 + h2)];
+      }
+    } else if (r < 0.8) {
+      const w = rnd(4, 8), h = rnd(2, 5); let t = rnd(2, 4); if (w % 2 && t % 2) t++;
+      parts = [{ kind: 'rect', x: 0, y: t, w, h }, { kind: 'tri', pts: [[0, t], [w / 2, 0], [w, t]], b: w, h: t }];
+      outline = [[0, t], [w / 2, 0], [w, t], [w, t + h], [0, t + h]];
+      sides = [SD([0, t + h], [w, t + h], w), SD([w, t], [w, t + h], h)];
+      heights = [{ a: [w / 2, 0], b: [w / 2, t], text: "", foot: true }]; dims = [{ side: "right", y1: 0, y2: t, text: cm(t), guides: [[w / 2, 0], [w, t]] }];
+    } else {
+      let w = rnd(3, 6); const h = rnd(2, 5); let b = rnd(3, 5); if (b % 2 && h % 2) b++;
+      if (w + b > 10) w = 10 - b;
+      parts = [{ kind: 'rect', x: 0, y: 0, w, h }, { kind: 'tri', pts: [[w, 0], [w, h], [w + b, h]], b, h }];
+      outline = [[0, 0], [w, 0], [w + b, h], [0, h]];
+      sides = [SD([0, 0], [w, 0], w), { ...SD([0, h], [w + b, h], w + b), far: true }, SD([0, 0], [0, h], h)];
+      derived = [SD([w, h], [w + b, h], b)];
+    }
+  } else {
+    // Nivå 5: tre ihopsatta delar, utan streckade delningslinjer.
+    kind = 'comp'; const r = Math.random();
+    if (r < 0.34) {
+      const h = rnd(2, 5); let w = rnd(3, 6), b1 = rnd(2, 3), b2 = rnd(2, 3); if (h % 2) { if (b1 % 2) b1++; if (b2 % 2) b2++; } w = Math.min(w, 10 - b1 - b2);
+      parts = [{ kind: 'rect', x: b1, y: 0, w, h }, { kind: 'tri', pts: [[0, h], [b1, 0], [b1, h]], b: b1, h }, { kind: 'tri', pts: [[b1 + w, 0], [b1 + w, h], [b1 + w + b2, h]], b: b2, h }];
+      outline = [[0, h], [b1, 0], [b1 + w, 0], [b1 + w + b2, h]];
+      sides = [SD([b1, 0], [b1 + w, 0], w), SD([0, h], [b1, h], b1), { ...SD([0, h], [b1 + w + b2, h], b1 + w + b2), far: true }];
+      derived = [SD([b1 + w, h], [b1 + w + b2, h], b2)];
+      dims = [{ side: "left", y1: 0, y2: h, text: cm(h), guides: [[b1, 0], [0, h]] }];
+    } else if (r < 0.67) {
+      const w1 = rnd(4, 7), h1 = rnd(3, 5); let t = rnd(2, 4); if (w1 % 2 && t % 2) t++;
+      const w2 = Math.min(rnd(2, 4), 10 - w1), h2 = rnd(2, h1 - 1);
+      parts = [{ kind: 'rect', x: 0, y: t, w: w1, h: h1 }, { kind: 'tri', pts: [[0, t], [w1 / 2, 0], [w1, t]], b: w1, h: t }, { kind: 'rect', x: w1, y: t + h1 - h2, w: w2, h: h2 }];
+      outline = [[0, t], [w1 / 2, 0], [w1, t], [w1, t + h1 - h2], [w1 + w2, t + h1 - h2], [w1 + w2, t + h1], [0, t + h1]];
+      sides = [{ ...SD([0, t + h1], [w1 + w2, t + h1], w1 + w2), far: true }, SD([w1, t + h1 - h2], [w1 + w2, t + h1 - h2], w2), SD([0, t], [0, t + h1], h1), SD([w1 + w2, t + h1 - h2], [w1 + w2, t + h1], h2)];
+      derived = [SD([0, t + h1], [w1, t + h1], w1)];
+      heights = [{ a: [w1 / 2, 0], b: [w1 / 2, t], text: "", foot: true }]; dims = [{ side: "right", y1: 0, y2: t, text: cm(t), guides: [[w1 / 2, 0], [w1, t]] }];
+    } else {
+      const w1 = rnd(5, 9), h1 = rnd(2, 4), w2 = rnd(3, w1 - 2), h2 = rnd(2, 4); let t = rnd(2, 3); if (w2 % 2 && t % 2) t++;
+      parts = [{ kind: 'rect', x: 0, y: t + h2, w: w1, h: h1 }, { kind: 'rect', x: 0, y: t, w: w2, h: h2 }, { kind: 'tri', pts: [[0, t], [w2 / 2, 0], [w2, t]], b: w2, h: t }];
+      outline = [[0, t], [w2 / 2, 0], [w2, t], [w2, t + h2], [w1, t + h2], [w1, t + h2 + h1], [0, t + h2 + h1]];
+      sides = [{ ...SD([0, t], [0, t + h2 + h1], h1 + h2), far: true }, SD([w1, t + h2], [w1, t + h2 + h1], h1), SD([0, t + h2 + h1], [w1, t + h2 + h1], w1), SD([w2, t + h2], [w1, t + h2], w1 - w2)];
+      heights = [{ a: [w2 / 2, 0], b: [w2 / 2, t], text: "", foot: true }]; dims = [{ side: "right", y1: 0, y2: t, text: cm(t), guides: [[w2 / 2, 0], [w2, t]] }];
+      derived = [SD([0, t], [0, t + h2], h2)];
+    }
+  }
+  const A = parts.reduce((s, p) => s + partArea(p), 0), P = Math.round(polyPerim(outline));
+  const isArea = ask === 'area';
+  const spec = { parts, outline, sides, heights, dims, grid, dashed };
+  const R = parts[0], T = parts.find(p => p.kind === 'tri');
+  const showDerived = () => derived.forEach(s => sideLabel(s, { parent: FL.fx, cls: 'hl' }));
+  const what = { rect: name === 'kvadratens' ? 'kvadrat' : 'rektangel', tri: 'triangel', comp: parts.length + ' delar', lomk: 'L-figur' }[kind];
+  return {
+    skill: 'area', level, kicker: kick('area', level), text: `Vad är ${name} ${isArea ? 'area' : 'omkrets'}?`,
+    sub: derived.length ? 'Alla sidor har inte mått. Räkna ut de som saknas med hjälp av de andra.' : kind === 'comp' ? `Figuren är ihopsatt av ${parts.length} delar.` : grid ? 'Varje ruta är 1 cm lång.' : 'Måtten står vid sidorna.',
+    input: 'num', answer: isArea ? A : P, unit: isArea ? 'cm²' : 'cm', describe: `${isArea ? 'Area' : 'Omkrets'}: ${what}`,
+    remake: () => genArea(level),
+    build() { drawFlat(spec); },
+    hint() {
+      if (kind === 'rect' && isArea) {
+        if (grid) { svgEl('rect', { x: 0, y: 0, width: R.w, height: 1, class: 'rowfill' }, FL.fx); return `En rad har ${R.w} rutor. Hur många rader finns det?`; }
+        innerGrid(R); return `Tänk dig rutor: ${R.w} i varje rad och ${R.h} rader.`;
+      }
+      if (kind === 'rect') { sideLabel(SD([0, 0], [R.w, 0], R.w), { parent: FL.fx, cls: 'hl' }); sideLabel(SD([R.w, 0], [R.w, R.h], R.h), { parent: FL.fx, cls: 'hl' }); return 'Omkretsen är hela vägen runt. Sidorna mittemot varandra är lika långa.'; }
+      if (kind === 'tri') { triBox(T); return 'Triangeln är hälften av rektangeln runt den. Räkna ut rektangelns area och dela med 2.'; }
+      const dTxt = derived.length ? ' De blå måtten har jag räknat ut från de andra sidorna.' : '';
+      if (kind === 'lomk') { showDerived(); return 'Gå runt hela figuren och lägg ihop alla sex sidor.' + dTxt; }
+      colorParts(); showDerived(); return `Dela upp figuren i ${parts.length} delar. Räkna ut arean av varje del och lägg ihop.` + dTxt;
+    },
+    reveal(ok) {
+      FL.fx.innerHTML = '';
+      showDerived();
+      let text;
+      if (kind === 'rect' && isArea) { rectRows(R); text = `${R.h} rader med ${R.w} i varje: ${R.w} · ${R.h} = <b>${A}</b> cm².`; }
+      else if (kind === 'rect' || kind === 'lomk') { traceSides(trace); text = `${trace.map(s => parseInt(s.text, 10)).join(' + ')} = <b>${P}</b> cm.`; }
+      else if (kind === 'tri') { triBox(T); colorParts(); partAreaLabels(); text = `Rektangeln runt är ${T.b} · ${T.h} = ${T.b * T.h} cm². Triangeln är hälften: <b>${A}</b> cm².`; }
+      else { colorParts(); partAreaLabels(); text = parts.map((p, i) => `<i class="sw sw-p${i}"></i> Del ${i + 1}: ${partExpr(p)}`).join('<br>') + `<br>${parts.map(partArea).join(' + ')} = <b>${A}</b> cm²`; }
+      return { text, auto: ok ? 3200 : 0 };
+    },
+    tag(g) {
+      g = Number(g);
+      if (kind === 'rect') { if (isArea && g === P) return 'area-omkrets'; if (!isArea && g === A) return 'area-omkrets'; if (!isArea && g === R.w + R.h) return 'halv-omkrets'; }
+      if (kind === 'tri' && g === T.b * T.h) return 'triangel-halva';
+      if (kind === 'comp') { if (parts.some(p => partArea(p) === g)) return 'en-del'; if (parts.some(p => p.kind === 'tri' && g === A + partArea(p))) return 'triangel-halva'; }
+      return null;
+    },
+  };
+}
+function genNets(level) {
+  let net = null;
+  if (level === 3) {
+    const cells = transformNet(pick(NETS_VALID));
+    const letters = shuffle(['A', 'B', 'C', 'D', 'E', 'F']); const map = {};
+    cells.forEach((c, i) => map[c[0] + ',' + c[1]] = letters[i]);
+    const NI = netInfo(cells);
+    let faceA, ans;
+    for (const ni of NI.info.values()) if (map[NI.key(...ni.cell)] === 'A') faceA = ni.o.D;
+    for (const ni of NI.info.values()) if (ni.o.D === OPP[faceA]) ans = map[NI.key(...ni.cell)];
+    return {
+      skill: 'nets', level, kicker: kick('nets', level), text: 'Vik ihop i tanken. Vilken bokstav hamnar mittemot A?', sub: 'Mittemot betyder på andra sidan kuben.',
+      input: 'choice', choices: ['B', 'C', 'D', 'E', 'F'].map(x => ({ label: x, value: x })), answer: ans, describe: 'Mittemot A',
+      remake: () => genNets(level),
+      build() { if (!has3D) return; net = buildNet(cells, { letters: map }); netView(net.span); },
+      hint() { return 'Två rutor med precis en ruta emellan, på rak linje, hamnar mittemot varandra.'; },
+      reveal(ok) {
+        if (net) { foldNet(net, 1); later(1700, () => { rotTY += Math.PI; }); }
+        return { text: `<b>${ans}</b> hamnar mittemot A. Snurra på kuben och kolla!`, auto: 0 };
+      },
+    };
+  }
+  const wantValid = Math.random() < 0.5;
+  let cells = level === 1 ? pick(wantValid ? NETS_EASY_VALID : NETS_EASY_INVALID) : transformNet(pick(wantValid ? NETS_VALID : NETS_INVALID));
+  cells = normCells(cells);
+  const valid = netInfo(cells).valid;
+  return {
+    skill: 'nets', level, kicker: kick('nets', level), text: 'Går det att vika ihop den här till en kub?', sub: 'Tänk dig att du viker längs linjerna.',
+    input: 'choice', choices: [{ label: 'Ja', value: 'ja' }, { label: 'Nej', value: 'nej' }], answer: valid ? 'ja' : 'nej', describe: 'Utfällning blir kub?',
+    remake: () => genNets(level),
+    build() { if (!has3D) return; net = buildNet(cells); netView(net.span); },
+    hint() {
+      if (net) { net.rootInfo.mat.color.set('#FFFFFF'); addLabel('botten', anchorAt(net.rootInfo.node, 0, 0.1, 0), { cls: 'sun' }); }
+      return 'Tänk att den vita rutan är botten. Vilka rutor blir väggar och vilken blir lock? Krockar två rutor?';
+    },
+    reveal(ok) {
+      if (net) { foldNet(net, 1); later(1750, () => { if (!valid) markCollisions(net); }); }
+      return { text: valid ? 'Den blir en kub!' : 'Två sidor hamnar på samma ställe (röda), så det blir ingen kub.', auto: 0 };
+    },
+  };
+}
+
+/* ============ Spelmotor ============ */
+let run = null;
+const RIGHT = ['Rätt!', 'Snyggt!', 'Precis!', 'Ja!', 'Bra!', 'Klockrent!'];
+function show(id) {
+  $$('.screen').forEach(s => s.hidden = s.id !== id);
+  if (id === 'home') renderHome();
+  if (id === 'free') renderFree();
+  if (id === 'play') startLoop(); else { stopLoop(); mascotHide(); setLevelBg(null); }
+}
+function tick() {
+  if (!run) return;
+  const now = Date.now(); const d = Math.min(now - run.lastTick, 60000);
+  run.activeMs += d; run.lastTick = now; today().ms += d;
+}
+function countGood() { return ALL_FACTS.filter(([a, b]) => (S.facts[a + 'x' + b]?.box || 0) >= 4).length; }
+
+function startRun(mode, cfg = {}) {
+  run = { mode, cfg, start: Date.now(), lastTick: Date.now(), activeMs: 0, n: 0, right: 0, first: 0, queue: [], recentKeys: [], lastGeo: null, streakMul: 0, streakGeo: 0, levelUps: [], goodBefore: countGood(), task: null, phase: 'ask', durMs: S.settings.passMin * 60000, hintUsed: false, input: '' };
+  show('play'); resize();
+  $('#exitBtn').textContent = mode === 'pass' ? 'Avsluta' : 'Klar';
+  $('#progress').hidden = mode !== 'pass';
+  $('#countTxt').hidden = mode === 'pass';
+  $('#hintBtn').hidden = false;
+  nextTask();
+}
+function chooseArea() {
+  if (run.n < 2) return 'mul';
+  if (run.streakGeo >= 2) return 'mul';
+  if (run.streakMul >= 6) return 'geo';
+  return Math.random() < S.settings.mix ? 'mul' : 'geo';
+}
+function chooseGeo() {
+  const ids = Object.keys(GEO).filter(id => id !== run.lastGeo);
+  const ws = ids.map(id => { const g = geoState(id); return (id === 'area' ? 2.2 : 1) * (g.level < GEO[id].max ? 1.5 : 0.7) / (1 + g.seen * 0.03); });
+  let r = Math.random() * ws.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < ids.length; i++) { r -= ws[i]; if (r <= 0) return ids[i]; }
+  return ids[0];
+}
+function makeTask() {
+  const area = run.mode === 'pass' ? chooseArea() : run.cfg.area;
+  if (area === 'mul') { run.streakMul++; run.streakGeo = 0; return nextMul(run.cfg.pool || ALL_FACTS); }
+  run.streakGeo++; run.streakMul = 0;
+  const id = run.cfg.skill && run.cfg.skill !== 'mix' ? run.cfg.skill : chooseGeo();
+  run.lastGeo = id;
+  return GEO[id].gen(geoState(id).level);
+}
+function takeQueued() {
+  run.queue.forEach(q => q.due--);
+  const i = run.queue.findIndex(q => q.due <= 0);
+  return i >= 0 ? run.queue.splice(i, 1)[0].make() : null;
+}
+/* Banor i dagens pass: bakgrunden visar hur långt man kommit.
+   PROGRESS-bilderna delar på passets tid. När tiden är slut kommer DOOR_TASKS uppgifter vid dörren
+   och sist FINAL_TASKS uppgifter i det sista rummet, sedan sammanfattningen. */
+const LEVELS = { progress: ['progress1', 'progress2', 'progress3'], door: 'door', final: 'final' };
+const DOOR_TASKS = 1, FINAL_TASKS = 1;
+let levelShown = null, levelLayer = 0;
+function setLevelBg(key) {
+  if (key === levelShown) return;
+  levelShown = key;
+  const layers = $$('#stage .lvl-bg');
+  if (!key) { layers.forEach(l => l.classList.remove('on')); return; }
+  levelLayer = 1 - levelLayer;
+  const next = layers[levelLayer], prev = layers[1 - levelLayer];
+  next.style.backgroundImage = `url(assets/levels/${key}.jpg)`;
+  next.classList.add('on'); prev.classList.remove('on');
+}
+function passStage() {
+  if (run.ending) return run.endLeft >= FINAL_TASKS ? 'door' : 'final';
+  const p = Math.min(0.999, run.activeMs / run.durMs);
+  return LEVELS.progress[Math.floor(p * LEVELS.progress.length)];
+}
+function nextTask() {
+  if (!run) return;
+  tick();
+  if (run.mode === 'pass') {
+    if (!run.ending && run.activeMs >= run.durMs && run.n >= 5) { run.ending = true; run.endLeft = DOOR_TASKS + FINAL_TASKS; }
+    if (run.ending) { if (run.endLeft <= 0) return finishRun(); run.endLeft--; }
+    const stage = passStage(), was = levelShown;
+    setLevelBg(stage);
+    if (stage !== was && stage === 'door') setTimeout(() => mascotPop('Du har hittat dörren! Klara den här så öppnas den.', 3200), 500);
+    if (stage !== was && stage === 'final') setTimeout(() => mascotPop('Du är inne i det hemliga rummet! Sista uppgiften!', 3200), 500);
+  }
+  const t = takeQueued() || makeTask();
+  run.task = t; run.phase = 'ask'; run.hintUsed = false; run.input = ''; run.attempt = 1; run.firstGiven = null;
+  clearScene();
+  if (has3D) world.position.set(0, 0, 0);
+  t.build();
+  renderTask(t);
+  updateTopbar();
+  run.shownAt = Date.now();
+}
+function updateTopbar() {
+  if (!run) return;
+  if (run.mode === 'pass') $('#progress i').style.width = (run.ending ? 100 : Math.min(100, (run.activeMs + Math.min(Date.now() - run.lastTick, 60000)) / run.durMs * 100)) + '%';
+  else $('#countTxt').textContent = `${run.n} gjorda · ${run.right} rätt`;
+}
+setInterval(() => { if (run && run.mode === 'pass' && !$('#play').hidden) updateTopbar(); }, 1000);
+
+function keypad(container, onDigit, onDel, onOk) {
+  container.innerHTML = `<div class="keypad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button class="key" data-k="${n}">${n}</button>`).join('')}<button class="key del" data-k="del" aria-label="Sudda"></button><button class="key" data-k="0">0</button><button class="key ok" data-k="ok" aria-label="OK"></button></div>`;
+  container.querySelectorAll('.key').forEach(b => b.addEventListener('click', () => { const k = b.dataset.k; if (k === 'del') onDel(); else if (k === 'ok') onOk(); else onDigit(k); }));
+}
+function renderTask(t) {
+  const body = $('#panelBody');
+  const slotRow = t.input === 'num' && !t.inlineSlot ? `<div class="q-answer"><span class="slot">?</span>${t.unit ? `<span class="unit">${esc(t.unit)}</span>` : ''}</div>` : '';
+  body.innerHTML = `<div class="task-layout"><div class="q-area"><div class="q-kicker">${esc(t.kicker)}</div><div class="q-text${t.big ? ' big' : ''}">${t.text}</div>${slotRow}${t.sub ? `<p class="q-sub">${esc(t.sub)}</p>` : ''}</div><div class="fb-zone"><div class="say"><img class="say-dino" src="assets/dino_ring.png" alt=""><div class="feedback" id="fb" aria-live="polite"></div></div></div><div class="input-area" id="inputArea"></div></div>`;
+  const ia = $('#inputArea');
+  if (t.input === 'num') keypad(ia, d => { if (run.phase !== 'ask' || run.input.length >= 4) return; run.input = (run.input === '0' ? '' : run.input) + d; updateSlot(); }, () => { if (run.phase !== 'ask') return; run.input = run.input.slice(0, -1); updateSlot(); }, submit);
+  else {
+    ia.innerHTML = `<div class="choices">${t.choices.map(c => `<button class="choice" data-v="${esc(c.value)}">${esc(c.label)}</button>`).join('')}</div>`;
+    ia.querySelectorAll('.choice').forEach(b => b.addEventListener('click', () => { if (run.phase === 'ask') handleAnswer(b.dataset.v, b); }));
+  }
+  const hb = $('#hintBtn'); hb.disabled = !t.hint;
+}
+function updateSlot() { const s = $('.slot'); if (!s) return; s.textContent = run.input || '?'; s.classList.toggle('filled', !!run.input); }
+function submit() { if (!run || run.phase !== 'ask' || !run.input) return; handleAnswer(Number(run.input)); }
+/* Maskoten Dino poppar upp vid rätt-i-rad, ny nivå och comebacks */
+const MASCOT = {
+  streak: ['{n} rätt i rad! Du är grym!', '{n} i rad! Vilken fart!', 'Wow, {n} rätt i rad!', '{n} i rad! Fossilsnabbt!'],
+  level: ['Ny nivå! Nu blir det lite klurigare.', 'Du klättrade upp en nivå!', 'Nivå upp! Bra jobbat!'],
+  retry: ['Snyggt att du klurade ut det!', 'Där satt den!', 'Bra kämpat!'],
+};
+let mascotTimer = 0;
+function mascotPop(text, ms = 2800) {
+  const m = $('#mascot'); if (!m) return;
+  clearTimeout(mascotTimer);
+  $('#mascotTxt').textContent = text; $('#stageHint').style.opacity = 0;
+  m.hidden = false; m.classList.remove('out', 'show'); void m.offsetWidth; m.classList.add('show');
+  mascotTimer = setTimeout(() => { m.classList.remove('show'); m.classList.add('out'); mascotTimer = setTimeout(() => { m.hidden = true; m.classList.remove('out'); }, 360); }, ms);
+}
+function mascotHide() { clearTimeout(mascotTimer); const m = $('#mascot'); if (m) { m.hidden = true; m.classList.remove('show', 'out'); } }
+const canRetry = t => t.input === 'num' || (t.choices && t.choices.length >= 3);
+function handleAnswer(value, btn) {
+  const t = run.task; tick();
+  const ok = String(value) === String(t.answer);
+  const tag = !ok && t.tag ? t.tag(value) : null;
+  if (!ok && run.attempt === 1 && canRetry(t)) {
+    // Första felet: nytt försök med ett tips, inte svaret.
+    run.attempt = 2; run.firstGiven = value;
+    if (tag) addTag(tag);
+    let extra = '';
+    if (t.hint && !run.hintUsed) { run.hintUsed = true; extra = t.hint(); $('#hintBtn').disabled = true; }
+    const fb = $('#fb'); fb.className = 'feedback no';
+    fb.innerHTML = `<strong>Inte riktigt.</strong> Försök en gång till!${extra ? `<br><strong>Tips:</strong> ${extra}` : ''}`;
+    if (t.input === 'num') { run.input = ''; const s = $('.slot'); s.textContent = '?'; s.classList.remove('filled', 'shake'); void s.offsetWidth; s.classList.add('shake'); }
+    else if (btn) { btn.classList.add('no'); btn.disabled = true; }
+    return;
+  }
+  const ms = Math.min(Date.now() - run.shownAt, 60000);
+  const first = ok && run.attempt === 1;
+  const change = record(t, ok, first, ms, tag, value);
+  run.n++; if (ok) run.right++; if (first) run.first++;
+  run.streak = first ? (run.streak || 0) + 1 : 0;
+  if (ok && t.input === 'num') ($('.q-answer') || $('.q-text'))?.classList.add('glow');
+  if (change > 0) mascotPop(pick(MASCOT.level));
+  else if ([3, 6, 10, 15, 20, 30].includes(run.streak)) mascotPop(pick(MASCOT.streak).replace('{n}', run.streak));
+  else if (ok && !first) mascotPop(pick(MASCOT.retry), 2000);
+  run.phase = 'reveal';
+  $('#hintBtn').disabled = true;
+  const slot = $('.slot');
+  if (slot) { slot.classList.add(ok ? 'ok' : 'no'); if (!ok) slot.insertAdjacentHTML('afterend', ` <span class="slot ok">${esc(t.answer)}</span>`); }
+  if (t.input === 'choice') $$('.choice').forEach(b => { if (b.dataset.v === String(t.answer)) b.classList.add('ok'); else if (b === btn) b.classList.add('no'); b.disabled = true; });
+  const r = t.reveal(ok) || {};
+  const fb = $('#fb');
+  fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+  fb.innerHTML = `<strong>${ok ? (first ? pick(RIGHT) : 'Rätt på andra försöket!') : 'Inte riktigt.'}</strong> ${r.text || ''}${change > 0 ? `<span class="lvl">Ny nivå i ${esc(GEO[t.skill].name.toLowerCase())}!</span>` : ''}`;
+  if (!first && t.remake) run.queue.push({ make: t.remake, due: 3 });
+  const ia = $('#inputArea');
+  ia.classList.add('revealed');
+  ia.insertAdjacentHTML('beforeend', `<button class="next-btn" id="nextBtn">Nästa</button>`);
+  $('#nextBtn').addEventListener('click', () => { if (run && run.task === t) nextTask(); });
+  updateTopbar();
+}
+function addTag(tag) { const x = S.tags[tag] ||= { n: 0, last: 0 }; x.n++; x.last = Date.now(); }
+function record(t, ok, first, ms, tag, given) {
+  const now = Date.now(); const d = today(); d.n++; if (first) d.right++;
+  const entry = { t: now, s: t.skill, q: t.describe, g: String(given), a: String(t.answer), ok, ms, h: run.hintUsed ? 1 : 0 };
+  if (run.firstGiven != null) entry.g1 = String(run.firstGiven);
+  S.log.push(entry);
+  if (S.log.length > 300) S.log.splice(0, S.log.length - 300);
+  if (tag) addTag(tag);
+  let change = 0;
+  if (t.skill === 'mul') updateFact(t.key, first, ms, run.hintUsed);
+  else change = updateGeo(t.skill, ok ? (first && !run.hintUsed ? 1 : 0.5) : 0);
+  save(); return change;
+}
+function updateFact(k, ok, ms, hint) {
+  const f = S.facts[k] ||= { box: 0, n: 0, r: 0, ms: 0, last: 0 };
+  f.n++;
+  if (ok) { f.r++; f.ms = f.ms ? Math.round(f.ms * 0.7 + ms * 0.3) : ms; }
+  const fast = ms < FAST_MS && !hint;
+  if (!ok) f.box = 1;
+  else if (f.box === 0) f.box = fast ? 3 : 2;
+  else if (fast) f.box = Math.min(5, f.box + 1);
+  else if (f.box < 3) f.box++;
+  f.last = Date.now();
+}
+function updateGeo(id, score) {
+  const g = geoState(id); g.seen++; if (score === 1) g.right++; g.last = Date.now();
+  g.recent.push(score); if (g.recent.length > 5) g.recent.shift();
+  const sum = g.recent.reduce((a, b) => a + b, 0);
+  if (g.recent.length >= 5 && sum >= 4 && g.level < GEO[id].max) { g.level++; g.recent = []; run.levelUps.push({ id, level: g.level }); return 1; }
+  const l2 = g.recent.slice(-2);
+  if (l2.length === 2 && l2[0] === 0 && l2[1] === 0 && g.level > 1) { g.level--; g.recent = []; return -1; }
+  return 0;
+}
+function finishRun() {
+  if (!run) return;
+  tick();
+  const r = run; run = null;
+  if (r.n > 0 || r.activeMs > 20000) { S.sessions.push({ start: r.start, ms: r.activeMs, n: r.n, right: r.right, mode: r.mode, kind: r.cfg.kind || r.cfg.area || '' }); if (S.sessions.length > 200) S.sessions.shift(); }
+  if (r.mode === 'pass' && r.activeMs >= r.durMs * 0.8) today().pass = true;
+  save(); clearScene();
+  if (r.mode === 'pass' && r.n > 0) showSummary(r);
+  else show(r.mode === 'pass' ? 'home' : 'free');
+}
+function showSummary(r) {
+  const full = r.activeMs >= r.durMs * 0.8;
+  $('#sumTitle').textContent = r.ending ? 'Du hittade det hemliga rummet!' : full ? 'Bra jobbat!' : 'Bra kämpat!';
+  $('#sumLead').textContent = `Du gjorde ${r.n} ${r.n === 1 ? 'uppgift' : 'uppgifter'} på ${fmtMin(r.activeMs)}.`;
+  const good = countGood(), diff = good - r.goodBefore;
+  $('#sumStats').innerHTML = `<div class="stat"><b>${r.right} av ${r.n}</b><span>rätt svar${r.right > r.first ? `, varav ${r.first} på första försöket` : ''}</span></div><div class="stat"><b>${good}</b><span>gångertal som sitter${diff > 0 ? ` (+${diff} idag)` : ''}</span></div>`;
+  $('#sumNotes').innerHTML = r.levelUps.map(u => `<li>Ny nivå i ${esc(GEO[u.id].name.toLowerCase())}: nivå ${u.level}</li>`).join('') + `<li>Vill du fortsätta? I fri lek finns ingen klocka.</li>`;
+  show('summary');
+}
+
+/* ============ Sandlådor ============ */
+function startSandbox(kind) {
+  run = { mode: 'sandbox', cfg: { kind }, start: Date.now(), lastTick: Date.now(), activeMs: 0, n: 0, right: 0, queue: [], recentKeys: [], levelUps: [], task: null, phase: 'none' };
+  show('play'); resize();
+  $('#exitBtn').textContent = 'Tillbaka';
+  $('#progress').hidden = true; $('#countTxt').hidden = true; $('#hintBtn').hidden = true;
+  clearScene(); if (has3D) world.position.set(0, 0, 0);
+  ({ build: sbBuild, explore: sbExplore, fold: sbFold })[kind]();
+}
+function sbBuild() {
+  let a = 4, b = 6, split = false;
+  const body = $('#panelBody');
+  body.innerHTML = `<div class="sb"><div class="q-kicker">Bygg gångertal</div><div class="sb-eq" id="sbEq"></div>
+    <div class="steppers"><div class="stepper"><span>Rader</span><button data-st="a-" aria-label="Färre rader">−</button><b id="stA"></b><button data-st="a+" aria-label="Fler rader">+</button></div>
+    <div class="stepper"><span>I varje rad</span><button data-st="b-" aria-label="Färre i varje rad">−</button><b id="stB"></b><button data-st="b+" aria-label="Fler i varje rad">+</button></div></div>
+    <div class="row"><button class="btn" id="sbSwap">Byt plats</button><button class="btn" id="sbSplit">Dela upp</button><button class="btn" id="sbSkip">Hoppräkna</button></div>
+    <div class="explain" id="sbNote"></div></div>`;
+  function draw(anim = 'fast') {
+    tick(); clearScene();
+    $('#stA').textContent = a; $('#stB').textContent = b; $('#sbEq').textContent = `${a} · ${b} = ${a * b}`;
+    const s = b > 5 ? 5 : Math.floor(b / 2), canSplit = split && b >= 2;
+    const note = $('#sbNote');
+    if (canSplit) note.innerHTML = `<p>Ett svårt gångertal kan delas upp i två lättare. Räkna ut båda delarna och lägg ihop dem.</p><div class="eqs"><div><i class="sw sw-a"></i>${a} · ${s} = ${a * s}</div><div><i class="sw sw-b"></i>${a} · ${b - s} = ${a * (b - s)}</div><div class="eq-sum">${a * s} + ${a * (b - s)} = ${a * b}</div></div>`;
+    else if (split) note.innerHTML = '<p>Det behövs minst 2 klossar i varje rad för att kunna dela upp.</p>';
+    else note.innerHTML = '<p>Vrid på klossarna med fingret. Tryck på Byt plats: det blir lika många klossar fast åt andra hållet.</p>';
+    if (!has3D) return;
+    const keepY = rotTY;
+    mulBase(a, b, b, 'prod'); rotTY = keepY; world.rotation.y = keepY;
+    const { ox, oz } = mulOrigin(a, b);
+    buildGrid(a, b, ox, oz, { anim, split: canSplit ? { axis: 'col', at: s } : null, rowLabels: anim === 'rows' });
+    if (canSplit) {
+      addLabel(`${a} · ${s} = ${a * s}`, anchorAt(content, ox + (s - 1) / 2, 1.3, oz - 1), { cls: 'big' });
+      addLabel(`${a} · ${b - s} = ${a * (b - s)}`, anchorAt(content, ox + s + GAP + (b - s - 1) / 2, 1.3, oz - 1), { cls: 'big sun' });
+    }
+  }
+  body.querySelectorAll('[data-st]').forEach(btn => btn.addEventListener('click', () => {
+    const s = btn.dataset.st; if (s === 'a-') a = Math.max(1, a - 1); if (s === 'a+') a = Math.min(10, a + 1); if (s === 'b-') b = Math.max(1, b - 1); if (s === 'b+') b = Math.min(10, b + 1); draw('none');
+  }));
+  $('#sbSwap').addEventListener('click', () => { [a, b] = [b, a]; draw('fast'); });
+  $('#sbSplit').addEventListener('click', () => { split = !split; $('#sbSplit').classList.toggle('primary', split); draw('none'); });
+  $('#sbSkip').addEventListener('click', () => draw('rows'));
+  draw('fast');
+}
+function sbExplore() {
+  let id = 'kub', what = null, obj = null;
+  const body = $('#panelBody');
+  body.innerHTML = `<div class="sb"><div class="q-kicker">Utforska kroppar</div><div class="chips" id="exShapes">${Object.keys(SOLIDS).map(k => `<button class="chip" data-id="${k}">${cap(SOLIDS[k].name)}</button>`).join('')}</div>
+    <div class="seg" id="exWhat"><button data-w="f">Ytor</button><button data-w="e">Kanter</button><button data-w="v">Hörn</button></div>
+    <div class="facts" id="exFacts"></div><p class="q-sub" id="exClue"></p></div>`;
+  function draw() {
+    tick(); clearScene(); solidView(what === null); obj = buildSolid(id);
+    const def = SOLIDS[id];
+    $$('#exShapes .chip').forEach(c => c.classList.toggle('on', c.dataset.id === id));
+    $$('#exWhat button').forEach(b => { b.classList.toggle('on', b.dataset.w === what); b.disabled = !!def.curved; });
+    $('#exFacts').innerHTML = def.curved ? `<div class="fact">${cap(def.name)} har böjda ytor, så vi räknar inte kanter och hörn på samma sätt.</div>` : ['f', 'e', 'v'].map(w => `<div class="fact"><b>${def[w]}</b>${WHAT[w]}</div>`).join('');
+    $('#exClue').textContent = def.clue;
+    if (obj && !def.curved && what) countSequence(obj, what, 90, 100);
+  }
+  body.querySelectorAll('#exShapes .chip').forEach(c => c.addEventListener('click', () => { id = c.dataset.id; draw(); }));
+  body.querySelectorAll('#exWhat button').forEach(b => b.addEventListener('click', () => { what = what === b.dataset.w ? null : b.dataset.w; draw(); }));
+  draw();
+}
+function sbFold() {
+  let sel = new Set(['2,0', '1,1', '2,1', '3,1', '2,2', '2,3']), net = null, folded = false;
+  const body = $('#panelBody');
+  body.innerHTML = `<div class="sb"><div class="q-kicker">Vik en kub</div><p class="q-sub">Tryck på rutorna och rita en utfällning med 6 rutor. Tryck sedan på Vik ihop.</p>
+    <div class="netgrid" id="netGrid">${[...Array(25).keys()].map(i => `<button data-c="${i % 5},${Math.floor(i / 5)}" aria-label="Ruta ${i + 1}"></button>`).join('')}</div>
+    <div class="row"><button class="btn primary" id="foldBtn">Vik ihop</button><button class="btn" data-p="random">Slumpa</button><button class="btn" data-p="clear">Rensa</button></div>
+    <div class="feedback" id="foldMsg"></div></div>`;
+  const cellsOf = () => [...sel].map(k => k.split(',').map(Number));
+  function connected(cells) { return cells.length > 0 && netInfo(cells).connected; }
+  function draw() {
+    tick(); clearScene(); folded = false; net = null;
+    $$('#netGrid button').forEach(b => b.classList.toggle('on', sel.has(b.dataset.c)));
+    const cells = cellsOf(); const msg = $('#foldMsg'); msg.className = 'feedback'; msg.innerHTML = '';
+    const ok = cells.length === 6 && connected(cells);
+    $('#foldBtn').disabled = !ok; $('#foldBtn').textContent = 'Vik ihop';
+    if (cells.length !== 6) { msg.className = 'feedback tip'; msg.textContent = `Välj 6 rutor. Du har ${cells.length}.`; }
+    else if (!ok) { msg.className = 'feedback tip'; msg.textContent = 'Alla rutor måste sitta ihop med en hel sida.'; }
+    if (!has3D || !cells.length) return;
+    net = buildNet(normCells(cells)); netView(5);
+  }
+  $$('#netGrid button').forEach(b => b.addEventListener('click', () => { const c = b.dataset.c; if (sel.has(c)) sel.delete(c); else sel.add(c); draw(); }));
+  $('#foldBtn').addEventListener('click', () => {
+    if (!net) return; tick();
+    folded = !folded; foldNet(net, folded ? 1 : 0);
+    $('#foldBtn').textContent = folded ? 'Veckla ut' : 'Vik ihop';
+    const msg = $('#foldMsg');
+    if (folded) {
+      const v = net.NI.valid; const n = net;
+      later(1750, () => { if (net !== n || !folded) return; if (!v) markCollisions(n); msg.className = 'feedback ' + (v ? 'ok' : 'no'); msg.innerHTML = v ? '<strong>Det blev en kub!</strong> Snurra och titta på den.' : '<strong>Ingen kub.</strong> De röda rutorna hamnar på samma ställe.'; });
+    } else { msg.className = 'feedback'; msg.innerHTML = ''; for (const ni of net.NI.info.values()) ni.mat.color.set(ni.color); }
+  });
+  body.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.p === 'clear') sel = new Set();
+    else {
+      let c; do { c = transformNet(pick([...NETS_VALID, ...NETS_INVALID])); } while (Math.max(...c.map(p => p[0])) > 4 || Math.max(...c.map(p => p[1])) > 4);
+      sel = new Set(c.map(p => p[0] + ',' + p[1]));
+    }
+    draw();
+  }));
+  draw();
+}
+
+/* ============ Start & fri lek ============ */
+function renderHome() {
+  $('#hello').textContent = S.name ? `Hej ${S.name}!` : 'Hej!';
+  $('#passLen').textContent = `ca ${S.settings.passMin} minuter`;
+  const good = countGood(); const t = S.days[dayKey()];
+  $('#homeStatus').innerHTML = `<span class="pill"><span class="dot"></span><b>${good} av 100</b> gångertal sitter</span>` + (t?.pass ? `<span class="pill">Dagens pass är gjort</span>` : '');
+}
+let tableSel = new Set(['all']);
+function renderFree() {
+  const tc = $('#tableChips');
+  tc.innerHTML = ['all', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'hard'].map(v => `<button class="chip${tableSel.has(String(v)) ? ' on' : ''}" data-t="${v}">${v === 'all' ? 'Alla' : v === 'hard' ? 'Svåraste' : v}</button>`).join('');
+  tc.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    const v = c.dataset.t;
+    if (v === 'all' || v === 'hard') tableSel = new Set([v]);
+    else { tableSel.delete('all'); tableSel.delete('hard'); if (tableSel.has(v)) tableSel.delete(v); else tableSel.add(v); if (!tableSel.size) tableSel.add('all'); }
+    renderFree();
+  }));
+  const gc = $('#geoChips');
+  gc.innerHTML = [...Object.keys(GEO), 'mix'].map(id => `<button class="chip" data-g="${id}">${id === 'mix' ? 'Blandat' : GEO[id].short}</button>`).join('');
+  gc.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => startRun('free', { area: 'geo', skill: c.dataset.g })));
+}
+$('#startTables').addEventListener('click', () => {
+  let pool;
+  if (tableSel.has('hard')) { pool = hardestFacts(12); if (pool.length < 4) pool = ALL_FACTS.filter(([a, b]) => a >= 6 && b >= 6); }
+  else if (tableSel.has('all')) pool = ALL_FACTS;
+  else { const m = new Map(); for (const t of tableSel) for (let b = 1; b <= 10; b++) { const n = Number(t); m.set(n + 'x' + b, [n, b]); m.set(b + 'x' + n, [b, n]); } pool = [...m.values()]; }
+  startRun('free', { area: 'mul', pool });
+});
+$('#startPass').addEventListener('click', () => startRun('pass'));
+$('#startFree').addEventListener('click', () => show('free'));
+$$('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
+$$('[data-sandbox]').forEach(b => b.addEventListener('click', () => startSandbox(b.dataset.sandbox)));
+$('#exitBtn').addEventListener('click', () => finishRun());
+$('#hintBtn').addEventListener('click', () => {
+  if (!run || run.phase !== 'ask' || run.hintUsed || !run.task?.hint) return;
+  run.hintUsed = true; const txt = run.task.hint();
+  const fb = $('#fb'); fb.className = 'feedback tip'; fb.innerHTML = `<strong>Tips:</strong> ${txt}`;
+  $('#hintBtn').disabled = true;
+});
+document.addEventListener('keydown', e => {
+  if ($('#play').hidden || !run || !run.task) return;
+  if (run.phase === 'reveal' && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); nextTask(); return; }
+  if (run.phase !== 'ask' || run.task.input !== 'num') return;
+  if (/^[0-9]$/.test(e.key) && run.input.length < 4) { run.input = (run.input === '0' ? '' : run.input) + e.key; updateSlot(); }
+  else if (e.key === 'Backspace') { run.input = run.input.slice(0, -1); updateSlot(); }
+  else if (e.key === 'Enter') submit();
+});
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { tick(); save(); hiddenAt = Date.now(); }
+  else if (run) run.lastTick = Date.now();
+});
+
+/* ============ Föräldraläge ============ */
+let gateAns = 0, gateIn = '';
+$('#toParent').addEventListener('click', () => {
+  const a = rnd(12, 29), b = rnd(3, 9); gateAns = a * b; gateIn = '';
+  const q = () => $('#gateQ').innerHTML = `${a} · ${b} = <span class="slot${gateIn ? ' filled' : ''}">${gateIn || '?'}</span>`;
+  q();
+  keypad($('#gatePad'), d => { if (gateIn.length < 4) { gateIn += d; q(); } }, () => { gateIn = gateIn.slice(0, -1); q(); }, () => {
+    if (Number(gateIn) === gateAns) { show('parent'); renderParent(); } else { gateIn = ''; q(); $('#gateQ').querySelector('.slot').classList.add('no'); }
+  });
+  show('gate');
+});
+const TAGTEXT = {
+  'tab-add': 'Har adderat i stället för att multiplicera (till exempel svarat 15 på 7 · 8).',
+  'tab-step': 'Hamnar ofta ett steg fel i tabellen. Hoppräknar troligen och tappar räkningen.',
+  'tab-swap': 'Byter ibland plats på siffrorna (till exempel 65 i stället för 56).',
+  'kant-hörn': 'Blandar ihop kanter och hörn.',
+  'synliga': 'Räknar ofta bara det som syns och glömmer baksidan av kroppen.',
+  'ett-lager': 'Räknar bara ett lager kuber när volymen ska räknas ut.',
+  'adderar': 'Adderar sidornas längder i stället för att multiplicera när volymen ska räknas ut.',
+  'area-omkrets': 'Blandar ihop area och omkrets.',
+  'halv-omkrets': 'Räknar bara två av fyra sidor när omkretsen ska räknas ut.',
+  'triangel-halva': 'Glömmer att dela med 2 när arean av en triangel ska räknas ut.',
+  'en-del': 'Räknar bara en av delarna i sammansatta figurer.',
+};
+function factStatus(f) { if (!f || !f.n) return 'none'; if (f.box >= 4) return 'good'; if (f.box >= 2) return 'mid'; return 'learn'; }
+const STATUS_TXT = { none: 'Inte övad', learn: 'Övar', mid: 'På väg', good: 'Sitter' };
+function lastDays(n) { const out = []; for (let i = n - 1; i >= 0; i--) out.push(dayKey(Date.now() - i * 86400e3)); return out; }
+function renderParent() {
+  const el = $('#parentBody');
+  const d7 = lastDays(7), d14 = lastDays(14);
+  let ms7 = 0, n7 = 0, r7 = 0; d7.forEach(k => { const d = S.days[k]; if (d) { ms7 += d.ms; n7 += d.n; r7 += d.right; } });
+  const good = countGood();
+  const maxMs = Math.max(60000, ...d14.map(k => S.days[k]?.ms || 0));
+  const WD = ['S', 'M', 'T', 'O', 'T', 'F', 'L'];
+  const chart = d14.map((k, i) => { const ms = S.days[k]?.ms || 0; const m = Math.round(ms / 60000); const dt = new Date(k + 'T12:00'); return `<div class="col${i === 13 ? ' today' : ''}"><span class="v">${m || ''}</span><div class="barv${ms ? '' : ' zero'}" style="height:${Math.max(3, ms / maxMs * 100)}px" title="${m} min"></div><small>${WD[dt.getDay()]}</small></div>`; }).join('');
+  let heat = '<div class="h"></div>' + [...Array(10).keys()].map(j => `<div class="h">${j + 1}</div>`).join('');
+  for (let a = 1; a <= 10; a++) { heat += `<div class="h">${a}</div>`; for (let b = 1; b <= 10; b++) { const f = S.facts[a + 'x' + b]; heat += `<button class="st-${factStatus(f)}" data-f="${a}x${b}" aria-label="${a} gånger ${b}: ${STATUS_TXT[factStatus(f)]}">${a * b}</button>`; } }
+  const hard = hardestFacts(8).filter(([a, b]) => factStatus(S.facts[a + 'x' + b]) !== 'good');
+  const obs = [];
+  const tblScore = [];
+  for (let t = 2; t <= 9; t++) { const fs = []; for (let b = 1; b <= 10; b++) { [S.facts[t + 'x' + b], S.facts[b + 'x' + t]].forEach(f => { if (f?.n) fs.push(f); }); } if (fs.length >= 6) tblScore.push({ t, s: fs.reduce((x, f) => x + f.box, 0) / fs.length }); }
+  tblScore.sort((x, y) => x.s - y.s);
+  if (tblScore.length >= 3 && tblScore[0].s < 3.5) obs.push(`${tblScore[0].t}:ans${tblScore[1].s < 3.5 ? ` och ${tblScore[1].t}:ans` : ''} tabell behöver mest övning just nu.`);
+  const slow = ALL_FACTS.filter(([a, b]) => { const f = S.facts[a + 'x' + b]; return f?.r >= 2 && f.ms > 7000; }).slice(0, 6);
+  if (slow.length) obs.push(`Svarar rätt men långsamt på ${slow.map(([a, b]) => `${a} · ${b}`).join(', ')}. Kan dem, men behöver mer flyt.`);
+  Object.entries(S.tags).filter(([, x]) => x.n >= 2).sort((a, b) => b[1].n - a[1].n).forEach(([k, x]) => TAGTEXT[k] && obs.push(`${TAGTEXT[k]} <span class="sub">(${x.n} gånger)</span>`));
+  const geoRows = Object.keys(GEO).map(id => { const g = S.geo[id]; const lv = g?.level || 1; const pct = g?.seen ? Math.round(g.right / g.seen * 100) + ' %' : '–'; return `<tr><td>${GEO[id].name}</td><td><span class="pips">${[...Array(GEO[id].max).keys()].map(i => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</span> ${lv} av ${GEO[id].max}</td><td>${g?.seen || 0}</td><td>${pct}</td></tr>`; }).join('');
+  const recent = [...S.log].reverse().slice(0, 20).map(x => { const dt = new Date(x.t); return `<tr><td>${dt.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} ${dt.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}</td><td>${x.s === 'mul' ? 'Tabeller' : GEO[x.s]?.short || x.s}</td><td>${esc(x.q)}</td><td>${x.g1 ? esc(x.g1) + ' → ' : ''}${esc(x.g)}${x.ok ? '' : ` <span class="sub">(${esc(x.a ?? '')})</span>`}</td><td class="${x.ok ? 'okc' : 'noc'}">${x.ok ? (x.g1 ? 'Rätt, 2:a försöket' : 'Rätt') : 'Fel'}${x.h ? ' · tips' : ''}</td><td>${(x.ms / 1000).toFixed(1).replace('.', ',')} s</td></tr>`; }).join('');
+  const sess = [...S.sessions].reverse().slice(0, 6).map(x => { const dt = new Date(x.start); const typ = x.mode === 'pass' ? 'Dagens pass' : x.mode === 'sandbox' ? 'Fri lek (bygga/utforska)' : 'Fri lek'; return `<tr><td>${dt.toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' })}</td><td>${typ}</td><td>${fmtMin(x.ms)}</td><td>${x.n ? `${x.right} av ${x.n} rätt` : '–'}</td></tr>`; }).join('');
+  const seg = (name, opts, cur) => `<div class="seg" data-seg="${name}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(v) === String(cur) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  el.innerHTML = `
+    <header class="bar"><h2>Så går det</h2><button class="btn" data-go="home">Stäng</button></header>
+    ${storageOK ? '' : '<div class="warn">Webbläsaren sparar inte data just nu (till exempel i privat läge). Framstegen försvinner när fliken stängs.</div>'}
+    <div class="kpis">
+      <div class="stat"><b>${fmtMin(ms7)}</b><span>tid senaste 7 dagarna</span></div>
+      <div class="stat"><b>${n7}</b><span>uppgifter senaste 7 dagarna</span></div>
+      <div class="stat"><b>${n7 ? Math.round(r7 / n7 * 100) + ' %' : '–'}</b><span>rätt på första försöket, senaste 7 dagarna</span></div>
+      <div class="stat"><b>${good} av 100</b><span>gångertal som sitter</span></div>
+    </div>
+    <div class="section"><h3>Att hålla koll på</h3>${obs.length ? `<ul class="obs">${obs.map(o => `<li>${o}</li>`).join('')}</ul>` : '<p class="sub">Inget särskilt mönster ännu. Här dyker det upp saker när barnet har övat några pass, till exempel om hen blandar ihop area och omkrets.</p>'}</div>
+    <div class="two">
+      <div class="section"><h3>Multiplikationstabellen</h3><p class="sub">Tryck på en ruta för detaljer. Rad = första talet, kolumn = andra talet. Ett gångertal räknas som att det sitter när det har besvarats rätt och snabbt (under 5 sekunder) flera gånger.</p>
+        <div class="heat-wrap"><div class="heat" id="heat">${heat}</div></div>
+        <div class="legend"><span><i class="st-none"></i>Inte övad</span><span><i class="st-learn"></i>Övar</span><span><i class="st-mid"></i>På väg</span><span><i class="st-good"></i>Sitter</span></div>
+        <div class="detail" id="heatDetail">${hard.length ? `Svårast just nu: ${hard.map(([a, b]) => `${a} · ${b}`).join(', ')}` : ''}</div>
+      </div>
+      <div class="section"><h3>Aktivitet</h3><p class="sub">Minuter per dag, senaste 14 dagarna.</p><div class="chart">${chart}</div>
+        <h3 style="margin-top:8px">Senaste passen</h3>${sess ? `<div class="tbl-wrap"><table><thead><tr><th>Dag</th><th>Typ</th><th>Tid</th><th>Resultat</th></tr></thead><tbody>${sess}</tbody></table></div>` : '<p class="sub">Inga pass ännu.</p>'}
+      </div>
+    </div>
+    <div class="section"><h3>Geometri</h3><p class="sub">Nivån höjs efter 4 rätt av 5 och sänks efter 2 fel i rad.</p><div class="tbl-wrap"><table><thead><tr><th>Område</th><th>Nivå</th><th>Uppgifter</th><th>Rätt</th></tr></thead><tbody>${geoRows}</tbody></table></div></div>
+    <div class="section"><h3>Senaste svaren</h3>${recent ? `<div class="tbl-wrap"><table><thead><tr><th>När</th><th>Område</th><th>Uppgift</th><th>Svar (rätt svar)</th><th></th><th>Tid</th></tr></thead><tbody>${recent}</tbody></table></div>` : '<p class="sub">Inga svar ännu.</p>'}</div>
+    <div class="section"><h3>Inställningar</h3>
+      <label class="field">Barnets namn (visas på startsidan)<input id="childName" maxlength="20" value="${esc(S.name)}" placeholder="Valfritt"></label>
+      <div class="field">Längd på dagens pass ${seg('passMin', [[5, '5 min'], [7, '7 min'], [10, '10 min']], S.settings.passMin)}</div>
+      <div class="field">Fördelning i dagens pass ${seg('mix', [[0.75, 'Mest tabeller'], [0.6, 'Lite mer tabeller'], [0.4, 'Mest geometri']], S.settings.mix)}</div>
+    </div>
+    <div class="section"><h3>Säkerhetskopia</h3><p class="sub">Allt sparas bara på den här enheten. Kopiera texten och spara den någonstans om du vill flytta framstegen till en annan enhet eller webbläsare.</p>
+      <textarea id="exportTxt" readonly>${esc(JSON.stringify(S))}</textarea>
+      <div class="row"><button class="btn small" id="copyBtn">Kopiera</button><span class="msg" id="copyMsg"></span></div>
+      <textarea id="importTxt" placeholder="Klistra in en säkerhetskopia här"></textarea>
+      <div class="row"><button class="btn small" id="importBtn">Läs in</button><label class="btn small" for="importFile">Välj fil</label><input type="file" id="importFile" accept=".json,.txt,application/json,text/plain" hidden><span class="msg" id="importMsg"></span></div>
+    </div>
+    <div class="section"><h3>Nollställ</h3><p class="sub">Raderar framstegen på den här enheten. Det går inte att ångra, så ta en säkerhetskopia först om du vill spara något.</p>
+      <div class="row"><button class="btn small" data-reset="mul">Nollställ tabeller</button><button class="btn small" data-reset="geo">Nollställ geometri</button><button class="btn small" data-reset="all">Nollställ allt</button></div><span class="msg" id="resetMsg"></span>
+    </div>`;
+  el.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
+  el.querySelectorAll('#heat button').forEach(b => b.addEventListener('click', () => {
+    el.querySelectorAll('#heat button').forEach(x => x.classList.remove('sel')); b.classList.add('sel');
+    const [a, c] = b.dataset.f.split('x'); const f = S.facts[b.dataset.f];
+    $('#heatDetail').innerHTML = f?.n ? `<b>${a} · ${c} = ${a * c}</b>: ${f.n} försök, ${f.r} rätt${f.ms ? `, snittid ${(f.ms / 1000).toFixed(1).replace('.', ',')} s` : ''}. ${STATUS_TXT[factStatus(f)]}.` : `<b>${a} · ${c}</b>: inte övad ännu.`;
+  }));
+  $('#childName').addEventListener('input', e => { S.name = e.target.value.trim(); save(); });
+  el.querySelectorAll('[data-seg]').forEach(sg => sg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    S.settings[sg.dataset.seg] = Number(b.dataset.v); save();
+    sg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  })));
+  $('#copyBtn').addEventListener('click', () => {
+    const ta = $('#exportTxt');
+    const fallback = () => { ta.focus(); ta.select(); $('#copyMsg').textContent = 'Texten är markerad. Kopiera den med Kopiera i menyn.'; };
+    try { navigator.clipboard.writeText(ta.value).then(() => $('#copyMsg').textContent = 'Kopierat.', fallback); } catch (e) { fallback(); }
+  });
+  let importArmed = null;
+  const doImport = txt => {
+    let d; try { d = JSON.parse(txt); } catch (e) { $('#importMsg').textContent = 'Texten gick inte att läsa. Kontrollera att hela säkerhetskopian är med.'; return; }
+    if (!d || d.v !== 1 || typeof d.facts !== 'object') { $('#importMsg').textContent = 'Det här ser inte ut som en säkerhetskopia från Mattelabbet.'; return; }
+    if (importArmed !== txt) { importArmed = txt; $('#importMsg').textContent = 'Det här ersätter all nuvarande data. Tryck på Läs in igen för att fortsätta.'; return; }
+    S = migrate(d); save(); renderParent(); $('#importMsg').textContent = 'Inläst.';
+  };
+  $('#importBtn').addEventListener('click', () => doImport($('#importTxt').value.trim()));
+  $('#importFile').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#importTxt').value = r.result; importArmed = null; doImport(String(r.result).trim()); }; r.readAsText(f); });
+  el.querySelectorAll('[data-reset]').forEach(b => {
+    const orig = b.textContent; let armed = false, timer;
+    b.addEventListener('click', () => {
+      if (!armed) { armed = true; b.textContent = 'Tryck igen för att radera'; b.classList.add('danger'); timer = setTimeout(() => { armed = false; b.textContent = orig; b.classList.remove('danger'); }, 4000); return; }
+      clearTimeout(timer); const k = b.dataset.reset;
+      if (k === 'mul' || k === 'all') { S.facts = {}; Object.keys(S.tags).filter(t => t.startsWith('tab-')).forEach(t => delete S.tags[t]); }
+      if (k === 'geo' || k === 'all') { S.geo = {}; Object.keys(S.tags).filter(t => !t.startsWith('tab-')).forEach(t => delete S.tags[t]); }
+      if (k === 'all') { const keep = { name: S.name, settings: S.settings }; S = { ...defaults(), ...keep }; }
+      save(); renderParent(); $('#resetMsg').textContent = k === 'all' ? 'Allt är nollställt.' : k === 'mul' ? 'Tabellerna är nollställda.' : 'Geometrin är nollställd.';
+    });
+  });
+}
+
+/* ============ Start ============ */
+initThree();
+// Utvecklarkrok (bara med ?debug i adressen): styr kameran vid granskning av 3D
+if (/[?&]debug/.test(location.search)) window.__dbg = { view, get renderer() { return renderer; }, get scene() { return scene; }, THREE, cam: (dist, elev, rx, ry) => { if (dist != null) view.dist = dist; if (elev != null) view.elev = elev; if (rx != null) rotTX = rx; if (ry != null) rotTY = ry; view.autoSpin = false; } };
+show('home');
+</script>

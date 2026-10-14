@@ -1,0 +1,18 @@
+# Lokala verktygsinställningar
+.claude/
+.codex/
+.agents/
+.vscode/
+.idea/
+
+# Grafiskt arbetsmaterial och säkerhetskopior; appens bilder finns i webb/assets/
+/koncept/
+/*.png
+/tools/prev/
+/tools/backup/
+
+# Tillfälliga filer
+/_site/
+*.log
+Thumbs.db
+.DS_Store
