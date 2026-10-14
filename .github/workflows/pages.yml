@@ -18,14 +18,11 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v6
-      - name: Build web app
-        shell: pwsh
-        run: ./tools/build.ps1
       - name: Prepare site
         run: |
           mkdir _site
           cp webb/index.html _site/index.html
-          cp -R webb/assets _site/assets
+          cp -R webb/css webb/js webb/assets _site/
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
