@@ -109,6 +109,25 @@ export function drawFlat(spec) {
     if (bb.width > 0) flat.setAttribute('viewBox', `${cx - hw} ${cy - hh} ${2 * hw} ${2 * hh}`);
   } catch (e) {}
 }
+/* Fri ritning för områden som inte ritar polygoner med mått (t.ex. bråk).
+   beginFlat tömmer ytan och ger två lager: FL.base för figuren och FL.fx för tips och facit.
+   setFlatBox sätter vilken del av ritytan som visas (x, y, bredd, höjd i ritenheter). */
+export function beginFlat(fs = 0.8) {
+  flat.innerHTML = ''; flat.removeAttribute('hidden');
+  setView({ allowRotate: false });
+  FL = { fs, sw: fs * 0.12, spec: { outline: [] }, parts: [], labels: [], reserved: {}, dash: `${fs * 0.3} ${fs * 0.22}` };
+  FL.base = svgEl('g', {}); FL.fx = svgEl('g', {});
+  return FL;
+}
+export function setFlatBox(x, y, w, h) { flat.setAttribute('viewBox', `${x} ${y} ${w} ${h}`); }
+// Bråk med vågrätt bråkstreck, centrerat kring (x, y).
+export function fracSvg(x, y, a, b, { size = 1, cls = '', parent = FL.fx, delay = 0 } = {}) {
+  const g = svgEl('g', { class: cls }, parent), s = FL.fs * size, w = s * 0.62 * Math.max(String(a).length, String(b).length) + s * 0.3;
+  if (delay) g.style.animationDelay = delay + 'ms';
+  const top = flatText(String(a), x, y - s * 0.62, { parent: g, size }), bot = flatText(String(b), x, y + s * 0.66, { parent: g, size });
+  svgEl('line', { x1: x - w / 2, y1: y, x2: x + w / 2, y2: y, class: 'fline', 'stroke-width': s * 0.09, 'stroke-linecap': 'round' }, g);
+  return { g, top, bot };
+}
 export function innerGrid(R, parent = FL.fx) {
   for (let x = 1; x < R.w; x++) svgEl('line', { x1: R.x + x, y1: R.y, x2: R.x + x, y2: R.y + R.h, class: 'gridl', 'stroke-width': FL.sw * 0.5 }, parent);
   for (let y = 1; y < R.h; y++) svgEl('line', { x1: R.x, y1: R.y + y, x2: R.x + R.w, y2: R.y + y, class: 'gridl', 'stroke-width': FL.sw * 0.5 }, parent);

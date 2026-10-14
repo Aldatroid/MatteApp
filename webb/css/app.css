@@ -378,3 +378,28 @@ body{background:linear-gradient(rgba(6,12,22,.80),rgba(6,12,22,.92)),url(../asse
 .area-row details ol{margin:8px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:2px}
 .area-row details p{margin:8px 0 0}
 .area-row details li.cur{color:var(--ink);font-weight:600}
+
+/* ===== Bråk ===== */
+/* bråk i text: täljare över nämnare med vågrätt bråkstreck */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;font-size:.92em;margin:0 .1em;font-variant-numeric:tabular-nums}
+.frac>span{padding:0 .18em}
+.frac>span+span{border-top:.09em solid currentColor;padding-top:.06em;margin-top:.05em}
+.q-text.big .frac{font-size:.72em}
+.q-text.big .frac .slot{min-width:1.6em;border-bottom-width:4px}
+.choice .frac{font-size:1em}
+/* bråkfigurer i 2D */
+#flat .fr{fill:var(--shape);stroke:var(--ink);stroke-linejoin:round;transition:fill .4s}
+#flat .fr.on{fill:var(--pB)}
+#flat .fline{stroke:var(--ink)}
+#flat .dot{fill:var(--ink);opacity:.85;transition:fill .4s}
+#flat .dot.on{fill:var(--hl);opacity:1}
+#flat .grp{fill:rgba(255,255,255,.05);stroke:var(--ink);stroke-opacity:.45}
+#flat .grp.on{fill:rgba(255,197,49,.14);stroke:var(--hl);stroke-opacity:.9}
+#flat .nl{stroke:var(--ink);stroke-linecap:round}
+#flat .nl.segA{stroke:var(--pA)}
+#flat .nl.segB{stroke:var(--pC)}
+#flat .arrow{fill:var(--hl)}
+#flat .arrow-stem{stroke:var(--hl)}
+#flat .win{fill:none;stroke:var(--hl)}
+#flat g.pop{opacity:0;animation:pop .35s ease-out forwards}
+.nw{white-space:nowrap}

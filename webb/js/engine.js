@@ -129,7 +129,7 @@ function renderTask(t) {
   ia.classList.toggle('num', t.input === 'num');
   if (t.input === 'num') keypad(ia, d => { if (run.phase !== 'ask' || run.input.length >= 4) return; run.input = (run.input === '0' ? '' : run.input) + d; updateSlot(); }, () => { if (run.phase !== 'ask') return; run.input = run.input.slice(0, -1); updateSlot(); }, submit);
   else {
-    ia.innerHTML = `<div class="choices">${t.choices.map(c => `<button class="choice" data-v="${esc(c.value)}">${esc(c.label)}</button>`).join('')}</div>`;
+    ia.innerHTML = `<div class="choices">${t.choices.map(c => `<button class="choice" data-v="${esc(c.value)}" aria-label="${esc(c.label)}">${c.html ?? esc(c.label)}</button>`).join('')}</div>`;
     ia.querySelectorAll('.choice').forEach(b => b.addEventListener('click', () => { if (run.phase === 'ask') handleAnswer(b.dataset.v, b); }));
   }
   const hb = $('#hintBtn'); hb.disabled = !t.hint;
