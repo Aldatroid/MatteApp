@@ -6,7 +6,8 @@
 import { THREE } from '../three/scene.js';
 import { $, esc, clamp, show, onShow, reducedMotion } from '../util.js';
 import { S } from '../store.js';
-import { ROOMS, ARTIFACTS, byId, roomById, TOTAL_PARTS, WALL_H } from './catalog.js';
+import { ROOMS, ARTIFACTS, EXPEDITIONS, byId, roomById, TOTAL_PARTS, WALL_H } from './catalog.js';
+import { expedition, expProgress, setExpedition, nextFind } from './finds.js';
 import { buildMuseum, setWallHeight, setPlaque, STUB_H } from './build.js';
 import { setFound, materials } from './models.js';
 
@@ -54,6 +55,31 @@ function resize() {
 function applyFound() {
   for (const a of MU.artifacts) { const n = foundCount(a.def.id); a.parts.forEach((p, i) => setFound(p, i < n)); if (a.sign) setPlaque(a.sign, a.def, n > 0); }
   $('#mCount').innerHTML = `<b>${totalFound()} av ${TOTAL_PARTS}</b> fynd`;
+  $('#mExp').innerHTML = `<span class="m-exp-pre">Expedition: </span><b>${esc(expedition().name)}</b>`;
+}
+
+/* ---------- expeditioner: barnet väljer vilken sorts fynd som kommer härnäst ---------- */
+function openExpeditions() {
+  closeFocus(false);
+  const cur = expedition(), next = nextFind();
+  const el = $('#mExpPanel');
+  el.innerHTML = `<div class="m-exp-box">
+    <button class="ghost-btn m-close" id="mExpClose">Stäng</button>
+    <span class="m-kicker">Expedition</span>
+    <h2>Vad vill du leta efter?</h2>
+    <p class="m-text">Fynden från Dagens pass hamnar i den expedition du väljer. Du kan byta när du vill.</p>
+    ${next ? `<p class="m-exp-next">Nästa fynd: <b>${esc(byId[next].parts.length > 1 ? `en del av ${byId[next].name}` : byId[next].name)}</b></p>` : '<p class="m-exp-next"><b>Museet är komplett!</b></p>'}
+    <div class="m-exp-grid">${EXPEDITIONS.map(e => { const p = expProgress(e); return `<button class="m-exp-card${e.id === cur.id ? ' on' : ''}" data-exp="${e.id}">
+      <b>${esc(e.name)}</b><span>${esc(e.text)}</span>
+      <span class="m-exp-bar"><i style="width:${Math.round(p.done / p.total * 100)}%"></i></span>
+      <small>${p.complete ? 'Klar!' : `${p.done} av ${p.total} fynd`}</small></button>`; }).join('')}</div>
+  </div>`;
+  el.hidden = false;
+  $('#mExpClose').addEventListener('click', () => { el.hidden = true; });
+  el.querySelectorAll('[data-exp]').forEach(b => b.addEventListener('click', () => {
+    setExpedition(b.dataset.exp); applyFound(); openExpeditions();
+    const n = nextFind(); if (n) flyToRoom(roomById[byId[n].room]);
+  }));
 }
 
 /* ---------- kamera ---------- */
@@ -206,10 +232,12 @@ function bindInput() {
     else if (focus) closeFocus();
   }
   $('#mBack').addEventListener('click', () => show('home'));
+  $('#mExp').addEventListener('click', openExpeditions);
+  $('#mExpPanel').addEventListener('click', e => { if (e.target.id === 'mExpPanel') e.target.hidden = true; });
   $('#mHome').addEventListener('click', overview);
   $('#mRotL').addEventListener('click', () => rotate(-Math.PI / 4));
   $('#mRotR').addEventListener('click', () => rotate(Math.PI / 4));
-  document.addEventListener('keydown', e => { if (running && e.key === 'Escape') closeFocus(); });
+  document.addEventListener('keydown', e => { if (running && e.key === 'Escape') { $('#mExpPanel').hidden = true; closeFocus(); } });
 }
 
 /* ---------- loopen ---------- */
@@ -251,6 +279,6 @@ function startReveal(f) {
   } });
 }
 onShow('museum', enter);
-onShow('*', id => { if (id !== 'museum') { running = false; closeFocus(false); } });
+onShow('*', id => { if (id !== 'museum') { running = false; closeFocus(false); $('#mExpPanel').hidden = true; } });
 // Utvecklarkrok (bara med ?debug): styr kameran vid granskning
 if (/[?&]debug/.test(location.search)) window.__museum = { goal, cur, get MU() { return MU; }, focusId: id => openFocus(MU.artifacts.find(a => a.def.id === id)), overview, flyToRoom: id => flyToRoom(roomById[id]) };

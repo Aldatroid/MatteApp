@@ -28,7 +28,7 @@ Varje artefakt har 1 eller flera delar. Små föremål (skarabé, svärd, ammoni
 
 Första versionen har en bestämd **fyndordning** i `catalog.js`. Stora skelett varvas med små föremål, så att barnet både ser T. rex växa och får nya saker i olika salar. Ett halvfärdigt skelett är också en anledning att komma tillbaka nästa dag.
 
-Senare kan barnet välja en **expedition** (en roll): *Paleontolog* (dinosaurier och fossil), *Egyptolog*, *Vikingaforskare* eller *Havsforskare*. Expeditionen styr vilken sal nästa fynd hamnar i. Fyndordningen blir då en lista per expedition, och det som är kvar delas ut i vanlig ordning när en expedition är klar.
+Barnet kan välja en **expedition** (en roll): *Paleontolog* (dinosaurier och fossil), *Egyptolog*, *Vikingaforskare* eller *Havsforskare*. Expeditionen styr vilken sal nästa fynd hamnar i. Fyndordningen blir då en lista per expedition, och det som är kvar delas ut i vanlig ordning när en expedition är klar.
 
 ## Museets salar
 
@@ -85,7 +85,7 @@ Texterna i första versionen gäller föremålstypen (T. rex, runsten). När ett
 1. **Museet i 3D** *(klar)*: salar, ljus, kamera, platshållare för alla föremål, infopanel och ingång från startsidan. Med `?alla` i adressen visas allt som hittat, för granskning.
 2. **Fynd från Dagens pass** *(klar)*: `grantFind()` i `js/museum/finds.js` anropas från `finishRun()`. Sammanfattningen visar fyndet, och **Se i museet** flyger dit och sänker ner delen på sin plats.
 3. **Riktiga föremål**: GLB-modeller och infotexter om verkliga föremål, med källor.
-4. **Expeditioner**: barnet väljer roll, och fyndordningen följer rollen.
+4. **Expeditioner** *(klar)*: knappen **Expedition** i museet öppnar valet. `EXPEDITIONS` i `catalog.js` har en fyndordning per roll, och `finds.js` följer den valda. Sammanfattningen visar hur långt expeditionen har kommit och när den är klar.
 5. **Fler salar**: djursal med dioramor, rymd och meteoriter, antiken, med mera.
 
 ## Öppna frågor

@@ -7,7 +7,7 @@ import { currentLevel, levelState, updateLevel } from './levels.js';
 import { countGood } from './areas/mul.js';
 import { asset } from './themes.js';
 import { playRight } from './sound.js';
-import { grantFind } from './museum/finds.js';
+import { grantFind, expProgress } from './museum/finds.js';
 import { revealFind } from './museum/museum.js';
 
 export let run = null;
@@ -250,7 +250,10 @@ function showFind(f) {
   const A = f.def, all = A.parts.length, whole = f.part + 1 === all;
   const what = all > 1 ? `${esc(A.parts[f.part])} till ${esc(A.name)}` : esc(A.name);
   const note = all === 1 ? 'Föremålet har fått sin plats i museet.' : whole ? `Nu är alla ${all} delar på plats!` : `Del ${f.part + 1} av ${all}. Fler delar finns att hitta.`;
-  el.innerHTML = `<span class="find-kicker">Nytt fynd till museet</span><b class="find-name">${what}</b><span class="find-note">${note}</span><button class="btn primary" id="toFind">Se i museet</button>`;
+  const p = expProgress(f.exp);
+  const exp = f.expDone ? `<span class="find-exp done">Expeditionen ${esc(f.exp.name)} är klar! Välj en ny expedition i museet.</span>`
+    : f.exp.id !== 'explorer' && !p.complete ? `<span class="find-exp">${esc(f.exp.name)}: ${p.done} av ${p.total} fynd</span>` : '';
+  el.innerHTML = `<span class="find-kicker">Nytt fynd till museet</span><b class="find-name">${what}</b><span class="find-note">${note}</span>${exp}<button class="btn primary" id="toFind">Se i museet</button>`;
   $('#toFind').addEventListener('click', () => revealFind(f));
 }
 

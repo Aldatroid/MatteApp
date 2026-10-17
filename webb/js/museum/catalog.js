@@ -204,6 +204,17 @@ export const ORDER = [
   'tusk', 'hoard', 'megalodon', 'nautilus', 'obelisk',
 ];
 
+// Expeditioner: barnet väljer en roll, och fynden kommer då i den rollens ordning (ett id per del).
+// När en expedition är klar fortsätter fynden enligt ORDER. Upptäckaren följer ORDER direkt.
+export const EXPEDITIONS = [
+  { id: 'explorer', name: 'Upptäckare', text: 'Lite av allt, i alla salar.', order: ORDER },
+  { id: 'paleo', name: 'Paleontolog', text: 'Gräv fram dinosaurier och fossil.', order: ['trex', 'ammonite', 'trex', 'trilobite', 'trex', 'triceratops', 'trex', 'amber', 'trex', 'triceratops', 'trex', 'tusk', 'trex', 'triceratops', 'trex', 'meteorite', 'trex'] },
+  { id: 'egypt', name: 'Egyptolog', text: 'Utforska faraonernas Egypten.', order: ['scarab', 'canopic', 'pyramid', 'canopic', 'sarcophagus', 'canopic', 'obelisk', 'sarcophagus', 'canopic'] },
+  { id: 'viking', name: 'Vikingaforskare', text: 'Hitta skatter från vikingatiden.', order: ['runestone', 'ship', 'sword', 'ship', 'helmet', 'ship', 'hoard', 'ship'] },
+  { id: 'ocean', name: 'Havsforskare', text: 'Upptäck havens jättar.', order: ['whale', 'narwhal', 'whale', 'megalodon', 'whale', 'nautilus', 'whale', 'whale', 'whale'] },
+];
+export const expById = Object.fromEntries(EXPEDITIONS.map(e => [e.id, e]));
+
 export const byId = Object.fromEntries(ARTIFACTS.map(a => [a.id, a]));
 export const roomById = Object.fromEntries(ROOMS.map(r => [r.id, r]));
 export const TOTAL_PARTS = ARTIFACTS.reduce((s, a) => s + a.parts.length, 0);
