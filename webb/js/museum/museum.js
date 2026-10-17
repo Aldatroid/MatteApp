@@ -7,7 +7,7 @@ import { THREE } from '../three/scene.js';
 import { $, esc, clamp, show, onShow, reducedMotion } from '../util.js';
 import { S } from '../store.js';
 import { ROOMS, ARTIFACTS, EXPEDITIONS, byId, roomById, TOTAL_PARTS, WALL_H } from './catalog.js';
-import { expedition, expProgress, setExpedition, nextFind } from './finds.js';
+import { expedition, expChosen, expProgress, setExpedition, nextFind } from './finds.js';
 import { buildMuseum, setWallHeight, setPlaque, STUB_H } from './build.js';
 import { setFound, materials } from './models.js';
 
@@ -55,21 +55,22 @@ function resize() {
 function applyFound() {
   for (const a of MU.artifacts) { const n = foundCount(a.def.id); a.parts.forEach((p, i) => setFound(p, i < n)); if (a.sign) setPlaque(a.sign, a.def, n > 0); }
   $('#mCount').innerHTML = `<b>${totalFound()} av ${TOTAL_PARTS}</b> fynd`;
-  $('#mExp').innerHTML = `<span class="m-exp-pre">Expedition: </span><b>${esc(expedition().name)}</b>`;
+  $('#mExp').innerHTML = expChosen() ? `<span class="m-exp-pre">Expedition: </span><b>${esc(expedition().name)}</b> ▾` : '<b>Välj expedition</b> ▾';
 }
 
 /* ---------- expeditioner: barnet väljer vilken sorts fynd som kommer härnäst ---------- */
 function openExpeditions() {
   closeFocus(false);
-  const cur = expedition(), next = nextFind();
+  const chosen = expChosen(), active = chosen ? expedition() : null, next = nextFind();
   const el = $('#mExpPanel');
   el.innerHTML = `<div class="m-exp-box">
     <button class="ghost-btn m-close" id="mExpClose">Stäng</button>
     <span class="m-kicker">Expedition</span>
-    <h2>Vad vill du leta efter?</h2>
-    <p class="m-text">Fynden från Dagens pass hamnar i den expedition du väljer. Du kan byta när du vill.</p>
+    ${chosen ? '' : '<p class="m-exp-welcome">Välkommen till museet!</p>'}
+    <h2>${chosen ? 'Vad vill du leta efter?' : 'Vad vill du bli?'}</h2>
+    <p class="m-text">Varje gång du gör Dagens pass hittar du något nytt till museet. Välj vad du vill leta efter. Du kan byta när du vill.</p>
     ${next ? `<p class="m-exp-next">Nästa fynd: <b>${esc(byId[next].parts.length > 1 ? `en del av ${byId[next].name}` : byId[next].name)}</b></p>` : '<p class="m-exp-next"><b>Museet är komplett!</b></p>'}
-    <div class="m-exp-grid">${EXPEDITIONS.map(e => { const p = expProgress(e); return `<button class="m-exp-card${e.id === cur.id ? ' on' : ''}" data-exp="${e.id}">
+    <div class="m-exp-grid">${EXPEDITIONS.map(e => { const p = expProgress(e); return `<button class="m-exp-card${e.id === active?.id ? ' on' : ''}" data-exp="${e.id}">
       <b>${esc(e.name)}</b><span>${esc(e.text)}</span>
       <span class="m-exp-bar"><i style="width:${Math.round(p.done / p.total * 100)}%"></i></span>
       <small>${p.complete ? 'Klar!' : `${p.done} av ${p.total} fynd`}</small></button>`; }).join('')}</div>
@@ -77,7 +78,7 @@ function openExpeditions() {
   el.hidden = false;
   $('#mExpClose').addEventListener('click', () => { el.hidden = true; });
   el.querySelectorAll('[data-exp]').forEach(b => b.addEventListener('click', () => {
-    setExpedition(b.dataset.exp); applyFound(); openExpeditions();
+    setExpedition(b.dataset.exp); applyFound(); el.hidden = true;
     const n = nextFind(); if (n) flyToRoom(roomById[byId[n].room]);
   }));
 }
@@ -112,18 +113,28 @@ function flyToRoom(R) {
 function overview() { closeFocus(false); Object.assign(goal, OVERVIEW); clampGoal(); }
 function rotate(da) { goal.yaw += da; }
 
-/* ---------- väggarna sänks när de står i vägen ---------- */
-function updateWalls(dt) {
-  const dx = -Math.sin(cur.yaw), dz = -Math.cos(cur.yaw);
-  const room = focus ? focus.def.room : cur.dist < 30 ? roomAt(cur.x, cur.z)?.id : null;
+/* ---------- väggarna sänks när de står i vägen ----------
+   En hel vägg byter läge på en gång (hög eller låg mur). Alla gränser har marginaler (hysteres),
+   så att väggar inte slår fram och tillbaka när kameran står nära en gräns. */
+let viewRoom = null;
+function currentRoom() {
+  if (focus) return focus.def.room;
+  if (cur.dist > (viewRoom ? 40 : 36)) return (viewRoom = null);
+  const R = viewRoom && roomById[viewRoom], m = 1.5;
+  if (R && cur.x > R.x[0] - m && cur.x < R.x[1] + m && cur.z > R.z[0] - m && cur.z < R.z[1] + m) return viewRoom;
+  return (viewRoom = roomAt(cur.x, cur.z)?.id || null);
+}
+function updateWalls() {
+  const dx = -Math.sin(cur.yaw), dz = -Math.cos(cur.yaw), room = currentRoom();
   for (const w of MU.walls) {
-    const dots = w.sides.map(([r, n]) => [r, w.axis === 'z' ? n * dz : n * dx]);
+    // är väggen mellan kameran och salen? (riktningen in i salen pekar då bort från kameran)
+    for (const [r, n] of w.sides) { const d = w.axis === 'z' ? n * dz : n * dx; w.near[r] = w.near[r] ? d > 0.2 : d > 0.45; }
+    const near = w.sides.some(([r]) => w.near[r]);
     // Ytterväggar står kvar om de inte är i vägen. Innerväggar sänks i överblicken, men står kvar
     // runt den sal man har zoomat in i (utom den som är mellan kameran och salen).
-    const near = dots.some(([, d]) => d > 0.35);
-    const full = (w.sides.length === 1 && !near) || (room && dots.some(([r, d]) => r === room && d <= 0.35));
+    const full = (w.sides.length === 1 && !near) || (room && w.sides.some(([r]) => r === room && !w.near[r]));
     const target = full ? WALL_H : STUB_H;
-    if (Math.abs(target - w.h) > 0.004) setWallHeight(w, w.h + (target - w.h) * Math.min(1, dt * 5));
+    if (target !== w.h) setWallHeight(w, target);
   }
 }
 
@@ -249,7 +260,7 @@ function frame(t) {
   for (const key of ['x', 'z', 'y', 'dist', 'yaw', 'pitch']) cur[key] += (goal[key] - cur[key]) * k;
   materials().ghost.opacity = 0.27 + Math.sin(t / 700) * 0.07;
   for (const an of [...anims]) { const p = clamp((t - an.start) / an.dur, 0, 1); if (t < an.start) continue; an.fn(p); if (p >= 1) anims.splice(anims.indexOf(an), 1); }
-  placeCamera(); updateWalls(dt || 0.016);
+  placeCamera(); updateWalls();
   renderer.render(scene, camera);
   updateLabels();
 }
@@ -259,6 +270,7 @@ function enter() {
   applyFound(); resize();
   if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(frame); }
   if (reveal) startReveal(reveal);
+  else if (!expChosen()) openExpeditions(); // första besöket: välj en roll
   reveal = null;
 }
 /* ---------- nytt fynd: kameran flyger dit och delen sänks ner på sin plats ---------- */

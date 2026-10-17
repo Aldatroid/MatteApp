@@ -6,7 +6,8 @@ import { ALL_FACTS, hardestFacts, countGood } from './areas/mul.js';
 import { startRun } from './engine.js';
 import { startSandbox } from './sandbox.js';
 import { totalFound } from './museum/museum.js';
-import { TOTAL_PARTS } from './museum/catalog.js';
+import { TOTAL_PARTS, byId } from './museum/catalog.js';
+import { expedition, expChosen, nextFind } from './museum/finds.js';
 
 function renderHome() {
   $('#hello').textContent = S.name ? `Hej ${S.name}!` : 'Hej!';
@@ -16,7 +17,13 @@ function renderHome() {
   $('#passAreas').textContent = names.length > 3 ? `${names.slice(0, 3).join(', ')} med mera.` : names.join(', ').replace(/, ([^,]*)$/, ' och $1') + '.';
   const good = countGood(); const t = S.days[dayKey()];
   $('#homeStatus').innerHTML = `<span class="pill"><span class="dot"></span><b>${good} av 100</b> gångertal sitter</span>` + (t?.pass ? `<span class="pill">Dagens pass är gjort</span><span class="pill"><b>${t.passes || 1} pass</b> idag</span>` : '')
-    + `<button class="pill pill-btn" id="toMuseum">Museet · <b>${totalFound()} av ${TOTAL_PARTS}</b> fynd</button>`;
+  ;
+  // Museet: innan barnet har valt expedition lockar rutan till att välja, sedan visas nästa fynd.
+  const n = nextFind(), chosen = expChosen();
+  $('#startMuseum').classList.toggle('new', !chosen);
+  $('#museumKicker').textContent = chosen ? `${totalFound()} av ${TOTAL_PARTS} fynd · ${expedition().name}` : 'Samla föremål';
+  $('#museumText').textContent = !chosen ? 'Bygg ditt eget museum. Välj om du vill leta dinosaurier, mumier, vikingaskatter eller havsjättar!'
+    : n ? `Nästa fynd: ${byId[n].parts.length > 1 ? 'en del av ' + byId[n].name : byId[n].name}. Gör Dagens pass för att hitta det!` : 'Museet är komplett. Bra jobbat!';
 }
 let tableSel = new Set(['all']);
 function renderFree() {
@@ -44,6 +51,6 @@ $('#startTables').addEventListener('click', () => {
 });
 $('#startPass').addEventListener('click', () => startRun('pass'));
 $('#startFree').addEventListener('click', () => show('free'));
-$('#homeStatus').addEventListener('click', e => { if (e.target.closest('#toMuseum')) show('museum'); });
+$('#startMuseum').addEventListener('click', () => show('museum'));
 $$('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
 $$('[data-sandbox]').forEach(b => b.addEventListener('click', () => startSandbox(b.dataset.sandbox)));

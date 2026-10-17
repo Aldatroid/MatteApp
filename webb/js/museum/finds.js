@@ -16,6 +16,8 @@ function nextIn(list) {
   }
   return null;
 }
+// Innan barnet har valt en expedition kommer fynden som för Upptäckaren.
+export const expChosen = () => !!expById[S.museum.expedition];
 export const expedition = () => expById[S.museum.expedition] || EXPEDITIONS[0];
 export const nextFind = () => nextIn(expedition().order) || nextIn(ORDER) || ARTIFACTS.find(a => have(a.id) < a.parts.length)?.id || null;
 // Hur långt en expedition har kommit: hittade delar av dess fynd.

@@ -7,7 +7,7 @@ import { asset, onTheme } from './themes.js';
 // slice = hörnens storlek i bilden (topp, höger, botten, vänster), width = samma hörn på skärmen.
 // Ett tema kan ge andra värden (frames i themes.js) om dess dekorationer i hörnen är större.
 const FRAMES = [
-  { key: 'panel', sel: '#panel,.card,.section,.gate-box,.stat,.tile-free', file: 'panel.png', slice: [80, 80, 80, 80], width: [20, 20, 20, 20] },
+  { key: 'panel', sel: '#panel,.card,.section,.gate-box,.stat,.tile-free,.tile-museum', file: 'panel.png', slice: [80, 80, 80, 80], width: [20, 20, 20, 20] },
   { key: 'header', sel: '.q-kicker,.card-kicker', file: 'header.png', slice: [44, 280, 44, 240], width: [11, 70, 11, 60] },
   { key: 'topbar', sel: '.topbar', file: 'topbar.png', slice: [60, 240, 60, 240], width: [15, 60, 15, 60] },
 ];

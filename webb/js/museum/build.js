@@ -50,6 +50,7 @@ function medallion() {
 /* ---------- väggar ---------- */
 // Varje vägg: axel ('x' = linjen x = at, 'z' = linjen z = at), spann, och vilka salar den vetter mot.
 // n = åt vilket håll salens insida ligger (+1/-1 längs axeln).
+// Väggar som möts i ett hörn överlappar; varje vägg lyfts en aning (se buildWall) så att ytorna aldrig hamnar i samma plan.
 const WALLS = [
   { axis: 'z', at: 10, from: -30, to: -14, sides: [['egypt', -1]] },
   { axis: 'z', at: 10, from: -14, to: 14, sides: [['hall', -1]], entrance: true },
@@ -93,8 +94,8 @@ function makeMats() {
     plaque: std({ color: 0x2a1a10, roughness: 0.5 }),
   };
 }
-function buildWall(W, BM, parent) {
-  const g = new THREE.Group(); parent.add(g);
+function buildWall(W, BM, parent, i) {
+  const g = new THREE.Group(); g.position.y = i * 0.004; parent.add(g);
   const len = W.to - W.from, alongX = W.axis === 'z'; // en vägg på linjen z = at går längs x
   // punkt längs väggen (s) och ut från den (o) till världskoordinater
   const at = (s, o = 0) => alongX ? [s, W.at + o] : [W.at + o, s];
@@ -108,9 +109,9 @@ function buildWall(W, BM, parent) {
   // massiva bitar mellan öppningarna
   let s = W.from; const solids = [];
   for (const d of doors) { solids.push([s, d.from]); s = d.to; } solids.push([s, W.to]);
-  for (const [a, b] of solids) { piece(a, b, 0, WALL_H, T, BM.wall); piece(a, b, 0, 1.1, T + 0.12, BM.panel); piece(a, b, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim); }
+  for (const [a, b] of solids) { piece(a, b, 0, WALL_H - 0.03, T, BM.wall); piece(a, b, 0, 1.1, T + 0.12, BM.panel); piece(a, b, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim); }
   for (const d of doors) {
-    piece(d.from, d.to, DOOR_H, WALL_H, T, BM.wall);
+    piece(d.from, d.to, DOOR_H, WALL_H - 0.03, T, BM.wall);
     piece(d.from, d.to, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim);
     // valvbåge av ljus sten runt öppningen
     const r = (d.to - d.from) / 2, spring = DOOR_H - r, [x, z] = at((d.from + d.to) / 2);
@@ -157,7 +158,7 @@ function buildWall(W, BM, parent) {
   // locket på en sänkt vägg
   const cap = new THREE.Mesh(box, BM.cap); const [cx, cz] = at((W.from + W.to) / 2);
   cap.position.set(cx, STUB, cz); cap.scale.set(alongX ? len + T : T + 0.08, 0.14, alongX ? T + 0.08 : len + T); g.add(cap);
-  const wall = { ...W, group: g, pieces, cap, h: WALL_H, goal: WALL_H };
+  const wall = { ...W, group: g, pieces, cap, h: WALL_H, near: {} };
   setWallHeight(wall, WALL_H);
   return wall;
 }
@@ -229,7 +230,7 @@ function buildStand(A, BM, parent) {
     const b = new THREE.Mesh(box, BM.marble); b.scale.set(pw, 0.12, pd); b.position.y = 0.06; parent.add(b);
     if (A.stand === 'case') {
       const gh = 0.85;
-      const gl = new THREE.Mesh(box, BM.glass); gl.scale.set(pw * 0.92, gh, pd * 0.92); gl.position.y = top + gh / 2; gl.renderOrder = 5; gl.userData.glass = true; parent.add(gl);
+      const gl = new THREE.Mesh(box, BM.glass); gl.scale.set(pw * 0.92, gh - 0.01, pd * 0.92); gl.position.y = top + (gh - 0.01) / 2; gl.renderOrder = 5; gl.userData.glass = true; parent.add(gl);
       const lid = new THREE.Mesh(box, BM.darkWood); lid.scale.set(pw * 0.95, 0.06, pd * 0.95); lid.position.y = top + gh + 0.03; parent.add(lid);
     }
   } else if (A.stand === 'hang') {
@@ -282,7 +283,7 @@ export function buildMuseum(scene) {
   const rug = new THREE.Mesh(box, BM.velvet); rug.scale.set(3.4, 0.02, 4.4); rug.position.set(0, 0.012, 7.8); rug.receiveShadow = true; root.add(rug);
   // trappa utanför entrén
   const landing = new THREE.Mesh(box, BM.marble); landing.scale.set(9, 0.1, 2.2); landing.position.set(0, -0.02, 11.4); root.add(landing);
-  const walls = WALLS.map(W => buildWall(W, BM, root));
+  const walls = WALLS.map((W, i) => buildWall(W, BM, root, i));
   // pelare i hallen: de räknas som bitar av närmaste vägg och sänks tillsammans med den
   for (const [x, z] of [[-11, -7], [11, -7], [-11, 7], [11, 7]]) {
     const w = walls.find(W => W.axis === 'z' && W.at === (z > 0 ? 10 : -10) && x >= W.from && x <= W.to);

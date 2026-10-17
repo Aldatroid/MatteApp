@@ -10,7 +10,7 @@ let storageOK = true;
 export const storageWorks = () => storageOK;
 // settings.areas: { [områdes-id]: { on: bool, w: vikt } }. Saknas ett område gäller standardvärdet i curriculum.js.
 // settings.sound: volym 0-100 och på/av för effekter och musik. Musiken är avstängd från början.
-export function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, areas: {}, theme: 'auto', sound: { fx: 80, music: 50, fxOn: true, musicOn: false } }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {}, museum: { found: {}, log: [], expedition: 'explorer' } }; }
+export function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, areas: {}, theme: 'auto', sound: { fx: 80, music: 50, fxOn: true, musicOn: false } }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {}, museum: { found: {}, log: [], expedition: '' } }; }
 // Sparad och importerad data tvättas fält för fält: bara kända nycklar, och siffror blir siffror.
 // Då kan en manipulerad säkerhetskopia aldrig smyga in HTML i vyerna.
 const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
@@ -40,7 +40,7 @@ export function migrate(d) {
     tags: mapObj(d.tags, /^[\w-]{1,40}$/, x => nums(x, ['n', 'last'])),
     museum: {
       found: Object.fromEntries(Object.entries(obj(obj(d.museum).found)).filter(([k]) => /^[a-z]{1,20}$/.test(k)).map(([k, v]) => [k, clamp(Math.round(num(v)), 0, 99)])),
-      expedition: /^[a-z]{1,20}$/.test(obj(d.museum).expedition) ? d.museum.expedition : 'explorer',
+      expedition: /^[a-z]{1,20}$/.test(obj(d.museum).expedition) ? d.museum.expedition : '',
       log: arr(obj(d.museum).log).slice(-300).map(obj).map(x => ({ t: num(x.t), id: str(x.id, 20), part: clamp(Math.round(num(x.part)), 0, 99) })),
     },
   };
