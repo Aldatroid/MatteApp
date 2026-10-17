@@ -82,8 +82,8 @@ Texterna i första versionen gäller föremålstypen (T. rex, runsten). När ett
 
 ## Faser
 
-1. **Museet i 3D** *(den här branchen)*: salar, ljus, kamera, platshållare för alla föremål, infopanel och ingång från startsidan. Med `?alla` i adressen visas allt som hittat, för granskning.
-2. **Fynd från Dagens pass**: dela ut fynd i `finishRun()`, visa fyndet i sammanfattningen, låt kameran flyga dit och visa upplåsningen.
+1. **Museet i 3D** *(klar)*: salar, ljus, kamera, platshållare för alla föremål, infopanel och ingång från startsidan. Med `?alla` i adressen visas allt som hittat, för granskning.
+2. **Fynd från Dagens pass** *(klar)*: `grantFind()` i `js/museum/finds.js` anropas från `finishRun()`. Sammanfattningen visar fyndet, och **Se i museet** flyger dit och sänker ner delen på sin plats.
 3. **Riktiga föremål**: GLB-modeller och infotexter om verkliga föremål, med källor.
 4. **Expeditioner**: barnet väljer roll, och fyndordningen följer rollen.
 5. **Fler salar**: djursal med dioramor, rymd och meteoriter, antiken, med mera.

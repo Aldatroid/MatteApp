@@ -530,3 +530,11 @@ body{background:linear-gradient(rgba(var(--shade),.80),rgba(var(--shade),.92)),v
   .m-hint{bottom:70px}
 }
 @media (max-width:560px){.m-tools #mHome{display:none}.m-title .pill{display:none}}
+
+/* Fynd i sammanfattningen */
+.find-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:18px 20px;border-radius:18px;background:linear-gradient(180deg,rgba(60,40,20,.85),rgba(30,20,12,.9));border:1px solid rgba(232,196,128,.55);box-shadow:0 0 24px rgba(255,180,70,.18);animation:findIn .5s ease-out}
+@keyframes findIn{from{opacity:0;transform:scale(.96)}}
+.find-kicker{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:#d9b77a}
+.find-name{font-family:var(--f-display);font-size:26px;font-weight:600;color:#ffe2a6;line-height:1.15}
+.find-note{color:#e6d3ae;font-size:15px;margin-bottom:6px}
+.m-part.new{border-color:#ffd27a;box-shadow:0 0 0 2px rgba(255,210,122,.35);color:#fff3d6}

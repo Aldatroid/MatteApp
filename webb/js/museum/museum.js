@@ -18,7 +18,7 @@ const BOUNDS = { x: [-31, 31], z: [-27, 12] }, DIST = [5, 72];
 const OVERVIEW = { x: 0, z: -7, y: 0, dist: 62, yaw: 0 };
 let renderer = null, scene, camera, MU, canvas, stage, failed = false, running = false;
 const cur = { ...OVERVIEW, pitch: 1 }, goal = { ...OVERVIEW, pitch: 1 };
-let focus = null, beforeFocus = null, lastT = 0, labels = [], shift = { x: 0, y: 0, k: 1 };
+let focus = null, beforeFocus = null, lastT = 0, labels = [], shift = { x: 0, y: 0, k: 1 }, reveal = null, anims = [];
 const autoPitch = d => 0.5 + clamp((d - 8) / (65 - 8), 0, 1) * 0.5;
 goal.pitch = cur.pitch = autoPitch(OVERVIEW.dist);
 
@@ -40,6 +40,8 @@ function init() {
     const w = R.x[1] - R.x[0], d = R.z[1] - R.z[0];
     const p = new THREE.PointLight(R.light, w * d * 0.16, 0, 1.6); p.position.set((R.x[0] + R.x[1]) / 2, 6.2, (R.z[0] + R.z[1]) / 2); scene.add(p);
   }
+  // ljuset som blixtrar till när ett nytt fynd sätts på plats (finns från början så att inga shaders byggs om)
+  flash = new THREE.PointLight(0xffd27a, 0, 0, 2); scene.add(flash);
   MU = buildMuseum(scene);
   buildLabels(); buildRoomNav(); bindInput();
   new ResizeObserver(resize).observe(stage); resize();
@@ -125,12 +127,12 @@ function buildRoomNav() {
 }
 
 /* ---------- föremål: fokus och infopanel ---------- */
-function openFocus(a) {
+function openFocus(a, newPart = -1) {
   if (!focus) beforeFocus = { ...goal };
   focus = a;
   Object.assign(goal, { x: a.center.x, z: a.center.z, y: a.center.y * 0.8, dist: Math.max(3, a.radius * 2.5), yaw: a.def.rot + 0.4, pitch: 0.34, ...a.def.view });
   $('#mHint').classList.add('off');
-  clampGoal(); renderInfo(a.def);
+  clampGoal(); renderInfo(a.def, newPart);
 }
 function closeFocus(restore = true) {
   if (!focus) return;
@@ -138,9 +140,9 @@ function closeFocus(restore = true) {
   if (restore && beforeFocus) Object.assign(goal, beforeFocus);
   beforeFocus = null; clampGoal();
 }
-function renderInfo(A) {
+function renderInfo(A, newPart = -1) {
   const n = foundCount(A.id), all = A.parts.length, R = roomById[A.room];
-  const parts = all > 1 ? `<div class="m-parts"><span class="m-parts-n"><b>${n} av ${all}</b> delar hittade</span><div class="chips">${A.parts.map((p, i) => `<span class="m-part${i < n ? ' on' : ''}">${esc(p)}</span>`).join('')}</div></div>` : '';
+  const parts = all > 1 ? `<div class="m-parts"><span class="m-parts-n"><b>${n} av ${all}</b> delar hittade</span><div class="chips">${A.parts.map((p, i) => `<span class="m-part${i < n ? ' on' : ''}${i === newPart ? ' new' : ''}">${i === newPart ? 'Ny! ' : ''}${esc(p)}</span>`).join('')}</div></div>` : '';
   const body = n > 0
     ? `<p class="m-text">${esc(A.text)}</p><div class="m-fact"><b>Visste du?</b> ${esc(A.fact)}</div>`
     : `<p class="m-text m-locked">${all > 1 ? 'Delarna är inte hittade än.' : 'Det här föremålet är inte hittat än.'} Gör Dagens pass för att hitta ${all > 1 ? 'dem' : 'det'}!</p>`;
@@ -218,6 +220,7 @@ function frame(t) {
   const k = reducedMotion ? 1 : Math.min(1, dt * 6);
   for (const key of ['x', 'z', 'y', 'dist', 'yaw', 'pitch']) cur[key] += (goal[key] - cur[key]) * k;
   materials().ghost.opacity = 0.27 + Math.sin(t / 700) * 0.07;
+  for (const an of [...anims]) { const p = clamp((t - an.start) / an.dur, 0, 1); if (t < an.start) continue; an.fn(p); if (p >= 1) anims.splice(anims.indexOf(an), 1); }
   placeCamera(); updateWalls(dt || 0.016);
   renderer.render(scene, camera);
   updateLabels();
@@ -227,8 +230,27 @@ function enter() {
   if (failed) return;
   applyFound(); resize();
   if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(frame); }
+  if (reveal) startReveal(reveal);
+  reveal = null;
+}
+/* ---------- nytt fynd: kameran flyger dit och delen sänks ner på sin plats ---------- */
+export function revealFind(f) { reveal = f; show('museum'); }
+let flash = null;
+function startReveal(f) {
+  const a = MU.artifacts.find(x => x.def.id === f.id); if (!a) return;
+  const part = a.parts[f.part]; if (!part) return;
+  setFound(part, false);
+  flash.position.set(a.center.x, a.center.y + a.radius * 0.6, a.center.z);
+  openFocus(a, f.part);
+  const now = performance.now(), lift = Math.max(1.2, a.radius * 0.5), dur = reducedMotion ? 1 : 900, wait = reducedMotion ? 0 : 1300;
+  anims.push({ start: now + wait, dur, fn: p => {
+    if (!part.userData.shown) { setFound(part, true); part.userData.shown = true; }
+    const e = 1 - Math.pow(1 - p, 3); part.position.y = lift * (1 - e);
+    flash.intensity = Math.sin(p * Math.PI) * 60 * Math.max(1, a.radius);
+    if (p >= 1) { part.position.y = 0; part.userData.shown = false; flash.intensity = 0; }
+  } });
 }
 onShow('museum', enter);
 onShow('*', id => { if (id !== 'museum') { running = false; closeFocus(false); } });
 // Utvecklarkrok (bara med ?debug): styr kameran vid granskning
-if (/[?&]debug/.test(location.search)) window.__museum = { goal, cur, focusId: id => openFocus(MU.artifacts.find(a => a.def.id === id)), overview, flyToRoom: id => flyToRoom(roomById[id]) };
+if (/[?&]debug/.test(location.search)) window.__museum = { goal, cur, get MU() { return MU; }, focusId: id => openFocus(MU.artifacts.find(a => a.def.id === id)), overview, flyToRoom: id => flyToRoom(roomById[id]) };
