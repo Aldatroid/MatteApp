@@ -13,7 +13,7 @@ function renderHome() {
   const names = passAreas().sort((a, b) => b.w - a.w).map(x => x.area.short);
   $('#passAreas').textContent = names.length > 3 ? `${names.slice(0, 3).join(', ')} med mera.` : names.join(', ').replace(/, ([^,]*)$/, ' och $1') + '.';
   const good = countGood(); const t = S.days[dayKey()];
-  $('#homeStatus').innerHTML = `<span class="pill"><span class="dot"></span><b>${good} av 100</b> gångertal sitter</span>` + (t?.pass ? `<span class="pill">Dagens pass är gjort</span>` : '');
+  $('#homeStatus').innerHTML = `<span class="pill"><span class="dot"></span><b>${good} av 100</b> gångertal sitter</span>` + (t?.pass ? `<span class="pill">Dagens pass är gjort</span><span class="pill"><b>${t.passes || 1} pass</b> idag</span>` : '');
 }
 let tableSel = new Set(['all']);
 function renderFree() {

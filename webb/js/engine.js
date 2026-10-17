@@ -225,7 +225,7 @@ export function finishRun() {
   tick();
   const r = run; run = null;
   if (r.n > 0 || r.activeMs > 20000) { S.sessions.push({ start: r.start, ms: r.activeMs, n: r.n, right: r.right, mode: r.mode, kind: r.cfg.kind || r.cfg.area || '' }); if (S.sessions.length > 200) S.sessions.shift(); }
-  if (r.mode === 'pass' && r.activeMs >= r.durMs * 0.8) today().pass = true;
+  if (r.mode === 'pass' && r.activeMs >= r.durMs * 0.8) { const d = today(); d.pass = true; d.passes = (d.passes || 0) + 1; }
   save(); clearScene();
   if (r.mode === 'pass' && r.n > 0) showSummary(r);
   else show(r.mode === 'pass' ? 'home' : 'free');

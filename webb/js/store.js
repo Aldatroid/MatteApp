@@ -34,7 +34,7 @@ export function migrate(d) {
     },
     facts: mapObj(d.facts, /^\d{1,2}x\d{1,2}$/, f => nums(f, ['box', 'n', 'r', 'ms', 'last'])),
     geo: mapObj(d.geo, /^[a-z]{1,20}$/, g => ({ ...nums(g, ['seen', 'right', 'last']), level: clamp(Math.round(num(g.level)) || 1, 1, 20), recent: arr(g.recent).slice(-5).map(num) })),
-    days: mapObj(d.days, /^\d{4}-\d{2}-\d{2}$/, x => ({ ...nums(x, ['ms', 'n', 'right']), ...(x.pass ? { pass: true } : {}) })),
+    days: mapObj(d.days, /^\d{4}-\d{2}-\d{2}$/, x => ({ ...nums(x, ['ms', 'n', 'right']), ...(x.pass ? { pass: true, passes: clamp(Math.round(num(x.passes)) || 1, 1, 99) } : {}) })),
     sessions: arr(d.sessions).slice(-200).map(obj).map(x => ({ ...nums(x, ['start', 'ms', 'n', 'right']), mode: str(x.mode, 20), kind: str(x.kind, 20) })),
     log: arr(d.log).slice(-300).map(obj).map(x => ({ ...nums(x, ['t', 'ms', 'h']), s: str(x.s, 20), q: str(x.q), g: str(x.g, 40), a: str(x.a, 40), ok: x.ok === true, ...(x.g1 != null ? { g1: str(x.g1, 40) } : {}) })),
     tags: mapObj(d.tags, /^[\w-]{1,40}$/, x => nums(x, ['n', 'last'])),
