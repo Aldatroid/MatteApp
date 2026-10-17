@@ -7,6 +7,8 @@ import { currentLevel, levelState, updateLevel } from './levels.js';
 import { countGood } from './areas/mul.js';
 import { asset } from './themes.js';
 import { playRight } from './sound.js';
+import { grantFind, expProgress, expChosen } from './museum/finds.js';
+import { revealFind } from './museum/museum.js';
 
 export let run = null;
 const RIGHT = ['Rätt!', 'Snyggt!', 'Precis!', 'Ja!', 'Bra!', 'Klockrent!'];
@@ -225,7 +227,8 @@ export function finishRun() {
   tick();
   const r = run; run = null;
   if (r.n > 0 || r.activeMs > 20000) { S.sessions.push({ start: r.start, ms: r.activeMs, n: r.n, right: r.right, mode: r.mode, kind: r.cfg.kind || r.cfg.area || '' }); if (S.sessions.length > 200) S.sessions.shift(); }
-  if (r.mode === 'pass' && r.activeMs >= r.durMs * 0.8) { const d = today(); d.pass = true; d.passes = (d.passes || 0) + 1; }
+  // Ett fullt pass ger ett fynd till museet.
+  if (r.mode === 'pass' && r.activeMs >= r.durMs * 0.8) { const d = today(); d.pass = true; d.passes = (d.passes || 0) + 1; r.find = grantFind(); }
   save(); clearScene();
   if (r.mode === 'pass' && r.n > 0) showSummary(r);
   else show(r.mode === 'pass' ? 'home' : 'free');
@@ -236,8 +239,23 @@ function showSummary(r) {
   $('#sumLead').textContent = `Du gjorde ${r.n} ${r.n === 1 ? 'uppgift' : 'uppgifter'} på ${fmtMin(r.activeMs)}.`;
   const good = countGood(), diff = good - r.goodBefore;
   $('#sumStats').innerHTML = `<div class="stat"><b>${r.right} av ${r.n}</b><span>rätt svar${r.right > r.first ? `, varav ${r.first} på första försöket` : ''}</span></div><div class="stat"><b>${good}</b><span>gångertal som sitter${diff > 0 ? ` (+${diff} idag)` : ''}</span></div>`;
+  showFind(r.find);
   $('#sumNotes').innerHTML = r.levelUps.map(u => `<li>Ny nivå i ${esc(areaById(u.id).name.toLowerCase())}: nivå ${u.level}</li>`).join('') + `<li>Vill du fortsätta? När du utforskar finns ingen klocka.</li>`;
   show('summary');
+}
+
+// Fyndet i sammanfattningen, med en knapp som flyger till platsen i museet.
+function showFind(f) {
+  const el = $('#sumFind'); el.hidden = !f; if (!f) return;
+  const A = f.def, all = A.parts.length, whole = f.part + 1 === all;
+  const what = all > 1 ? `${esc(A.parts[f.part])} till ${esc(A.name)}` : esc(A.name);
+  const note = all === 1 ? 'Föremålet har fått sin plats i museet.' : whole ? `Nu är alla ${all} delar på plats!` : `Del ${f.part + 1} av ${all}. Fler delar finns att hitta.`;
+  const p = expProgress(f.exp);
+  const exp = f.expDone ? `<span class="find-exp done">Expeditionen ${esc(f.exp.name)} är klar! Välj en ny expedition i museet.</span>`
+    : !expChosen() ? '<span class="find-exp">Välj en expedition i museet, så bestämmer du vad du hittar härnäst.</span>'
+    : f.exp.id !== 'explorer' && !p.complete ? `<span class="find-exp">${esc(f.exp.name)}: ${p.done} av ${p.total} fynd</span>` : '';
+  el.innerHTML = `<span class="find-kicker">Nytt fynd till museet</span><b class="find-name">${what}</b><span class="find-note">${note}</span>${exp}<button class="btn primary" id="toFind">Se i museet</button>`;
+  $('#toFind').addEventListener('click', () => revealFind(f));
 }
 
 /* Knappar och tangentbord under spel */

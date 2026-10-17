@@ -43,6 +43,11 @@
           <span class="tile-text">Välj själv: träna tabeller, bygg med klossar eller vik kuber.</span>
           <svg viewBox="0 0 120 120" aria-hidden="true"><g fill="rgba(0,0,0,.12)" stroke="rgba(0,0,0,.25)" stroke-width="1.5"><rect x="44" y="8" width="24" height="24"/><rect x="20" y="32" width="24" height="24"/><rect x="44" y="32" width="24" height="24"/><rect x="68" y="32" width="24" height="24"/><rect x="44" y="56" width="24" height="24"/><rect x="44" y="80" width="24" height="24"/></g></svg>
         </button>
+        <button class="tile tile-museum" id="startMuseum">
+          <span class="tile-kicker" id="museumKicker">Ditt museum</span>
+          <span class="tile-title">Museet</span>
+          <span class="tile-text" id="museumText"></span>
+        </button>
       </div>
       <div class="home-status" id="homeStatus"></div>
     </div>
@@ -117,9 +122,33 @@
       <div class="hero"><img class="hero-dino" data-asset="dino_ring.png" alt=""><div class="hero-bubble"><h2 class="big-title" id="sumTitle">Bra jobbat!</h2></div></div>
       <p class="lead" id="sumLead" style="margin:0"></p>
       <div class="sum-stats" id="sumStats"></div>
+      <div class="find-card" id="sumFind" hidden></div>
       <ul class="obs" id="sumNotes"></ul>
       <div class="row"><button class="btn primary" data-go="free">Fortsätt utforska</button><button class="btn" data-go="home">Till start</button></div>
     </div>
+  </section>
+
+  <!-- MUSEET -->
+  <section id="museum" class="screen museum" hidden>
+    <div id="mStage">
+      <canvas id="mCanvas"></canvas>
+      <div id="mLabels"></div>
+      <div id="mNo3d" hidden>Museet behöver 3D, och det fungerar inte på den här enheten.</div>
+    </div>
+    <header class="m-top">
+      <button class="ghost-btn m-glass" id="mBack">← Start</button>
+      <div class="m-title"><h2>Museet</h2><span class="pill m-glass" id="mCount"></span><button class="ghost-btn m-glass m-exp-btn" id="mExp"></button></div>
+      <div class="m-tools">
+        <button class="ghost-btn m-glass" id="mRotL" aria-label="Vrid åt vänster" title="Vrid åt vänster">⟲</button>
+        <button class="ghost-btn m-glass" id="mRotR" aria-label="Vrid åt höger" title="Vrid åt höger">⟳</button>
+        <button class="ghost-btn m-glass" id="mHome">Översikt</button>
+        <span class="snd-slot"></span>
+      </div>
+    </header>
+    <div class="m-hint" id="mHint">Dra för att flytta · Nyp för att zooma · Tryck på ett föremål</div>
+    <nav class="m-rooms chips" id="mRooms" aria-label="Salar"></nav>
+    <aside class="m-info" id="mInfo" hidden aria-live="polite"></aside>
+    <div class="m-exp" id="mExpPanel" hidden role="dialog" aria-label="Välj expedition"></div>
   </section>
 
   <!-- FÖRÄLDRASPÄRR -->
