@@ -122,6 +122,28 @@
     </div>
   </section>
 
+  <!-- MUSEET -->
+  <section id="museum" class="screen museum" hidden>
+    <div id="mStage">
+      <canvas id="mCanvas"></canvas>
+      <div id="mLabels"></div>
+      <div id="mNo3d" hidden>Museet behöver 3D, och det fungerar inte på den här enheten.</div>
+    </div>
+    <header class="m-top">
+      <button class="ghost-btn m-glass" id="mBack">← Start</button>
+      <div class="m-title"><h2>Museet</h2><span class="pill m-glass" id="mCount"></span></div>
+      <div class="m-tools">
+        <button class="ghost-btn m-glass" id="mRotL" aria-label="Vrid åt vänster" title="Vrid åt vänster">⟲</button>
+        <button class="ghost-btn m-glass" id="mRotR" aria-label="Vrid åt höger" title="Vrid åt höger">⟳</button>
+        <button class="ghost-btn m-glass" id="mHome">Översikt</button>
+        <span class="snd-slot"></span>
+      </div>
+    </header>
+    <div class="m-hint" id="mHint">Dra för att flytta · Nyp för att zooma · Tryck på ett föremål</div>
+    <nav class="m-rooms chips" id="mRooms" aria-label="Salar"></nav>
+    <aside class="m-info" id="mInfo" hidden aria-live="polite"></aside>
+  </section>
+
   <!-- FÖRÄLDRASPÄRR -->
   <section id="gate" class="screen gate" hidden>
     <div class="gate-box">

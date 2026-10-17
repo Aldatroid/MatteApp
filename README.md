@@ -5,6 +5,7 @@ En svensk matteapp med dinosaurietema där barn tränar multiplikation och geome
 ## Funktioner
 
 - Dagens pass med de områden och den fördelning som föräldern har valt.
+- Museet: ett naturhistoriskt museum i 3D som fylls med föremål (under utveckling, se `docs/museum.md`).
 - Utforska: fri träning utan klocka inom olika områden.
 - Visuellt stöd med byggstenar och geometriska former i 3D.
 - Föräldraläge med statistik, val av områden och vikter för dagens pass samt passets längd.
@@ -37,9 +38,11 @@ webb/                 Appen, som den publiceras
     home.js           Startsidan och Utforska (fri träning)
     sandbox.js        Bygga, snurra kroppar och vika utan uppgifter
     parent.js         Föräldraläget
+    museum/           Museet i 3D: salar, föremål, infotexter och kamera (se docs/museum.md)
     store.js          Lagring och tvätt av sparad data
     three/            3D-scen och 2D-figurer som uppgifterna ritar med
   assets/             Bilder, typsnitt (OFL-licens) och Three.js 0.160.0 (MIT-licens)
+docs/                 Planer för större funktioner
 tools/                Lokal server och skript för bildbearbetning
 koncept/              Konceptbilder och grafiskt arbetsmaterial
 ```

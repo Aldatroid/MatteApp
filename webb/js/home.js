@@ -5,6 +5,8 @@ import { leveledAreas, passAreas } from './curriculum.js';
 import { ALL_FACTS, hardestFacts, countGood } from './areas/mul.js';
 import { startRun } from './engine.js';
 import { startSandbox } from './sandbox.js';
+import { totalFound } from './museum/museum.js';
+import { TOTAL_PARTS } from './museum/catalog.js';
 
 function renderHome() {
   $('#hello').textContent = S.name ? `Hej ${S.name}!` : 'Hej!';
@@ -13,7 +15,8 @@ function renderHome() {
   const names = passAreas().sort((a, b) => b.w - a.w).map(x => x.area.short);
   $('#passAreas').textContent = names.length > 3 ? `${names.slice(0, 3).join(', ')} med mera.` : names.join(', ').replace(/, ([^,]*)$/, ' och $1') + '.';
   const good = countGood(); const t = S.days[dayKey()];
-  $('#homeStatus').innerHTML = `<span class="pill"><span class="dot"></span><b>${good} av 100</b> gångertal sitter</span>` + (t?.pass ? `<span class="pill">Dagens pass är gjort</span><span class="pill"><b>${t.passes || 1} pass</b> idag</span>` : '');
+  $('#homeStatus').innerHTML = `<span class="pill"><span class="dot"></span><b>${good} av 100</b> gångertal sitter</span>` + (t?.pass ? `<span class="pill">Dagens pass är gjort</span><span class="pill"><b>${t.passes || 1} pass</b> idag</span>` : '')
+    + `<button class="pill pill-btn" id="toMuseum">Museet · <b>${totalFound()} av ${TOTAL_PARTS}</b> fynd</button>`;
 }
 let tableSel = new Set(['all']);
 function renderFree() {
@@ -41,5 +44,6 @@ $('#startTables').addEventListener('click', () => {
 });
 $('#startPass').addEventListener('click', () => startRun('pass'));
 $('#startFree').addEventListener('click', () => show('free'));
+$('#homeStatus').addEventListener('click', e => { if (e.target.closest('#toMuseum')) show('museum'); });
 $$('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
 $$('[data-sandbox]').forEach(b => b.addEventListener('click', () => startSandbox(b.dataset.sandbox)));
