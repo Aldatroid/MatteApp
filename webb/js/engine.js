@@ -240,6 +240,7 @@ function showSummary(r) {
   const good = countGood(), diff = good - r.goodBefore;
   $('#sumStats').innerHTML = `<div class="stat"><b>${r.right} av ${r.n}</b><span>rätt svar${r.right > r.first ? `, varav ${r.first} på första försöket` : ''}</span></div><div class="stat"><b>${good}</b><span>gångertal som sitter${diff > 0 ? ` (+${diff} idag)` : ''}</span></div>`;
   showFind(r.find);
+  if (r.find && !r.find.none) setTimeout(() => findPopup(r.find), 450);
   $('#sumNotes').innerHTML = r.levelUps.map(u => `<li>Ny nivå i ${esc(areaById(u.id).name.toLowerCase())}: nivå ${u.level}</li>`).join('') + `<li>Vill du fortsätta? När du utforskar finns ingen klocka.</li>`;
   show('summary');
 }
@@ -253,9 +254,7 @@ function showFind(f) {
       : '<span class="find-kicker">Inga fler fynd idag</span><b class="find-name">Alla salar har fått något nytt idag</b><span class="find-note">Kom tillbaka i morgon, då finns nya saker att hitta.</span>';
     return;
   }
-  const A = f.def, all = A.parts.length, whole = f.part + 1 === all;
-  const what = all > 1 ? `${esc(A.parts[f.part])} till ${esc(A.name)}` : esc(A.name);
-  const note = all === 1 ? 'Föremålet har fått sin plats i museet.' : whole ? `Nu är alla ${all} delar på plats!` : `Del ${f.part + 1} av ${all}. Fler delar finns att hitta.`;
+  const t = findText(f), what = esc(t.what), note = esc(t.note);
   const p = expProgress(f.exp);
   const exp = f.expDone ? `<span class="find-exp done">Expeditionen ${esc(f.exp.name)} är klar! Välj en ny expedition i museet.</span>`
     : !expChosen() ? '<span class="find-exp">Välj en expedition i museet, så bestämmer du vad du letar efter.</span>'
@@ -263,6 +262,26 @@ function showFind(f) {
   el.innerHTML = `<span class="find-kicker">Nytt fynd till museet</span><b class="find-name">${what}</b><span class="find-note">${note}</span>${exp}<button class="btn primary" id="toFind">Se i museet</button>`;
   $('#toFind').addEventListener('click', () => revealFind(f));
 }
+
+// Pop-up när ett fullt pass har gett ett fynd: vad som hittades, med samma ljud som vid rätt svar.
+function findText(f) {
+  const A = f.def, all = A.parts.length;
+  return {
+    what: all > 1 ? `${A.parts[f.part]} till ${A.name}` : A.name,
+    note: all === 1 ? 'Föremålet har fått sin plats i museet.' : f.part + 1 === all ? `Nu är alla ${all} delar på plats!` : `Del ${f.part + 1} av ${all}. Fler delar finns att hitta.`,
+  };
+}
+function findPopup(f) {
+  if ($('#summary').hidden) return;
+  const t = findText(f), pop = $('#findPop');
+  $('#findPopName').textContent = t.what; $('#findPopNote').textContent = t.note;
+  pop.hidden = false; playRight();
+  $('#findPopGo').onclick = () => { pop.hidden = true; revealFind(f); };
+  $('#findPopClose').onclick = () => { pop.hidden = true; };
+  $('#findPopGo').focus();
+}
+onShow('*', id => { if (id !== 'summary') $('#findPop').hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#findPop').hidden) $('#findPop').hidden = true; });
 
 /* Knappar och tangentbord under spel */
 $('#exitBtn').addEventListener('click', () => finishRun());
