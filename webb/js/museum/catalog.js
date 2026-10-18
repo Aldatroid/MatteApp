@@ -2,6 +2,7 @@
    ROOMS: salarna på planlösningen (meter, x åt höger, z mot entrén i söder).
    ARTIFACTS: varje föremål har en bestämd plats. parts = namnen på delarna; ett namn = hela föremålet direkt.
    model = byggfunktion i models.js, stand = hur föremålet ställs ut (platform, pedestal, case, hang).
+   rot = vridning; utan rot vänds föremålet (skylten) mot salens mitt, avrundat till 45°.
    view = valfri kameravinkel när man tittar närmare (dist, pitch, y), annars räknas den ut från storleken.
    ORDER: i vilken ordning fynden delas ut (id, ett steg per del). Se docs/museum.md. */
 
@@ -36,14 +37,14 @@ export const ARTIFACTS = [
     fact: 'Armarna var korta, men varje arm var så stark att den kunde lyfta ungefär 200 kilo.',
   },
   {
-    id: 'moai', room: 'hall', model: 'moai', stand: 'platform', pos: [-10, -6], rot: 0.5, size: [3, 3],
+    id: 'moai', room: 'hall', model: 'moai', stand: 'platform', pos: [-10, -6], size: [3, 3],
     name: 'Moai', era: 'ca 1250–1500 e.Kr.', place: 'Rapa Nui (Påskön)',
     parts: ['Moai'],
     text: 'På ön Rapa Nui mitt i Stilla havet högg invånarna ut nästan tusen jättelika stenhuvuden, moai. De högg dem ur vulkansten och fraktade dem över hela ön, utan hjul eller dragdjur.',
     fact: 'Många moai har en kropp under marken. Det man tror är "bara huvuden" är ofta hela statyer som begravts av jord.',
   },
   {
-    id: 'globe', room: 'hall', model: 'globe', stand: 'pedestal', pos: [10, -6], rot: -0.6, size: [2.4, 2.4],
+    id: 'globe', room: 'hall', model: 'globe', stand: 'pedestal', pos: [10, -6], size: [2.4, 2.4],
     name: 'Jordglob', era: 'Den äldsta från 1492', place: 'Nürnberg, Tyskland',
     parts: ['Jordglob'],
     text: 'En jordglob är en karta över hela jorden i form av ett klot. Den äldsta som finns kvar gjordes år 1492, samma år som Columbus seglade över Atlanten. Därför saknas Amerika på den!',
@@ -58,28 +59,28 @@ export const ARTIFACTS = [
     fact: 'Att göra en mumie tog ungefär 70 dagar.',
   },
   {
-    id: 'canopic', room: 'egypt', model: 'canopic', stand: 'pedestal', pos: [-27.5, 3], rot: Math.PI / 2, size: [3.2, 1.4],
+    id: 'canopic', room: 'egypt', model: 'canopic', stand: 'pedestal', pos: [-27.5, 3], size: [3.2, 1.4],
     name: 'Kanopiska krukor', era: 'ca 1500–1000 f.Kr.', place: 'Egypten',
     parts: ['Imsety (människa)', 'Hapy (babian)', 'Duamutef (schakal)', 'Qebehsenuef (falk)'],
     text: 'När en mumie gjordes lades levern, lungorna, magen och tarmarna i fyra krukor. Locken föreställer Horus fyra söner, som skulle skydda innehållet.',
     fact: 'Hjärtat fick ligga kvar i kroppen. Egyptierna trodde att det behövdes i livet efter döden.',
   },
   {
-    id: 'pyramid', room: 'egypt', model: 'pyramid', stand: 'pedestal', pos: [-18, 5], rot: 0.3, size: [2.6, 2.6],
+    id: 'pyramid', room: 'egypt', model: 'pyramid', stand: 'pedestal', pos: [-18, 5], size: [2.6, 2.6],
     name: 'Modell av Cheopspyramiden', era: 'byggd ca 2560 f.Kr.', place: 'Giza, Egypten',
     parts: ['Pyramid'],
     text: 'Cheopspyramiden var världens högsta byggnad i nästan 4 000 år. Den är byggd av över två miljoner stenblock.',
     fact: 'Från början var pyramiden täckt av vit, polerad kalksten som glänste i solen.',
   },
   {
-    id: 'scarab', room: 'egypt', model: 'scarab', stand: 'case', pos: [-25, 7], rot: 0, size: [1.2, 1.2],
+    id: 'scarab', room: 'egypt', model: 'scarab', stand: 'case', pos: [-25, 7], size: [1.2, 1.2],
     name: 'Skarabé', era: 'ca 1500 f.Kr.', place: 'Egypten',
     parts: ['Skarabé'],
     text: 'Skarabén är en skalbagge som rullar kulor av dynga. Egyptierna såg den som en symbol för solguden Khepri, som rullade solen över himlen.',
     fact: 'Små skarabéer av sten användes som lyckoamuletter och sigill.',
   },
   {
-    id: 'obelisk', room: 'egypt', model: 'obelisk', stand: 'platform', pos: [-17.5, -7], rot: 0.2, size: [1.8, 1.8],
+    id: 'obelisk', room: 'egypt', model: 'obelisk', stand: 'platform', pos: [-17.5, -7], size: [1.8, 1.8],
     name: 'Obelisk', era: 'ca 1450 f.Kr.', place: 'Egypten',
     parts: ['Obelisk'],
     text: 'En obelisk är en hög, fyrkantig sten som smalnar av uppåt och har en liten pyramid i toppen. Den restes vid tempel och täcktes av hieroglyfer.',
@@ -87,42 +88,42 @@ export const ARTIFACTS = [
   },
   // ---------- Fossilsalen ----------
   {
-    id: 'triceratops', room: 'fossil', model: 'triceratops', stand: 'platform', pos: [22, -4], rot: -0.4, size: [4, 4],
+    id: 'triceratops', room: 'fossil', model: 'triceratops', stand: 'platform', pos: [22, -4], size: [4, 4],
     name: 'Triceratopsskalle', era: '68–66 miljoner år sedan', place: 'Nordamerika',
     parts: ['Nackkrage', 'Horn', 'Näbb och käke'],
     text: 'Triceratops var en växtätare med tre horn och en stor krage av ben runt nacken. Skallen kunde bli över två meter lång, en av de största skallarna hos något landdjur.',
     fact: 'Triceratops levde samtidigt som T. rex, och man har hittat triceratopsben med bitmärken från T. rex.',
   },
   {
-    id: 'ammonite', room: 'fossil', model: 'ammonite', stand: 'pedestal', pos: [18, 5], rot: 0.4, size: [1.6, 1.6],
+    id: 'ammonite', room: 'fossil', model: 'ammonite', stand: 'pedestal', pos: [18, 5], size: [1.6, 1.6],
     name: 'Ammonit', era: '400–66 miljoner år sedan', place: 'Hela världen',
     parts: ['Ammonit'],
     text: 'Ammoniter var bläckfiskar som bodde i ett spiralformat skal. De simmade i haven i hundratals miljoner år och dog ut samtidigt som dinosaurierna.',
     fact: 'De största ammoniterna hade skal som var nästan två meter breda.',
   },
   {
-    id: 'trilobite', room: 'fossil', model: 'trilobite', stand: 'case', pos: [22, 7], rot: 0, size: [1.2, 1.2],
+    id: 'trilobite', room: 'fossil', model: 'trilobite', stand: 'case', pos: [22, 7], size: [1.2, 1.2],
     name: 'Trilobit', era: '520–252 miljoner år sedan', place: 'Hela världen, även Sverige',
     parts: ['Trilobit'],
     text: 'Trilobiter var små havsdjur med skal och många ben, lite som gråsuggor. De är några av de vanligaste fossilen, och man hittar dem i berggrunden i bland annat Västergötland och på Öland.',
     fact: 'Trilobiter hade ögon av kristall, i samma mineral som kalksten.',
   },
   {
-    id: 'tusk', room: 'fossil', model: 'tusk', stand: 'platform', pos: [26.5, 3.5], rot: -Math.PI / 2, size: [4.2, 1.6],
+    id: 'tusk', room: 'fossil', model: 'tusk', stand: 'platform', pos: [26.5, 3.5], size: [4.2, 1.6],
     name: 'Mammutbete', era: 'för ca 400 000–4 000 år sedan', place: 'Norra halvklotet',
     parts: ['Mammutbete'],
     text: 'Ullhårig mammut var en släkting till elefanten med tjock päls, anpassad för istidens kyla. Betarna var långa och böjda och kunde bli fyra meter.',
     fact: 'De sista mammutarna levde på Wrangelön i Sibirien när pyramiderna i Egypten redan var byggda.',
   },
   {
-    id: 'amber', room: 'fossil', model: 'amber', stand: 'case', pos: [27.5, -7], rot: 0, size: [1.2, 1.2],
+    id: 'amber', room: 'fossil', model: 'amber', stand: 'case', pos: [27.5, -7], size: [1.2, 1.2],
     name: 'Bärnsten med insekt', era: 'ca 44 miljoner år sedan', place: 'Östersjön',
     parts: ['Bärnsten'],
     text: 'Bärnsten är kåda från urtida träd som har hårdnat till sten. Ibland fastnade små insekter i kådan och har bevarats i miljontals år.',
     fact: 'Bärnsten kan spolas upp på stränderna i Skåne efter en storm.',
   },
   {
-    id: 'meteorite', room: 'fossil', model: 'meteorite', stand: 'pedestal', pos: [17.5, -7], rot: 0, size: [1.6, 1.6],
+    id: 'meteorite', room: 'fossil', model: 'meteorite', stand: 'pedestal', pos: [17.5, -7], size: [1.6, 1.6],
     name: 'Järnmeteorit', era: 'föll för ca 1 miljon år sedan', place: 'Muonionalusta, Norrbotten',
     parts: ['Meteorit'],
     text: 'En meteorit är en sten från rymden som har landat på jorden. Den här sortens meteorit består nästan helt av järn och nickel och bildades nästan samtidigt som solsystemet.',
@@ -137,28 +138,28 @@ export const ARTIFACTS = [
     fact: 'Ett långskepp kunde ha över 60 roddare.',
   },
   {
-    id: 'runestone', room: 'viking', model: 'runestone', stand: 'platform', pos: [-27, -22.5], rot: 0.45, size: [2, 2],
+    id: 'runestone', room: 'viking', model: 'runestone', stand: 'platform', pos: [-27, -22.5], size: [2, 2],
     name: 'Runsten', era: 'ca 800–1100 e.Kr.', place: 'Sverige',
     parts: ['Runsten'],
     text: 'Runstenar restes för att minnas någon som hade dött. Texten är skriven med runor, ofta inuti en slingrande orm. Stenarna var målade i starka färger.',
     fact: 'Sverige har flest runstenar i världen, ungefär 2 500 stycken.',
   },
   {
-    id: 'helmet', room: 'viking', model: 'helmet', stand: 'case', pos: [-4.5, -22.5], rot: -0.3, size: [1.2, 1.2],
+    id: 'helmet', room: 'viking', model: 'helmet', stand: 'case', pos: [-4.5, -22.5], size: [1.2, 1.2],
     name: 'Vikingahjälm', era: 'ca 970 e.Kr.', place: 'Gjermundbu, Norge',
     parts: ['Hjälm'],
     text: 'Vikingahjälmar var runda järnhjälmar, ibland med ett skydd runt ögonen. Den enda nästan hela hjälmen från vikingatiden hittades i Norge.',
     fact: 'Vikingarna hade aldrig horn på hjälmarna. Det hittade en kostymtecknare på till en opera på 1800-talet.',
   },
   {
-    id: 'sword', room: 'viking', model: 'sword', stand: 'case', pos: [-5.5, -13.5], rot: 0, size: [1.6, 1],
+    id: 'sword', room: 'viking', model: 'sword', stand: 'case', pos: [-5.5, -13.5], size: [1.6, 1],
     name: 'Vikingasvärd', era: 'ca 900 e.Kr.', place: 'Skandinavien',
     parts: ['Svärd'],
     text: 'Ett svärd var dyrt och ofta det finaste en viking ägde. Det gick i arv och fick ibland ett eget namn.',
     fact: 'Vissa svärd har namnet ULFBERHT inristat i bladet, som ett märke.',
   },
   {
-    id: 'hoard', room: 'viking', model: 'hoard', stand: 'case', pos: [-25, -13.5], rot: 0, size: [1.2, 1.2],
+    id: 'hoard', room: 'viking', model: 'hoard', stand: 'case', pos: [-25, -13.5], size: [1.2, 1.2],
     name: 'Silverskatt', era: 'ca 870 e.Kr.', place: 'Spillings, Gotland',
     parts: ['Silverskatt'],
     text: 'Vikingar grävde ibland ner sina rikedomar för att gömma dem. Skatterna innehåller mynt från långt bort, ända från Bagdad.',
@@ -173,21 +174,21 @@ export const ARTIFACTS = [
     fact: 'Blåvalens hjärta väger ungefär 180 kilo, lika mycket som två–tre vuxna människor.',
   },
   {
-    id: 'narwhal', room: 'ocean', model: 'narwhal', stand: 'case', pos: [4.5, -13.5], rot: 0, size: [3, 1],
+    id: 'narwhal', room: 'ocean', model: 'narwhal', stand: 'case', pos: [4.5, -13.5], size: [3, 1],
     name: 'Narvaltand', era: 'Lever i dag', place: 'Arktis',
     parts: ['Narvaltand'],
     text: 'Narvalen är en val med en lång, spiralvriden tand som växer rakt ut genom överläppen. Tanden kan bli tre meter lång.',
     fact: 'På medeltiden såldes narvaltänder som horn från enhörningar.',
   },
   {
-    id: 'megalodon', room: 'ocean', model: 'megalodon', stand: 'case', pos: [26, -13.5], rot: 0, size: [1.2, 1.2],
+    id: 'megalodon', room: 'ocean', model: 'megalodon', stand: 'case', pos: [26, -13.5], size: [1.2, 1.2],
     name: 'Megalodontand', era: '23–3,6 miljoner år sedan', place: 'Alla världshav',
     parts: ['Megalodontand'],
     text: 'Megalodon var en gigantisk haj, kanske tre gånger så lång som en vithaj. Det enda som brukar finnas kvar är tänderna, för hajens skelett är av brosk.',
     fact: 'En megalodontand kan vara större än en vuxen människas hand.',
   },
   {
-    id: 'nautilus', room: 'ocean', model: 'nautilus', stand: 'case', pos: [26.5, -22.5], rot: -0.4, size: [1.2, 1.2],
+    id: 'nautilus', room: 'ocean', model: 'nautilus', stand: 'case', pos: [26.5, -22.5], size: [1.2, 1.2],
     name: 'Pärlbåt', era: 'Lever i dag', place: 'Stilla havet och Indiska oceanen',
     parts: ['Pärlbåt'],
     text: 'Pärlbåten är en bläckfisk med spiralskal och släkt med ammoniterna. Den simmar upp och ner genom att fylla skalets kamrar med gas eller vatten.',
@@ -214,6 +215,13 @@ export const EXPEDITIONS = [
   { id: 'ocean', name: 'Havsforskare', text: 'Upptäck havens jättar.', order: ['whale', 'narwhal', 'whale', 'megalodon', 'whale', 'nautilus', 'whale', 'whale', 'whale'] },
 ];
 export const expById = Object.fromEntries(EXPEDITIONS.map(e => [e.id, e]));
+
+// Föremål utan egen vridning vänds med framsidan och skylten in mot salen.
+for (const a of ARTIFACTS) {
+  if (a.rot != null) continue;
+  const R = ROOMS.find(r => r.id === a.room), dx = (R.x[0] + R.x[1]) / 2 - a.pos[0], dz = (R.z[0] + R.z[1]) / 2 - a.pos[1];
+  a.rot = Math.round(Math.atan2(dx, dz) / (Math.PI / 4)) * Math.PI / 4;
+}
 
 export const byId = Object.fromEntries(ARTIFACTS.map(a => [a.id, a]));
 export const roomById = Object.fromEntries(ROOMS.map(r => [r.id, r]));
