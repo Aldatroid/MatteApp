@@ -1,8 +1,8 @@
 /* ============ Fynd ============
    Ett fullt Dagens pass ger ett fynd: nästa del av ett slumpat föremål. Regler:
-   - Högst ett fynd per sal och dag. Fortsätter barnet göra pass samma dag kommer fynden från andra salar,
-     och när alla salar med saker kvar har fått något den dagen blir det inga fler fynd förrän i morgon.
-   - Föremålet slumpas, i första hand bland den valda expeditionens föremål, annars bland alla.
+   - Högst DAILY fynd per dag, oavsett sal och expedition. Byter barnet expedition gäller samma tak.
+   - Föremålet slumpas bland den valda expeditionens föremål. Har expeditionen inget att hitta just nu
+     slumpas det bland alla.
    - Stora föremål byggs del för del, i delarnas ordning.
    - Bara föremål i öppna avdelningar kan hittas. Salens första avdelning är öppen från början. När 75 %
      av delarna i salens öppna avdelningar är hittade blir nästa avdelning klar, och den öppnar nästa dag. */
@@ -50,21 +50,18 @@ export function takeFresh() { const f = S.museum.fresh.splice(0); save(); return
 // Innan barnet har valt en expedition kommer fynden som för Upptäckaren.
 export const expChosen = () => !!expById[S.museum.expedition];
 export const expedition = () => expById[S.museum.expedition] || EXPEDITIONS[0];
-// Salar som redan har fått ett fynd idag.
-export function roomsToday() {
-  const today = dayKey(), rooms = new Set();
-  for (const x of S.museum.log) if (dayKey(x.t) === today && byId[x.id]) rooms.add(byId[x.id].room);
-  return rooms;
-}
-// Föremål som kan hittas idag (salen har inte fått något idag och föremålet har delar kvar i en öppen avdelning).
+// Fynd per dag, och hur många som är kvar idag.
+export const DAILY = 3;
+const findsToday = () => { const today = dayKey(); return S.museum.log.filter(x => dayKey(x.t) === today).length; };
+export const findsLeftToday = () => Math.max(0, DAILY - findsToday());
+// Föremål som kan hittas (delar kvar i en öppen avdelning), i första hand expeditionens.
 export function candidates() {
   updateSections();
-  const used = roomsToday(), open = ARTIFACTS.filter(a => left(a) && !used.has(a.room));
-  const mine = open.filter(a => expedition().items.includes(a.id));
+  const open = ARTIFACTS.filter(left), mine = open.filter(a => expedition().items.includes(a.id));
   return mine.length ? mine : open;
 }
-// Salar där något fortfarande kan hittas idag.
-export const roomsLeftToday = () => [...new Set(ARTIFACTS.filter(a => left(a) && !roomsToday().has(a.room)).map(a => a.room))];
+// Finns något att hitta i de öppna avdelningarna?
+export const canFind = () => ARTIFACTS.some(left);
 export const museumComplete = () => !ARTIFACTS.some(a => have(a.id) < a.parts.length);
 // Hur långt en expedition har kommit: hittade delar av dess föremål.
 export function expProgress(e) {
@@ -73,18 +70,19 @@ export function expProgress(e) {
   return { done, total, complete: done >= total };
 }
 export function setExpedition(id) { if (expById[id]) { S.museum.expedition = id; save(); } }
-// Ger ett slumpat fynd och sparar det. Returnerar { id, part, def, exp, expDone },
-// { none: 'today' } när alla salar redan har fått något idag, { none: 'building' } när allt i de öppna
+// Ger ett slumpat fynd och sparar det. Returnerar { id, part, def, exp, expDone, built, other, left }
+// (other: fyndet hör inte till expeditionen, left: fynd kvar idag), { none: 'today' } när dagens fynd är tagna, { none: 'building' } när allt i de öppna
 // avdelningarna är hittat och nya avdelningar byggs, eller { none: 'complete' } när museet är fullt.
 export function grantFind() {
   if (museumComplete()) return { none: 'complete' };
+  if (!findsLeftToday()) return { none: 'today' };
   const list = candidates();
-  if (!list.length) return { none: ARTIFACTS.some(left) ? 'today' : 'building' };
+  if (!list.length) return { none: 'building' };
   const A = list[Math.floor(Math.random() * list.length)];
   const e = expedition(), wasDone = expProgress(e).complete, part = have(A.id);
   S.museum.found[A.id] = part + 1;
   S.museum.log.push({ t: Date.now(), id: A.id, part }); if (S.museum.log.length > 300) S.museum.log.shift();
   save();
   const built = updateSections();
-  return { id: A.id, part, def: A, exp: e, expDone: !wasDone && expProgress(e).complete, built };
+  return { id: A.id, part, def: A, exp: e, expDone: !wasDone && expProgress(e).complete, built, other: !e.items.includes(A.id), left: findsLeftToday() };
 }

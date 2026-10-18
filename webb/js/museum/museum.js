@@ -7,7 +7,7 @@ import { THREE } from '../three/scene.js';
 import { $, esc, clamp, show, onShow, reducedMotion } from '../util.js';
 import { S } from '../store.js';
 import { ROOMS, ARTIFACTS, EXPEDITIONS, byId, roomById, sectionById, TOTAL_PARTS, WALL_H } from './catalog.js';
-import { expedition, expChosen, expProgress, setExpedition, roomsLeftToday, sectionOpen, updateSections, takeFresh, nextSection, partsToBuild, pendingIn } from './finds.js';
+import { expedition, expChosen, expProgress, setExpedition, findsLeftToday, DAILY, sectionOpen, updateSections, takeFresh, nextSection, partsToBuild, pendingIn } from './finds.js';
 import { buildMuseum, setWallHeight, setPlaque, STUB_H, DOOR_TOP } from './build.js';
 import { roomOpen, roomGoals, checkRooms, takeFreshRooms } from './rooms.js';
 import { setFound, materials } from './models.js';
@@ -75,15 +75,15 @@ function applyFound() {
 const expLockedBy = e => e.items.every(id => !isRoomOpen(byId[id].room)) ? roomById[byId[e.items[0]].room] : null;
 function openExpeditions() {
   closeFocus(false);
-  const chosen = expChosen(), active = chosen ? expedition() : null, rooms = roomsLeftToday();
+  const chosen = expChosen(), active = chosen ? expedition() : null, left = findsLeftToday();
   const el = $('#mExpPanel');
   el.innerHTML = `<div class="m-exp-box">
     <button class="ghost-btn m-close" id="mExpClose">Stäng</button>
     <span class="m-kicker">Expedition</span>
     ${chosen ? '' : '<p class="m-exp-welcome">Välkommen till museet!</p>'}
     <h2>${chosen ? 'Vad vill du leta efter?' : 'Vad vill du bli?'}</h2>
-    <p class="m-text">När du gör Dagens pass hittar du nya saker till museet, högst en per sal och dag. Välj vad du vill leta efter. Du kan byta när du vill.</p>
-    <p class="m-exp-next">${rooms.length ? `Idag kan du hitta något i: <b>${rooms.map(r => esc(roomById[r].name)).join(', ')}</b>. Högst en sak per sal och dag.` : '<b>Alla salar har fått något nytt idag.</b> Kom tillbaka i morgon!'}</p>
+    <p class="m-text">Varje Dagens pass ger ett nytt fynd till museet. Du kan hitta <b>${DAILY} saker om dagen</b>, och de kommer från expeditionen du väljer. Du kan byta expedition när du vill.</p>
+    <p class="m-exp-next">${left ? `Idag kan du hitta <b>${left === 1 ? '1 sak' : left + ' saker'} till</b>.` : `<b>Du har hittat ${DAILY} saker idag.</b> Kom tillbaka i morgon!`}</p>
     <div class="m-exp-grid">${EXPEDITIONS.map(e => { const p = expProgress(e), shut = expLockedBy(e); return `<button class="m-exp-card${e.id === active?.id ? ' on' : ''}${shut ? ' locked' : ''}" data-exp="${e.id}"${shut ? ' disabled' : ''}>
       <b>${esc(e.name)}</b><span>${esc(e.text)}</span>
       <span class="m-exp-bar"><i style="width:${Math.round(p.done / p.total * 100)}%"></i></span>

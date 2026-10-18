@@ -4,7 +4,7 @@ Barnet bygger upp ett naturhistoriskt museum i 3D genom att göra Dagens pass. V
 
 ## Spelloopen
 
-1. Barnet gör Dagens pass. Ett fullt pass ger 1 fynd (högst ett per sal och dag). Det är samma regel som för "Dagens pass är gjort" (minst 80 % av passets tid).
+1. Barnet gör Dagens pass. Ett fullt pass ger 1 fynd (högst tre per dag). Det är samma regel som för "Dagens pass är gjort" (minst 80 % av passets tid).
 2. Sammanfattningen visar fyndet: *"Du hittade T. rex-skallen (3 av 9 delar)"* och en knapp **Se i museet**.
 3. Museet öppnas, kameran flyger till platsen och den nya delen tonar in där den saknades.
 4. Barnet kan sedan fritt utforska museet och läsa om allt som är hittat.
@@ -27,8 +27,8 @@ Varje artefakt har 1 eller flera delar. Små föremål (skarabé, svärd, ammoni
 ### Vilka fynd kommer?
 
 - **Slumpat:** föremålet slumpas bland det som är kvar, så olika barn hittar saker i olika ordning. Stora föremål byggs del för del, i delarnas ordning.
-- **En sak per sal och dag:** varje sal kan få högst ett fynd per dag. Gör barnet fler pass samma dag kommer fynden från andra salar. När alla salar med saker kvar har fått något den dagen ger passen inga fler fynd förrän nästa dag, och sammanfattningen säger det.
-- **Expedition:** barnet väljer en roll: *Upptäckare* (lite av allt), *Paleontolog* (dinosaurier och fossil), *Egyptolog*, *Vikingaforskare* eller *Havsforskare*. Fynden slumpas i första hand bland rollens föremål. Om rollens salar redan har fått något idag, eller om rollen är klar, slumpas fynden bland allt annat.
+- **Tre fynd per dag:** barnet kan hitta högst tre saker om dagen (`DAILY` i `finds.js`), oavsett sal. Taket gäller totalt, så det hjälper inte att byta expedition. Sammanfattningen, startsidan och expeditionspanelen visar hur många fynd som är kvar idag.
+- **Expedition:** barnet väljer en roll: *Upptäckare* (lite av allt), *Paleontolog* (dinosaurier och fossil), *Egyptolog*, *Vikingaforskare* eller *Havsforskare*. Fynden slumpas bland rollens föremål. Har rollen inget att hitta just nu (allt i de öppna avdelningarna är hittat, eller rollen är klar) slumpas fynden bland allt annat, och sammanfattningen säger det.
 
 Reglerna finns i `js/museum/finds.js`, och expeditionernas föremål i `EXPEDITIONS` i `catalog.js`.
 
@@ -142,7 +142,7 @@ Varje ny sal hör ihop med ett område i appen, med ett tema som passar:
 
 ### Fynd
 
-Fynd kommer bara från **öppna avdelningar i öppna salar**, och regeln om högst ett fynd per sal och dag gäller fortfarande. I början, med tre öppna salar, blir det högst tre fynd per dag.
+Fynd kommer bara från **öppna avdelningar i öppna salar**, och taket på tre fynd per dag gäller.
 
 ### Ny planlösning
 

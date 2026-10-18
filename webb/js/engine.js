@@ -7,7 +7,7 @@ import { currentLevel, levelState, updateLevel } from './levels.js';
 import { countGood } from './areas/mul.js';
 import { asset } from './themes.js';
 import { playRight } from './sound.js';
-import { grantFind, expProgress, expChosen } from './museum/finds.js';
+import { grantFind, expProgress, expChosen, DAILY } from './museum/finds.js';
 import { roomById } from './museum/catalog.js';
 import { checkRooms } from './museum/rooms.js';
 import { revealFind } from './museum/museum.js';
@@ -256,7 +256,7 @@ function showFind(f) {
       ? '<span class="find-kicker">Museet</span><b class="find-name">Museet är komplett!</b><span class="find-note">Du har hittat allt. Bra jobbat!</span>'
       : f.none === 'building'
       ? '<span class="find-kicker">Inga fler fynd just nu</span><b class="find-name">Museet bygger nya avdelningar</b><span class="find-note">Allt i de öppna avdelningarna är hittat. Kom tillbaka i morgon, då öppnar något nytt.</span>'
-      : '<span class="find-kicker">Inga fler fynd idag</span><b class="find-name">Alla salar har fått något nytt idag</b><span class="find-note">Kom tillbaka i morgon, då finns nya saker att hitta.</span>';
+      : `<span class="find-kicker">Inga fler fynd idag</span><b class="find-name">Du har hittat ${DAILY} saker idag</b><span class="find-note">Kom tillbaka i morgon, då kan du hitta ${DAILY} nya.</span>`;
     return;
   }
   const t = findText(f), what = esc(t.what), note = esc(t.note);
@@ -264,8 +264,10 @@ function showFind(f) {
   const exp = f.expDone ? `<span class="find-exp done">Expeditionen ${esc(f.exp.name)} är klar! Välj en ny expedition i museet.</span>`
     : !expChosen() ? '<span class="find-exp">Välj en expedition i museet, så bestämmer du vad du letar efter.</span>'
     : f.exp.id !== 'explorer' && !p.complete ? `<span class="find-exp">${esc(f.exp.name)}: ${p.done} av ${p.total} fynd</span>` : '';
+  const other = f.other && !f.expDone ? `<span class="find-exp">${esc(f.exp.name)} har inget mer att hitta just nu, så det här fyndet kommer från något annat i museet. Byt expedition i museet om du vill.</span>` : '';
+  const next = `<span class="find-exp">${f.left ? `Du kan hitta ${f.left === 1 ? '1 sak' : f.left + ' saker'} till idag. Gör ett pass till!` : `Du har hittat ${DAILY} saker idag. Kom tillbaka i morgon!`}</span>`;
   const built = buildText(f) ? `<span class="find-exp done">${esc(buildText(f))}</span>` : '';
-  el.innerHTML = `<span class="find-kicker">Nytt fynd till museet</span><b class="find-name">${what}</b><span class="find-note">${note}</span>${built}${exp}<button class="btn primary" id="toFind">Se i museet</button>`;
+  el.innerHTML = `<span class="find-kicker">Nytt fynd till museet</span><b class="find-name">${what}</b><span class="find-note">${note}</span>${built}${exp}${other}${next}<button class="btn primary" id="toFind">Se i museet</button>`;
   $('#toFind').addEventListener('click', () => revealFind(f));
 }
 
