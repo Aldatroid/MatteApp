@@ -6,8 +6,8 @@
 import { THREE } from '../three/scene.js';
 import { $, esc, clamp, show, onShow, reducedMotion } from '../util.js';
 import { S } from '../store.js';
-import { ROOMS, ARTIFACTS, EXPEDITIONS, byId, roomById, TOTAL_PARTS, WALL_H } from './catalog.js';
-import { expedition, expChosen, expProgress, setExpedition, roomsLeftToday } from './finds.js';
+import { ROOMS, ARTIFACTS, EXPEDITIONS, byId, roomById, sectionById, TOTAL_PARTS, WALL_H } from './catalog.js';
+import { expedition, expChosen, expProgress, setExpedition, roomsLeftToday, sectionOpen, updateSections, takeFresh, nextSection, partsToBuild, pendingIn } from './finds.js';
 import { buildMuseum, setWallHeight, setPlaque, STUB_H, DOOR_TOP } from './build.js';
 import { setFound, materials } from './models.js';
 
@@ -52,8 +52,13 @@ function resize() {
   const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
   renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
 }
+const isOpen = id => PREVIEW_ALL || sectionOpen(id);
 function applyFound() {
   for (const a of MU.artifacts) { const n = foundCount(a.def.id); a.parts.forEach((p, i) => setFound(p, i < n)); if (a.sign) setPlaque(a.sign, a.def, n > 0); }
+  // öppna avdelningar visar sina montrar, stängda visar byggplatsen
+  for (const a of MU.artifacts) a.group.visible = isOpen(a.def.section);
+  for (const st of MU.sites) st.group.visible = !isOpen(st.sec.id);
+  for (const d of MU.decor) d.obj.visible = !d.section || isOpen(d.section);
   $('#mCount').innerHTML = `<b>${totalFound()} av ${TOTAL_PARTS}</b> fynd`;
   $('#mExp').innerHTML = expChosen() ? `<span class="m-exp-pre">Expedition: </span><b>${esc(expedition().name)}</b> ▾` : '<b>Välj expedition</b> ▾';
 }
@@ -200,6 +205,30 @@ function openFocus(a, newPart = -1) {
   $('#mHint').classList.add('off');
   clampGoal(); renderInfo(a.def, newPart);
 }
+// En byggplats: kameran flyger dit och panelen berättar hur nära bygget är att bli klart.
+function siteTarget(st) {
+  const [x0, z0, x1, z1] = st.sec.rect;
+  return { site: st, def: { room: st.sec.room, rot: 0 }, center: new THREE.Vector3((x0 + x1) / 2, 1.2, (z0 + z1) / 2), radius: Math.max(x1 - x0, z1 - z0) * 0.5 };
+}
+function openSite(st) {
+  if (!focus) beforeFocus = { ...goal };
+  const t = siteTarget(st); focus = t;
+  Object.assign(goal, { x: t.center.x, z: t.center.z, y: 0.8, dist: Math.max(8, t.radius * 2.4), pitch: 0.55 });
+  $('#mHint').classList.add('off');
+  clampGoal();
+  const R = roomById[st.sec.room], pend = pendingIn(R.id) === st.sec.id, next = nextSection(R.id)?.id === st.sec.id, need = partsToBuild(R.id);
+  const status = pend ? '<b>Bygget är klart!</b> Den nya avdelningen öppnar i morgon.'
+    : next ? `Hitta <b>${need} ${need === 1 ? 'del' : 'delar'} till</b> i ${esc(R.name)}, så blir bygget klart.`
+    : `Den här delen av ${esc(R.name)} byggs senare.`;
+  const el = $('#mInfo');
+  el.innerHTML = `<button class="ghost-btn m-close" aria-label="Stäng">Stäng</button>
+    <span class="m-kicker">${esc(R.name)}</span>
+    <h2>Här bygger vi något nytt!</h2>
+    <p class="m-text">Museet bygger en ny avdelning. Vad som kommer att stå här är en hemlighet tills den öppnar.</p>
+    <div class="m-fact">${status}</div>`;
+  el.hidden = false; el.scrollTop = 0;
+  el.querySelector('.m-close').addEventListener('click', () => closeFocus());
+}
 function closeFocus(restore = true) {
   if (!focus) return;
   focus = null; $('#mInfo').hidden = true;
@@ -214,7 +243,7 @@ function renderInfo(A, newPart = -1) {
     : `<p class="m-text m-locked">${all > 1 ? 'Delarna är inte hittade än.' : 'Det här föremålet är inte hittat än.'} Gör Dagens pass för att hitta ${all > 1 ? 'dem' : 'det'}!</p>`;
   const el = $('#mInfo');
   el.innerHTML = `<button class="ghost-btn m-close" aria-label="Stäng">Stäng</button>
-    <span class="m-kicker">${esc(R.name)}</span>
+    <span class="m-kicker">${esc(R.name)}${R.sections.length > 1 ? ` · ${esc(sectionById[A.section].name)}` : ''}</span>
     <h2>${esc(A.name)}</h2>
     <div class="m-meta"><span>${esc(A.era)}</span><span>${esc(A.place)}</span></div>
     ${parts}${body}`;
@@ -267,8 +296,10 @@ function bindInput() {
   function tap(x, y) {
     const r = canvas.getBoundingClientRect(); ndc.set((x - r.left) / r.width * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects(MU.artifacts.map(a => a.hit), false)[0];
-    if (hit) openFocus(MU.artifacts.find(a => a.hit === hit.object));
+    const targets = [...MU.artifacts.filter(a => a.group.visible).map(a => a.hit), ...MU.sites.filter(st => st.group.visible).map(st => st.hit)];
+    const hit = ray.intersectObjects(targets, false)[0];
+    if (hit?.object.userData.section) openSite(MU.sites.find(st => st.hit === hit.object));
+    else if (hit) openFocus(MU.artifacts.find(a => a.hit === hit.object));
     else if (focus) closeFocus();
   }
   $('#mBack').addEventListener('click', () => show('home'));
@@ -300,7 +331,37 @@ function enter() {
   if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(frame); }
   if (reveal) startReveal(reveal);
   else if (!expChosen()) openExpeditions(); // första besöket: välj en roll
+  else if (!PREVIEW_ALL) { updateSections(); const fresh = takeFresh(); if (fresh.length) { applyFound(); openSections(fresh); } }
   reveal = null;
+}
+/* ---------- en ny avdelning öppnar: kameran flyger dit, bygget försvinner och montrarna kommer fram ---------- */
+function openSections(ids) {
+  const st = MU.sites.find(x => x.sec.id === ids[0]); if (!st) return;
+  const sec = st.sec, R = roomById[sec.room], items = MU.artifacts.filter(a => ids.includes(a.def.section));
+  // börja med byggplatsen kvar och montrarna dolda
+  for (const id of ids) { const s2 = MU.sites.find(x => x.sec.id === id); if (s2) s2.group.visible = true; }
+  items.forEach(a => { a.group.visible = false; });
+  const t = siteTarget(st);
+  closeFocus(false);
+  Object.assign(goal, { x: t.center.x, z: t.center.z + 1, y: 0, dist: Math.max(14, t.radius * 3) }); clampGoal();
+  toast(`Ny avdelning i ${R.name}: <b>${esc(sec.name)}</b>!`);
+  const now = performance.now(), wait = reducedMotion ? 0 : 1400, dur = reducedMotion ? 1 : 900;
+  for (const id of ids) {
+    const s2 = MU.sites.find(x => x.sec.id === id); if (!s2) continue;
+    s2.parts.forEach((m, i) => { const y0 = m.position.y, sy = m.scale.y; anims.push({ start: now + wait + (i % 12) * 40, dur, fn: p => {
+      const e = p * p; m.scale.y = sy * (1 - e) + 0.0001; m.position.y = y0 * (1 - e);
+      if (p >= 1) { s2.group.visible = false; m.scale.y = sy; m.position.y = y0; }
+    } }); });
+  }
+  items.forEach((a, i) => anims.push({ start: now + wait + dur + i * 150, dur: 500, fn: p => {
+    a.group.visible = true; const e = 1 - Math.pow(1 - p, 3); a.group.scale.setScalar(0.6 + 0.4 * e);
+  } }));
+  for (const d of MU.decor) if (ids.includes(d.section)) d.obj.visible = true;
+}
+let toastTimer = 0;
+function toast(html) {
+  const el = $('#mToast'); el.innerHTML = html; el.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 4500);
 }
 /* ---------- nytt fynd: kameran flyger dit och delen sänks ner på sin plats ---------- */
 export function revealFind(f) { reveal = f; show('museum'); }
@@ -322,4 +383,4 @@ function startReveal(f) {
 onShow('museum', enter);
 onShow('*', id => { if (id !== 'museum') { running = false; closeFocus(false); $('#mExpPanel').hidden = true; } });
 // Utvecklarkrok (bara med ?debug): styr kameran vid granskning
-if (/[?&]debug/.test(location.search)) window.__museum = { goal, cur, get MU() { return MU; }, focusId: id => openFocus(MU.artifacts.find(a => a.def.id === id)), overview, flyToRoom: id => flyToRoom(roomById[id]) };
+if (/[?&]debug/.test(location.search)) window.__museum = { goal, cur, get MU() { return MU; }, focusId: id => openFocus(MU.artifacts.find(a => a.def.id === id)), site: id => openSite(MU.sites.find(st => st.sec.id === id)), overview, flyToRoom: id => flyToRoom(roomById[id]) };

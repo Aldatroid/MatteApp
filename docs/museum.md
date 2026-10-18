@@ -163,12 +163,12 @@ Museet byggs ut åt sidorna och bakåt till tio salar. Kameran, väggarna och go
 
 - **Katalogen delas upp per sal:** `js/museum/rooms/fossil.js` och så vidare, med salens avdelningar, platser, föremål och mål. Med 10 salar × 15 föremål blir en enda fil för stor.
 - **Mål** beskrivs som data, till exempel `{ type: 'level', area: 'symmetry', level: 4 }`, `{ type: 'facts', n: 40 }` eller `{ type: 'finds', n: 15 }`, så att de är lätta att ändra.
-- **Lagring:** `S.museum.open = { rooms: [...], sections: [...] }` för det som är öppet, plus `S.museum.pending` för en avdelning som öppnar i morgon. Tvättas i `migrate()`.
+- **Lagring:** `S.museum.sections` (öppnade avdelningar), `S.museum.pending` (avdelning → dagen bygget blev klart; den öppnar dagen efter) och `S.museum.fresh` (öppnade men inte visade i museet än). Salar läggs till i 5b. Allt tvättas i `migrate()`.
 - **Befintliga spelare:** salar och avdelningar där barnet redan har fynd räknas som öppna. Ingen förlorar något.
 
 ### Delsteg
 
-1. **5a – Avdelningar och byggplatser** i dagens fem salar: dela salarna i avdelningar, flytta dagens föremål till sina avdelningar, bygg byggplatsen och öppningen nästa dag.
+1. **5a – Avdelningar och byggplatser** *(klar)*: varje sal har 2–3 avdelningar (`sections` i `ROOMS`), föremålen hör till avdelningen där de står, och stängda avdelningar är byggplatser. Reglerna finns i `finds.js` (`sectionOpen`, `updateSections`), byggplatserna i `buildSite()` i `build.js` och öppningen i `openSections()` i `museum.js`. Tryck på en byggplats för att se hur många delar som fattas.
 2. **5b – Salar som öppnar med mål i matten:** stängda salar (tak, dörrar, lås), målen och reservvägen, mätaren i museet och pop-upen när en sal öppnar. Testas med dagens salar: Vikingasalen och Havets sal börjar stängda.
 3. **5c – Utbyggd planlösning:** väggar och golv för fem nya salar, som stängda salar.
 4. **5d – Fler föremål:** fyll salarna till 10–20 föremål, en sal i taget, med modeller och infotexter. Djursalen först bland de nya, eftersom dioramorna är mest *Natt på museet*.

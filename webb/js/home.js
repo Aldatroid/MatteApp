@@ -7,7 +7,7 @@ import { startRun } from './engine.js';
 import { startSandbox } from './sandbox.js';
 import { totalFound } from './museum/museum.js';
 import { TOTAL_PARTS } from './museum/catalog.js';
-import { expedition, expChosen, roomsLeftToday, museumComplete } from './museum/finds.js';
+import { expedition, expChosen, roomsLeftToday, museumComplete, updateSections } from './museum/finds.js';
 
 function renderHome() {
   $('#hello').textContent = S.name ? `Hej ${S.name}!` : 'Hej!';
@@ -19,12 +19,15 @@ function renderHome() {
   $('#homeStatus').innerHTML = `<span class="pill"><span class="dot"></span><b>${good} av 100</b> gångertal sitter</span>` + (t?.pass ? `<span class="pill">Dagens pass är gjort</span><span class="pill"><b>${t.passes || 1} pass</b> idag</span>` : '')
   ;
   // Museet: innan barnet har valt expedition lockar rutan till att välja, sedan visas hur många salar som kan få fynd idag.
-  const rooms = roomsLeftToday().length, chosen = expChosen();
+  updateSections();
+  const rooms = roomsLeftToday().length, chosen = expChosen(), building = Object.keys(S.museum.pending).length, opened = S.museum.fresh.length;
   $('#startMuseum').classList.toggle('new', !chosen);
   $('#museumKicker').textContent = chosen ? `${totalFound()} av ${TOTAL_PARTS} fynd · ${expedition().name}` : 'Samla föremål';
   $('#museumText').textContent = !chosen ? 'Bygg ditt eget museum. Välj om du vill leta dinosaurier, mumier, vikingaskatter eller havsjättar!'
+    : opened ? 'En ny avdelning har öppnat i museet. Gå och titta!'
     : museumComplete() ? 'Museet är komplett. Bra jobbat!'
     : rooms ? `Gör Dagens pass för att hitta något nytt. Idag finns fynd kvar i ${rooms === 1 ? 'en sal' : rooms + ' salar'}.`
+    : building ? 'Museet bygger en ny avdelning. Den öppnar i morgon!'
     : 'Alla salar har fått något nytt idag. Kom tillbaka i morgon!';
 }
 let tableSel = new Set(['all']);

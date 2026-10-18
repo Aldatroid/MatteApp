@@ -576,3 +576,6 @@ body{background:linear-gradient(rgba(var(--shade),.80),rgba(var(--shade),.92)),v
 .find-pop-note{color:#e6d3ae;font-size:15px}
 .find-pop-btns{justify-content:center;margin-top:10px}
 @media (prefers-reduced-motion:reduce){.find-pop-card,.find-pop-rays,.find-pop-dino{animation:none}}
+.m-toast{position:absolute;left:50%;top:76px;transform:translateX(-50%);z-index:4;padding:12px 20px;border-radius:999px;background:linear-gradient(180deg,rgba(64,42,20,.96),rgba(30,20,12,.96));border:1.5px solid #ffd27a;color:#f3e6cc;font-family:var(--f-display);font-size:18px;box-shadow:0 0 24px rgba(255,190,80,.3);white-space:nowrap;animation:findIn .4s ease-out}
+.m-toast b{color:#ffe2a6}
+.find-pop-build{color:#ffd27a;font-weight:600;font-size:15px}
