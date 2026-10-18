@@ -6,7 +6,8 @@ import { THREE } from '../three/scene.js';
 import { ROOMS, DOORS, ARTIFACTS, WALL_H } from './catalog.js';
 import { buildModel, materials, canvasTex, speckle, std } from './models.js';
 
-const T = 0.6, DOOR_H = 5.2, STUB = 1.25;
+// STUB = höjden på en sänkt vägg: bara en mörk list vid golvet som visar planlösningen.
+const T = 0.6, DOOR_H = 5.2, STUB = 0.12;
 const box = new THREE.BoxGeometry(1, 1, 1);
 
 /* ---------- golv ---------- */
@@ -80,7 +81,6 @@ function makeMats() {
     ...M,
     wall: std({ map: wallTex, roughness: 0.9 }),
     trim: std({ color: 0xe9d6b0, roughness: 0.7 }),
-    cap: std({ color: 0xf1e2c2, roughness: 0.8 }),
     panel: std({ color: 0x3b2414, roughness: 0.55 }),
     outside: std({ color: 0x2a2018, roughness: 1 }),
     window: new THREE.MeshBasicMaterial({ color: 0xffd38a }),
@@ -155,10 +155,7 @@ function buildWall(W, BM, parent, i) {
     piece(-2.6, 2.6, 4.8, 5.3, T + 0.3, BM.gold);
     piece(-0.04, 0.04, 0, 4.8, T + 0.14, BM.brass);
   }
-  // locket på en sänkt vägg
-  const cap = new THREE.Mesh(box, BM.cap); const [cx, cz] = at((W.from + W.to) / 2);
-  cap.position.set(cx, STUB, cz); cap.scale.set(alongX ? len + T : T + 0.08, 0.14, alongX ? T + 0.08 : len + T); g.add(cap);
-  const wall = { ...W, group: g, pieces, cap, h: WALL_H, near: {} };
+  const wall = { ...W, group: g, pieces, h: WALL_H, near: {}, doors };
   setWallHeight(wall, WALL_H);
   return wall;
 }
@@ -170,9 +167,8 @@ export function setWallHeight(w, h) {
     p.m.visible = hh > 0.01;
     if (p.m.visible) { p.m.scale.y = hh; p.m.position.y = p.y0 + hh / 2; }
   }
-  w.cap.visible = h < WALL_H - 0.5; w.cap.position.y = h + 0.07;
 }
-export const STUB_H = STUB;
+export const STUB_H = STUB, DOOR_TOP = DOOR_H;
 
 /* ---------- socklar, montrar och skyltar ---------- */
 function stanchions(parent, w, d, BM) {
