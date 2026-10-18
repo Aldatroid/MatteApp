@@ -7,7 +7,7 @@ import { THREE } from '../three/scene.js';
 import { $, esc, clamp, show, onShow, reducedMotion } from '../util.js';
 import { S } from '../store.js';
 import { ROOMS, ARTIFACTS, EXPEDITIONS, byId, roomById, TOTAL_PARTS, WALL_H } from './catalog.js';
-import { expedition, expChosen, expProgress, setExpedition, nextFind } from './finds.js';
+import { expedition, expChosen, expProgress, setExpedition, roomsLeftToday } from './finds.js';
 import { buildMuseum, setWallHeight, setPlaque, STUB_H, DOOR_TOP } from './build.js';
 import { setFound, materials } from './models.js';
 
@@ -61,15 +61,15 @@ function applyFound() {
 /* ---------- expeditioner: barnet väljer vilken sorts fynd som kommer härnäst ---------- */
 function openExpeditions() {
   closeFocus(false);
-  const chosen = expChosen(), active = chosen ? expedition() : null, next = nextFind();
+  const chosen = expChosen(), active = chosen ? expedition() : null, rooms = roomsLeftToday();
   const el = $('#mExpPanel');
   el.innerHTML = `<div class="m-exp-box">
     <button class="ghost-btn m-close" id="mExpClose">Stäng</button>
     <span class="m-kicker">Expedition</span>
     ${chosen ? '' : '<p class="m-exp-welcome">Välkommen till museet!</p>'}
     <h2>${chosen ? 'Vad vill du leta efter?' : 'Vad vill du bli?'}</h2>
-    <p class="m-text">Varje gång du gör Dagens pass hittar du något nytt till museet. Välj vad du vill leta efter. Du kan byta när du vill.</p>
-    ${next ? `<p class="m-exp-next">Nästa fynd: <b>${esc(byId[next].parts.length > 1 ? `en del av ${byId[next].name}` : byId[next].name)}</b></p>` : '<p class="m-exp-next"><b>Museet är komplett!</b></p>'}
+    <p class="m-text">När du gör Dagens pass hittar du nya saker till museet, högst en per sal och dag. Välj vad du vill leta efter. Du kan byta när du vill.</p>
+    <p class="m-exp-next">${rooms.length ? `Idag kan du hitta något i: <b>${rooms.map(r => esc(roomById[r].name)).join(', ')}</b>. Högst en sak per sal och dag.` : '<b>Alla salar har fått något nytt idag.</b> Kom tillbaka i morgon!'}</p>
     <div class="m-exp-grid">${EXPEDITIONS.map(e => { const p = expProgress(e); return `<button class="m-exp-card${e.id === active?.id ? ' on' : ''}" data-exp="${e.id}">
       <b>${esc(e.name)}</b><span>${esc(e.text)}</span>
       <span class="m-exp-bar"><i style="width:${Math.round(p.done / p.total * 100)}%"></i></span>
@@ -79,7 +79,7 @@ function openExpeditions() {
   $('#mExpClose').addEventListener('click', () => { el.hidden = true; });
   el.querySelectorAll('[data-exp]').forEach(b => b.addEventListener('click', () => {
     setExpedition(b.dataset.exp); applyFound(); el.hidden = true;
-    const n = nextFind(); if (n) flyToRoom(roomById[byId[n].room]);
+    const R = roomById[byId[expedition().items[0]].room]; if (R && expedition().id !== 'explorer') flyToRoom(R);
   }));
 }
 
