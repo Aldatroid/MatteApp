@@ -4,7 +4,7 @@ Barnet bygger upp ett naturhistoriskt museum i 3D genom att göra Dagens pass. V
 
 ## Spelloopen
 
-1. Barnet gör Dagens pass. Ett fullt pass ger 1 fynd. Det är samma regel som för "Dagens pass är gjort" (minst 80 % av passets tid).
+1. Barnet gör Dagens pass. Ett fullt pass ger 1 fynd (högst ett per sal och dag). Det är samma regel som för "Dagens pass är gjort" (minst 80 % av passets tid).
 2. Sammanfattningen visar fyndet: *"Du hittade T. rex-skallen (3 av 9 delar)"* och en knapp **Se i museet**.
 3. Museet öppnas, kameran flyger till platsen och den nya delen tonar in där den saknades.
 4. Barnet kan sedan fritt utforska museet och läsa om allt som är hittat.
@@ -24,11 +24,13 @@ Varje artefakt har 1 eller flera delar. Små föremål (skarabé, svärd, ammoni
 | Triceratopsskalle | 3 |
 | Sarkofag | 2 |
 
-### I vilken ordning kommer fynden?
+### Vilka fynd kommer?
 
-Första versionen har en bestämd **fyndordning** i `catalog.js`. Stora skelett varvas med små föremål, så att barnet både ser T. rex växa och får nya saker i olika salar. Ett halvfärdigt skelett är också en anledning att komma tillbaka nästa dag.
+- **Slumpat:** föremålet slumpas bland det som är kvar, så olika barn hittar saker i olika ordning. Stora föremål byggs del för del, i delarnas ordning.
+- **En sak per sal och dag:** varje sal kan få högst ett fynd per dag. Gör barnet fler pass samma dag kommer fynden från andra salar. När alla salar med saker kvar har fått något den dagen ger passen inga fler fynd förrän nästa dag, och sammanfattningen säger det.
+- **Expedition:** barnet väljer en roll: *Upptäckare* (lite av allt), *Paleontolog* (dinosaurier och fossil), *Egyptolog*, *Vikingaforskare* eller *Havsforskare*. Fynden slumpas i första hand bland rollens föremål. Om rollens salar redan har fått något idag, eller om rollen är klar, slumpas fynden bland allt annat.
 
-Barnet kan välja en **expedition** (en roll): *Paleontolog* (dinosaurier och fossil), *Egyptolog*, *Vikingaforskare* eller *Havsforskare*. Expeditionen styr vilken sal nästa fynd hamnar i. Fyndordningen blir då en lista per expedition, och det som är kvar delas ut i vanlig ordning när en expedition är klar.
+Reglerna finns i `js/museum/finds.js`, och expeditionernas föremål i `EXPEDITIONS` i `catalog.js`.
 
 ## Museets salar
 
@@ -83,13 +85,13 @@ Texterna i första versionen gäller föremålstypen (T. rex, runsten). När ett
 ## Faser
 
 1. **Museet i 3D** *(klar)*: salar, ljus, kamera, platshållare för alla föremål, infopanel och ingång från startsidan. Med `?alla` i adressen visas allt som hittat, för granskning.
-2. **Fynd från Dagens pass** *(klar)*: `grantFind()` i `js/museum/finds.js` anropas från `finishRun()`. Sammanfattningen visar fyndet, och **Se i museet** flyger dit och sänker ner delen på sin plats.
+2. **Fynd från Dagens pass** *(klar)*: `grantFind()` i `js/museum/finds.js` anropas från `finishRun()` och slumpar fyndet. Sammanfattningen visar fyndet, och **Se i museet** flyger dit och sänker ner delen på sin plats.
 3. **Riktiga föremål**: GLB-modeller och infotexter om verkliga föremål, med källor.
-4. **Expeditioner** *(klar)*: knappen **Expedition** i museet öppnar valet. `EXPEDITIONS` i `catalog.js` har en fyndordning per roll, och `finds.js` följer den valda. Sammanfattningen visar hur långt expeditionen har kommit och när den är klar.
+4. **Expeditioner** *(klar)*: knappen **Expedition** i museet öppnar valet. `EXPEDITIONS` i `catalog.js` listar föremålen per roll, och `finds.js` slumpar i första hand bland den valda rollens föremål. Sammanfattningen visar hur långt expeditionen har kommit och när den är klar.
 5. **Fler salar**: djursal med dioramor, rymd och meteoriter, antiken, med mera.
 
 ## Öppna frågor
 
 - Ska ett halvt pass (under 80 %) ge något, till exempel damm som räknas mot nästa fynd?
-- Ska föräldern kunna se och styra fyndordningen eller expeditionen?
+- Ska föräldern kunna se eller styra expeditionen?
 - Ljud: en mjuk "klang" när en del sätts på plats, och kanske museiambiens.

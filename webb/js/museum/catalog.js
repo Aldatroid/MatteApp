@@ -4,7 +4,7 @@
    model = byggfunktion i models.js, stand = hur föremålet ställs ut (platform, pedestal, case, hang).
    rot = vridning; utan rot vänds föremålet (skylten) mot salens mitt, avrundat till 45°.
    view = valfri kameravinkel när man tittar närmare (dist, pitch, y), annars räknas den ut från storleken.
-   ORDER: i vilken ordning fynden delas ut (id, ett steg per del). Se docs/museum.md. */
+   EXPEDITIONS: rollerna barnet kan välja, med sina föremål. Se docs/museum.md. */
 
 export const WALL_H = 7.5;
 
@@ -196,23 +196,14 @@ export const ARTIFACTS = [
   },
 ];
 
-// Fyndordning: stora skelett varvas med små föremål. Ett id per del.
-export const ORDER = [
-  'trex', 'scarab', 'trex', 'ammonite', 'trex', 'runestone', 'trex', 'canopic', 'trex', 'globe',
-  'trex', 'sword', 'trex', 'trilobite', 'trex', 'pyramid', 'trex', 'moai',
-  'whale', 'canopic', 'ship', 'whale', 'amber', 'ship', 'whale', 'helmet', 'ship', 'whale', 'canopic', 'ship', 'whale', 'narwhal', 'whale',
-  'triceratops', 'sarcophagus', 'triceratops', 'meteorite', 'triceratops', 'sarcophagus', 'canopic',
-  'tusk', 'hoard', 'megalodon', 'nautilus', 'obelisk',
-];
-
-// Expeditioner: barnet väljer en roll, och fynden kommer då i den rollens ordning (ett id per del).
-// När en expedition är klar fortsätter fynden enligt ORDER. Upptäckaren följer ORDER direkt.
+// Expeditioner: barnet väljer en roll, och fynden slumpas då i första hand bland rollens föremål.
+// Upptäckaren har alla föremål. Se finds.js för reglerna.
 export const EXPEDITIONS = [
-  { id: 'explorer', name: 'Upptäckare', text: 'Lite av allt, i alla salar.', order: ORDER },
-  { id: 'paleo', name: 'Paleontolog', text: 'Gräv fram dinosaurier och fossil.', order: ['trex', 'ammonite', 'trex', 'trilobite', 'trex', 'triceratops', 'trex', 'amber', 'trex', 'triceratops', 'trex', 'tusk', 'trex', 'triceratops', 'trex', 'meteorite', 'trex'] },
-  { id: 'egypt', name: 'Egyptolog', text: 'Utforska faraonernas Egypten.', order: ['scarab', 'canopic', 'pyramid', 'canopic', 'sarcophagus', 'canopic', 'obelisk', 'sarcophagus', 'canopic'] },
-  { id: 'viking', name: 'Vikingaforskare', text: 'Hitta skatter från vikingatiden.', order: ['runestone', 'ship', 'sword', 'ship', 'helmet', 'ship', 'hoard', 'ship'] },
-  { id: 'ocean', name: 'Havsforskare', text: 'Upptäck havens jättar.', order: ['whale', 'narwhal', 'whale', 'megalodon', 'whale', 'nautilus', 'whale', 'whale', 'whale'] },
+  { id: 'explorer', name: 'Upptäckare', text: 'Lite av allt, i alla salar.', items: ARTIFACTS.map(a => a.id) },
+  { id: 'paleo', name: 'Paleontolog', text: 'Gräv fram dinosaurier och fossil.', items: ['trex', 'triceratops', 'ammonite', 'trilobite', 'tusk', 'amber', 'meteorite'] },
+  { id: 'egypt', name: 'Egyptolog', text: 'Utforska faraonernas Egypten.', items: ['sarcophagus', 'canopic', 'pyramid', 'scarab', 'obelisk'] },
+  { id: 'viking', name: 'Vikingaforskare', text: 'Hitta skatter från vikingatiden.', items: ['ship', 'runestone', 'helmet', 'sword', 'hoard'] },
+  { id: 'ocean', name: 'Havsforskare', text: 'Upptäck havens jättar.', items: ['whale', 'narwhal', 'megalodon', 'nautilus'] },
 ];
 export const expById = Object.fromEntries(EXPEDITIONS.map(e => [e.id, e]));
 

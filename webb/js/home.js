@@ -6,8 +6,8 @@ import { ALL_FACTS, hardestFacts, countGood } from './areas/mul.js';
 import { startRun } from './engine.js';
 import { startSandbox } from './sandbox.js';
 import { totalFound } from './museum/museum.js';
-import { TOTAL_PARTS, byId } from './museum/catalog.js';
-import { expedition, expChosen, nextFind } from './museum/finds.js';
+import { TOTAL_PARTS } from './museum/catalog.js';
+import { expedition, expChosen, roomsLeftToday, museumComplete } from './museum/finds.js';
 
 function renderHome() {
   $('#hello').textContent = S.name ? `Hej ${S.name}!` : 'Hej!';
@@ -18,12 +18,14 @@ function renderHome() {
   const good = countGood(); const t = S.days[dayKey()];
   $('#homeStatus').innerHTML = `<span class="pill"><span class="dot"></span><b>${good} av 100</b> gångertal sitter</span>` + (t?.pass ? `<span class="pill">Dagens pass är gjort</span><span class="pill"><b>${t.passes || 1} pass</b> idag</span>` : '')
   ;
-  // Museet: innan barnet har valt expedition lockar rutan till att välja, sedan visas nästa fynd.
-  const n = nextFind(), chosen = expChosen();
+  // Museet: innan barnet har valt expedition lockar rutan till att välja, sedan visas hur många salar som kan få fynd idag.
+  const rooms = roomsLeftToday().length, chosen = expChosen();
   $('#startMuseum').classList.toggle('new', !chosen);
   $('#museumKicker').textContent = chosen ? `${totalFound()} av ${TOTAL_PARTS} fynd · ${expedition().name}` : 'Samla föremål';
   $('#museumText').textContent = !chosen ? 'Bygg ditt eget museum. Välj om du vill leta dinosaurier, mumier, vikingaskatter eller havsjättar!'
-    : n ? `Nästa fynd: ${byId[n].parts.length > 1 ? 'en del av ' + byId[n].name : byId[n].name}. Gör Dagens pass för att hitta det!` : 'Museet är komplett. Bra jobbat!';
+    : museumComplete() ? 'Museet är komplett. Bra jobbat!'
+    : rooms ? `Gör Dagens pass för att hitta något nytt. Idag finns fynd kvar i ${rooms === 1 ? 'en sal' : rooms + ' salar'}.`
+    : 'Alla salar har fått något nytt idag. Kom tillbaka i morgon!';
 }
 let tableSel = new Set(['all']);
 function renderFree() {
