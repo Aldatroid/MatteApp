@@ -96,6 +96,10 @@ function placeCamera() {
   const cp = Math.cos(cur.pitch), sp = Math.sin(cur.pitch), d = focus ? cur.dist * Math.max(1, 0.9 / camera.aspect) * shift.k : fitDist();
   camera.position.set(cur.x + Math.sin(cur.yaw) * cp * d, cur.y + sp * d, cur.z + Math.cos(cur.yaw) * cp * d);
   camera.lookAt(cur.x, cur.y, cur.z);
+  // Närplanet följer avståndet: ju längre ut kameran är, desto längre bort kan det ligga.
+  // Det ger djupbufferten mycket bättre precision i överblicken (mindre flimmer mellan ytor).
+  const near = clamp(d * 0.12, 0.4, 8), far = d * 3 + 120;
+  if (Math.abs(camera.near - near) > near * 0.05 || Math.abs(camera.far - far) > far * 0.05) { camera.near = near; camera.far = far; camera.updateProjectionMatrix(); }
   if (Math.abs(shift.x) + Math.abs(shift.y) > 0.5) camera.setViewOffset(w, h, shift.x, shift.y, w, h); else camera.clearViewOffset();
 }
 function clampGoal() {
