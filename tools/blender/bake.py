@@ -49,7 +49,7 @@ def strip_hidden(ob, wall=None, up_only=False):
             x, z, nx, nz = c.x, -c.y, n.x, -n.y  # appens koordinater
             w = ((z if wall.axis == 'z' else x) - wall.at) * wall.n
             along = (nz if wall.axis == 'z' else nx) * wall.n
-            if w < -0.05 and along < -0.5: dead.append(f)
+            if w < 0.05 and along < -0.5: dead.append(f)
     bmesh.ops.delete(bm, geom=dead, context='FACES')
     bm.to_mesh(ob.data); bm.free()
     log(ob.name, 'tog bort', len(dead), 'ytor')

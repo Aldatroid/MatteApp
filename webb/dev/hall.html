@@ -12,7 +12,6 @@ button{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid #6b5536
 button.on{background:#c8923a;border-color:#c8923a;color:#1b130b}
 #info{position:fixed;left:12px;bottom:12px;opacity:.8;white-space:pre}
 </style>
-<script type="importmap">{ "imports": { "three": "../assets/lib/three.module.js", "three/addons/": "../assets/lib/jsm/" } }</script>
 </head><body>
 <canvas id="c"></canvas>
 <div id="ui">
@@ -23,13 +22,13 @@ button.on{background:#c8923a;border-color:#c8923a;color:#1b130b}
 </div>
 <div id="info">Laddar …</div>
 <script type="module">
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import * as THREE from '../assets/lib/three.module.js';
+import { GLTFLoader } from '../assets/lib/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from '../assets/lib/jsm/controls/OrbitControls.js';
+import { EffectComposer } from '../assets/lib/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from '../assets/lib/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from '../assets/lib/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from '../assets/lib/jsm/postprocessing/OutputPass.js';
 import { buildModel } from '../js/museum/models.js';
 
 const canvas = document.getElementById('c'), info = document.getElementById('info');

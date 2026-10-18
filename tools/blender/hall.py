@@ -286,26 +286,27 @@ def build_wall(W):
     pts = [(W.s0, 0)]
     for f, t, sp in W.doors: pts += door_outline(f, t, sp)
     pts += [(W.s1, 0), (W.s1, WALL_H), (W.s0, WALL_H)]
-    W.prism_uv('body', pts, -FACE, FACE, M['wall'], bevel=0.03)
-    # sockel och taklist (väggar längs z slutar vid de andra väggarnas insida, så att inget överlappar)
+    # bara salens halva av väggen (w från mittlinjen och in); salen bredvid har den andra halvan
+    W.prism_uv('body', pts, 0, FACE, M['wall'], bevel=0.03)
+    # sockel och taklist (väggar längs x slutar vid de andra väggarnas insida, så att inget överlappar)
     inset = 0 if W.axis == 'z' else 0.3
-    edges = [W.s0 + inset]
+    edges = [W.s0]
     for f, t, sp in W.doors: edges += [f - 0.45, t + 0.45]
-    edges.append(W.s1 - inset)
+    edges.append(W.s1)
     for i in range(0, len(edges), 2):
         a, b = edges[i] + (0.12 if W.axis == 'x' else 0), edges[i + 1] - (0.12 if W.axis == 'x' else 0)
         W.box(f'plinth{i}', (a + b) / 2, 0.2, FACE + 0.06, b - a, 0.4, 0.12, M['plinth'], 0.02)
     prof = [(FACE - 0.01, 6.75), (FACE + 0.08, 6.75), (FACE + 0.08, 6.92), (FACE + 0.2, 7.02), (FACE + 0.2, 7.22), (FACE + 0.3, 7.28), (FACE + 0.3, WALL_H), (FACE - 0.01, WALL_H)]
-    W.prism_wv('cornice', prof, W.s0 + 2 * inset, W.s1 - 2 * inset, M['trim'])
+    W.prism_wv('cornice', prof, W.s0 + inset, W.s1 - inset, M['trim'])
     # valvbågar runt öppningarna
     for k, (f, t, sp) in enumerate(W.doors):
         r, c, b = (t - f) / 2, (f + t) / 2, 0.45
         frame = [(f - b, 0), (f - b, sp)] + arc(c, sp, r + b, math.pi, 0, 24)[1:-1] + [(t + b, sp), (t + b, 0), (t, 0), (t, sp)] + arc(c, sp, r, 0, math.pi, 24)[1:-1] + [(f, sp)]
-        W.prism_uv(f'arch{k}', frame, -FACE - 0.1, FACE + 0.1, M['trim'], bevel=0.03)
-        W.box(f'key{k}', c, sp + r + 0.25, 0, 0.55, 0.75, T + 0.32, M['trim'], 0.03)
+        W.prism_uv(f'arch{k}', frame, 0, FACE + 0.1, M['trim'], bevel=0.03)
+        W.box(f'key{k}', c, sp + r + 0.25, (FACE + 0.16) / 2, 0.55, 0.75, FACE + 0.16, M['trim'], 0.03)
         for e in (f - b / 2, t + b / 2):
-            W.box(f'impost{k}_{e:.1f}', e, sp + 0.08, 0, b + 0.2, 0.18, T + 0.34, M['trim'], 0.02)
-            W.box(f'jbase{k}_{e:.1f}', e, 0.25, 0, b + 0.16, 0.5, T + 0.3, M['plinth'], 0.02)
+            W.box(f'impost{k}_{e:.1f}', e, sp + 0.08, (FACE + 0.17) / 2, b + 0.2, 0.18, FACE + 0.17, M['trim'], 0.02)
+            W.box(f'jbase{k}_{e:.1f}', e, 0.25, (FACE + 0.15) / 2, b + 0.16, 0.5, FACE + 0.15, M['plinth'], 0.02)
 
 def pilaster(W, u):
     W.box(f'pil{u:.1f}', u, 3.55, FACE + 0.08, 0.7, 6.4, 0.16, M['trim'], 0.02)
@@ -544,10 +545,10 @@ def floor():
 
 # ---------- hela salen ----------
 WALLS = [
-    Wall('N', 'z', -10, +1, -14.3, 14.3, [(-9.5, -4.5, 2.7), (4.5, 9.5, 2.7)]),
-    Wall('S', 'z', 10, -1, -14.3, 14.3, [(-2.2, 2.2, 2.6)]),
-    Wall('W', 'x', -14, +1, -10.3, 10.3, [(-2.5, 2.5, 2.7)]),
-    Wall('E', 'x', 14, -1, -10.3, 10.3, [(-2.5, 2.5, 2.7)]),
+    Wall('N', 'z', -10, +1, -14, 14, [(-9.5, -4.5, 2.7), (4.5, 9.5, 2.7)]),
+    Wall('S', 'z', 10, -1, -14, 14, [(-2.2, 2.2, 2.6)]),
+    Wall('W', 'x', -14, +1, -9.7, 9.7, [(-2.5, 2.5, 2.7)]),
+    Wall('E', 'x', 14, -1, -9.7, 9.7, [(-2.5, 2.5, 2.7)]),
 ]
 
 def build():
@@ -567,7 +568,7 @@ def build():
     for u in (-13.35, -7.2, 7.2, 13.35): pilaster(S, u)
     for u in (-10.3, -4.2, 4.2, 10.3): sconce(S, u)
     leaf_out = door_outline(-2.2, 2.2, 2.6)
-    S.prism_uv('door', leaf_out, -0.08, 0.08, M['dwood'], 0.02)
+    S.prism_uv('door', leaf_out, 0.0, 0.08, M['dwood'], 0.02)
     for e in (-1, 1):
         for k, (v, h) in enumerate([(0.9, 1.3), (2.45, 1.4)]):
             S.box(f'dpanel{e}{k}', e * 1.1, v, 0.1, 1.5, h, 0.05, M['wood'], 0.02)
