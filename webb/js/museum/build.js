@@ -112,6 +112,13 @@ function buildWall(W, BM, parent, i) {
   for (const d of doors) { solids.push([s, d.from]); s = d.to; } solids.push([s, W.to]);
   for (const [a, b] of solids) { piece(a, b, 0, WALL_H - 0.03, T, BM.wall); piece(a, b, 0, 1.1, T + 0.12, BM.panel, 0, true); piece(a, b, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim); }
   for (const d of doors) {
+    // stängda dörrar med hänglås, som syns när salen bakom är stängd (se setWallHeight)
+    const lockMat = BM.gold, mid = (d.from + d.to) / 2;
+    for (const [a, b] of [[d.from + 0.05, mid - 0.02], [mid + 0.02, d.to - 0.05]]) { piece(a, b, 0, DOOR_H - 0.3, 0.16, BM.darkWood); pieces[pieces.length - 1].door = true; }
+    for (const side of [-1, 1]) {
+      piece(mid - 0.14, mid + 0.14, 1.9, 2.25, 0.12, lockMat, side * 0.14); pieces[pieces.length - 1].door = true;
+      piece(mid - 0.5, mid + 0.5, 2.35, 2.47, 0.08, BM.iron, side * 0.12); pieces[pieces.length - 1].door = true;
+    }
     piece(d.from, d.to, DOOR_H, WALL_H - 0.03, T, BM.wall);
     piece(d.from, d.to, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim);
     // valvbåge av ljus sten runt öppningen
@@ -156,7 +163,7 @@ function buildWall(W, BM, parent, i) {
     piece(-2.6, 2.6, 4.8, 5.3, T + 0.3, BM.gold);
     piece(-0.04, 0.04, 0, 4.8, T + 0.14, BM.brass);
   }
-  const wall = { ...W, group: g, pieces, h: WALL_H, near: {}, doors };
+  const wall = { ...W, group: g, pieces, h: WALL_H, near: {}, doors, locked: false };
   setWallHeight(wall, WALL_H);
   return wall;
 }
@@ -166,6 +173,7 @@ export function setWallHeight(w, h) {
   w.h = h; const low = h <= STUB + 0.001;
   for (const p of w.pieces) {
     if (p.fixed) { p.m.visible = h >= p.y1 - 0.05; continue; }
+    if (p.door) { p.m.visible = w.locked && h >= DOOR_H; if (p.m.visible) { p.m.scale.y = p.y1 - p.y0; p.m.position.y = (p.y0 + p.y1) / 2; } continue; }
     const top = Math.min(p.y1, h), hh = top - p.y0;
     p.m.visible = hh > 0.01 && (!low || p.base);
     if (p.m.visible) { p.m.scale.y = hh; p.m.position.y = p.y0 + hh / 2; }
@@ -350,6 +358,28 @@ function buildSite(sec, BM) {
   return { sec, group: g, parts, hit };
 }
 
+/* ---------- tak över stängda salar ---------- */
+function buildRoof(R) {
+  const w = R.x[1] - R.x[0], d = R.z[1] - R.z[0];
+  const tex = canvasTex(1024, Math.round(1024 * d / w), (g, cw, ch) => {
+    g.fillStyle = '#2d3a46'; g.fillRect(0, 0, cw, ch);
+    g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 4; for (let x = 0; x < cw; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, ch); g.stroke(); }
+    g.strokeStyle = 'rgba(255,255,255,.08)'; g.lineWidth = 2; for (let x = 6; x < cw; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, ch); g.stroke(); }
+    g.strokeStyle = '#c9a45a'; g.lineWidth = 10; g.strokeRect(20, 20, cw - 40, ch - 40);
+    const cx = cw / 2, cy = ch / 2, s = Math.min(cw, ch) / 5;
+    // hänglås
+    g.strokeStyle = '#e8c46a'; g.lineWidth = s * 0.16; g.beginPath(); g.arc(cx, cy - s * 0.15, s * 0.42, Math.PI, 0); g.stroke();
+    g.fillStyle = '#e8c46a'; g.fillRect(cx - s * 0.62, cy - s * 0.15, s * 1.24, s * 0.95);
+    g.fillStyle = '#2d3a46'; g.beginPath(); g.arc(cx, cy + s * 0.22, s * 0.12, 0, 7); g.fill(); g.fillRect(cx - s * 0.05, cy + s * 0.25, s * 0.1, s * 0.3);
+    g.fillStyle = '#f2e6c8'; g.textAlign = 'center'; g.font = `600 ${Math.round(s * 0.42)}px Fredoka, sans-serif`;
+    g.fillText('Stängd sal', cx, cy + s * 1.45);
+  });
+  const roof = new THREE.Mesh(box, [std({ color: 0x24303a }), std({ color: 0x24303a }), std({ map: tex, roughness: 0.9 }), std({ color: 0x24303a }), std({ color: 0x24303a }), std({ color: 0x24303a })]);
+  roof.scale.set(w + 0.6, 0.2, d + 0.6); roof.position.set((R.x[0] + R.x[1]) / 2, WALL_H + 0.12, (R.z[0] + R.z[1]) / 2);
+  roof.userData.room = R.id; roof.castShadow = true;
+  return roof;
+}
+
 /* ---------- allt ihop ---------- */
 export function buildMuseum(scene) {
   const BM = makeMats();
@@ -399,5 +429,6 @@ export function buildMuseum(scene) {
   // dekor (bänkar, växter, disk) som står i en avdelning döljs medan avdelningen är en byggplats
   const decor = root.children.slice(n0, root.children.length - artifacts.length * 2).map(o => ({ obj: o, section: SECTIONS.find(sec => { const [a, b, c, d] = sec.rect; return o.position.x >= a && o.position.x <= c && o.position.z >= b && o.position.z <= d; })?.id }));
   const sites = SECTIONS.map(sec => { const st = buildSite(sec, BM); root.add(st.group, st.hit); return st; });
-  return { root, walls, artifacts, decor, sites, BM };
+  const roofs = ROOMS.filter(R => !R.start).map(R => { const r = buildRoof(R); root.add(r); return r; });
+  return { root, walls, artifacts, decor, sites, roofs, BM };
 }

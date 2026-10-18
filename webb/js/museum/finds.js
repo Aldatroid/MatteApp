@@ -9,6 +9,7 @@
 import { S, save } from '../store.js';
 import { dayKey } from '../util.js';
 import { ARTIFACTS, EXPEDITIONS, ROOMS, SECTIONS, byId, expById, sectionById } from './catalog.js';
+import { roomOpen } from './rooms.js';
 
 const have = id => S.museum.found[id] || 0;
 const left = a => have(a.id) < a.parts.length && sectionOpen(a.section);
@@ -17,7 +18,7 @@ const left = a => have(a.id) < a.parts.length && sectionOpen(a.section);
 const BUILD_SHARE = 0.75;
 // Öppen: första avdelningen i salen, en som har öppnats, eller en där barnet redan har fynd (äldre sparad data).
 export function sectionOpen(id) {
-  const sec = sectionById[id]; if (!sec) return false;
+  const sec = sectionById[id]; if (!sec || !roomOpen(sec.room)) return false;
   return sec.start || S.museum.sections.includes(id) || ARTIFACTS.some(a => a.section === id && have(a.id) > 0);
 }
 const itemsIn = id => ARTIFACTS.filter(a => a.section === id);
@@ -35,6 +36,7 @@ export function updateSections() {
   const today = dayKey(), P = S.museum.pending, built = [];
   for (const [id, day] of Object.entries(P)) if (day < today) { delete P[id]; if (!S.museum.sections.includes(id)) S.museum.sections.push(id); S.museum.fresh.push(id); }
   for (const R of ROOMS) {
+    if (!roomOpen(R.id)) continue;
     if (Object.keys(P).some(id => sectionById[id]?.room === R.id)) continue;
     const next = nextSection(R.id);
     if (next && partsToBuild(R.id) === 0) { P[next.id] = today; built.push(next); }
