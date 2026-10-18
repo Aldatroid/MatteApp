@@ -10,9 +10,11 @@
 /*.png
 /tools/prev/
 /tools/backup/
+/tools/blender/out/
 
 # Tillfälliga filer
 /_site/
 *.log
 Thumbs.db
 .DS_Store
+__pycache__/

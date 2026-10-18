@@ -11,6 +11,7 @@ import { expedition, expChosen, expProgress, setExpedition, findsLeftToday, DAIL
 import { buildMuseum, setWallHeight, setPlaque, STUB_H, DOOR_TOP } from './build.js';
 import { roomOpen, roomGoals, checkRooms, takeFreshRooms } from './rooms.js';
 import { setFound, materials } from './models.js';
+import { loadBaked } from './baked.js';
 
 const PREVIEW_ALL = /[?&]alla\b/.test(location.search);
 export const foundCount = id => PREVIEW_ALL ? byId[id].parts.length : clamp(S.museum?.found?.[id] || 0, 0, byId[id].parts.length);
@@ -18,18 +19,18 @@ export const totalFound = () => ARTIFACTS.reduce((s, a) => s + foundCount(a.id),
 
 const BOUNDS = { x: [-31, 31], z: [-27, 12] }, DIST = [5, 72];
 const OVERVIEW = { x: 0, z: -7, y: 0, dist: 62, yaw: 0 };
-let renderer = null, scene, camera, MU, canvas, stage, failed = false, running = false;
+let renderer = null, scene, camera, MU, canvas, stage, failed = false, running = false, loading = null;
 const cur = { ...OVERVIEW, pitch: 1 }, goal = { ...OVERVIEW, pitch: 1 };
 let focus = null, beforeFocus = null, lastT = 0, labels = [], shift = { x: 0, y: 0, k: 1 }, reveal = null, anims = [];
 const autoPitch = d => 0.5 + clamp((d - 8) / (65 - 8), 0, 1) * 0.5;
 goal.pitch = cur.pitch = autoPitch(OVERVIEW.dist);
 
-function init() {
+function init(baked) {
   canvas = $('#mCanvas'); stage = $('#mStage');
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); }
   catch (e) { failed = true; $('#mNo3d').hidden = false; return; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
-  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.localClippingEnabled = true;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
   scene = new THREE.Scene(); scene.background = new THREE.Color(0x0b0907); scene.fog = new THREE.Fog(0x0b0907, 95, 170);
   camera = new THREE.PerspectiveCamera(38, 1, 0.3, 400);
@@ -44,7 +45,7 @@ function init() {
   }
   // ljuset som blixtrar till när ett nytt fynd sätts på plats (finns från början så att inga shaders byggs om)
   flash = new THREE.PointLight(0xffd27a, 0, 0, 2); scene.add(flash);
-  MU = buildMuseum(scene);
+  MU = buildMuseum(scene, baked);
   buildLabels(); buildRoomNav(); bindInput();
   new ResizeObserver(resize).observe(stage); resize();
 }
@@ -337,7 +338,11 @@ function frame(t) {
   updateLabels();
 }
 function enter() {
-  if (!renderer && !failed) init();
+  // första gången: ladda salarna från Blender (baked.js) och bygg sedan museet
+  if (!renderer && !failed) {
+    loading ||= loadBaked().then(baked => { init(baked); if (!$('#museum').hidden) enter(); });
+    return;
+  }
   if (failed) return;
   applyFound(); resize();
   if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(frame); }

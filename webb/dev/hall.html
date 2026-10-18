@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Stora hallen (test)</title>
+<!-- Test av stora hallen byggd i Blender (tools/blender/hall.py): bakat ljus, glöd och föremålen från
+     models.js med vanligt ljus. Kräver webbserver, t.ex. python3 -m http.server -d webb, och /dev/hall.html. -->
+<style>
+html,body{margin:0;height:100%;background:#120c08;overflow:hidden;font:14px system-ui,sans-serif;color:#f2e6c8}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#ui{position:fixed;left:12px;top:12px;right:12px;display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid #6b5536;background:#2a1d12cc;color:inherit}
+button.on{background:#c8923a;border-color:#c8923a;color:#1b130b}
+#info{position:fixed;left:12px;bottom:12px;opacity:.8;white-space:pre}
+</style>
+</head><body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <button id="bWall">Södra väggen</button>
+  <button id="bBloom" class="on">Glöd</button>
+  <button id="bItems" class="on">Föremål</button>
+  <button id="bView">Byt vy</button>
+</div>
+<div id="info">Laddar …</div>
+<script type="module">
+import * as THREE from '../assets/lib/three.module.js';
+import { GLTFLoader } from '../assets/lib/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from '../assets/lib/jsm/controls/OrbitControls.js';
+import { EffectComposer } from '../assets/lib/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from '../assets/lib/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from '../assets/lib/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from '../assets/lib/jsm/postprocessing/OutputPass.js';
+import { buildModel } from '../js/museum/models.js';
+
+const canvas = document.getElementById('c'), info = document.getElementById('info');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+// Ljuset i texturerna är redan tonmappat i Blender (AgX), så ingen tonmappning här.
+renderer.toneMapping = THREE.NoToneMapping;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x120c08);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.3, 400);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.maxPolarAngle = 1.48; controls.minDistance = 3; controls.maxDistance = 70;
+const VIEWS = [
+  { pos: [7, 17, 22], target: [0, 1, -2] },     // som konceptbilden
+  { pos: [0, 44, 24], target: [0, 0, -1] },     // översikt som i museet
+  { pos: [-6.5, 4, 7.5], target: [0, 2.5, -2] }, // nära T. rex
+  { pos: [0, 3.6, 5.5], target: [0, 3.4, -10] }, // väggmålningen
+];
+let view = 0;
+const setView = i => { const v = VIEWS[i]; camera.position.set(...v.pos); controls.target.set(...v.target); controls.update(); };
+setView(0);
+
+// ---------- salen från Blender ----------
+const gltf = await new GLTFLoader().loadAsync('../assets/museum/hall.glb');
+const hall = gltf.scene; scene.add(hall);
+let tris = 0;
+hall.traverse(o => {
+  if (!o.isMesh) return;
+  const m = o.material; tris += o.geometry.index ? o.geometry.index.count / 3 : o.geometry.attributes.position.count / 3;
+  if (o.name.includes('__glow')) {
+    // lampskärmar: starkare än 1 så att glöden tar dem
+    o.material = new THREE.MeshBasicMaterial({ color: m.emissive.clone().multiplyScalar(Math.min(m.emissiveIntensity, 4)) });
+  } else {
+    o.material = new THREE.MeshBasicMaterial({ map: m.map, side: THREE.DoubleSide });
+  }
+});
+
+// ---------- föremålen med vanligt ljus (som i museet) ----------
+const items = new THREE.Group(); scene.add(items);
+for (const [id, x, z, rot, top] of [['trex', 0, -1, -0.35, 0.4], ['moai', -10, -6, Math.PI / 4, 0.4], ['globe', 10, -6, -Math.PI / 4, 0.85]]) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rot; items.add(g);
+  const m = buildModel(id); m.root.position.y = top; g.add(m.root);
+  g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+}
+items.add(new THREE.HemisphereLight(0xffe3b8, 0x3a2414, 0.7));
+const sun = new THREE.DirectionalLight(0xffd6a6, 1.6); sun.position.set(-6, 20, 12); sun.castShadow = true;
+Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12, near: 5, far: 50 });
+sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03; sun.shadow.radius = 4;
+items.add(sun);
+// skuggor från föremålen på det bakade golvet och på sockeln
+const catcher = new THREE.ShadowMaterial({ opacity: 0.35 });
+const floorShadow = new THREE.Mesh(new THREE.PlaneGeometry(28, 20), catcher); floorShadow.rotation.x = -Math.PI / 2; floorShadow.position.y = 0.003; floorShadow.receiveShadow = true; items.add(floorShadow);
+const topShadow = new THREE.Mesh(new THREE.PlaneGeometry(14, 6), catcher); topShadow.position.set(0, 0.405, -1); topShadow.receiveShadow = true; items.add(topShadow);
+topShadow.rotateY(-0.35); topShadow.rotateX(-Math.PI / 2);
+
+// ---------- efterbehandling ----------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.6, 0.55, 1.0); composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// ---------- knappar ----------
+const toggle = (id, on, fn) => { const b = document.getElementById(id); b.classList.toggle('on', on); b.onclick = () => { on = !on; b.classList.toggle('on', on); fn(on); }; fn(on); };
+toggle('bWall', false, on => ['wall_S', 'wall_S__glow'].forEach(n => { const o = hall.getObjectByName(n); if (o) o.visible = on; }));
+toggle('bBloom', true, on => { bloom.enabled = on; });
+toggle('bItems', true, on => { items.children.forEach(o => { if (o.isGroup) o.visible = on; }); });
+document.getElementById('bView').onclick = () => setView(view = (view + 1) % VIEWS.length);
+
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+let frames = 0, last = performance.now();
+renderer.setAnimationLoop(() => {
+  controls.update(); composer.render(); frames++;
+  const now = performance.now();
+  if (now - last > 1000) {
+    info.textContent = `${Math.round(frames * 1000 / (now - last))} fps · ${Math.round(tris / 1000)}k trianglar i salen`;
+    frames = 0; last = now;
+  }
+});
+</script>
+</body></html>

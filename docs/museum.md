@@ -78,6 +78,20 @@ Texterna i första versionen gäller föremålstypen (T. rex, runsten). När ett
 - **Senare:** riktiga 3D-modeller i `.glb`-format, i `assets/museum/models/`, laddade med `GLTFLoader` från Three.js 0.160.0 (MIT, läggs i `assets/lib/`). Ett föremål i delar har en nod per del i modellen, med samma namn som i `parts`. Fria modeller av riktiga föremål finns bland annat hos Smithsonian 3D (CC0) och på Sketchfab (kolla licensen per modell).
 - **Prestanda på iPad:** högst ett skuggande ljus, ett punktljus per sal, återanvända material, och modeller under cirka 50 000 trianglar per stort föremål.
 
+### Salar byggda i Blender (test)
+
+Stora hallen är byggd i Blender, med ljuset bakat i texturer, och används i museet. `js/museum/baked.js` laddar filen innan museet byggs, och `buildMuseum` hoppar då över salens golv, dekor och socklar och bygger bara den andra halvan av väggarna. Går filen inte att ladda byggs salen i kod som förut. `dev/hall.html` visar salen ensam, med glödeffekt.
+
+- **Skriptet:** `tools/blender/hall.py` bygger salen i kod (väggar, valv, väggmålning, banderoller, lampetter, golv med fotspår, växter, bänkar och socklarna till hallens föremål). Mått och dörrar följer `ROOMS` och `DOORS` i `catalog.js`. `tools/blender/bake.py` bakar ljuset och exporterar.
+- **Köra:** `Blender -b -P tools/blender/hall.py -- render <mapp>` ger förhandsbilder. `-- bake` bakar och skriver `webb/assets/museum/hall.glb`; det tar runt 10 minuter på en M2 (`BAKE_SAMPLES` styr kvaliteten). `-- blend <fil>` sparar scenen för att öppna i Blender.
+- **Noder i GLB-filen:** `floor`, `wall_N`, `wall_S`, `wall_W`, `wall_E` (allt som sitter på väggen följer med, så att väggen kan sänkas), `decor` (växter och bänkar), `stand_trex`, `stand_moai`, `stand_globe`, och `<vägg>__glow` för lampskärmarna.
+- **Ljuset:** allt utom reflexer bakas i fyra texturer på 2048 × 2048 med Blenders färghantering (AgX). Appen ritar salen med `MeshBasicMaterial` utan ljus och utan tonmappning. Föremålen har vanligt ljus, och deras skuggor hamnar på skuggytor (`ShadowMaterial`) runt varje föremål och på sockeln, inte över hela golvet, så att solens skuggor från väggarna inte läggs ovanpå de bakade. Glödeffekten finns bara på testsidan än.
+- **Väggar som sänks:** varje väggnod har ett klipplan som följer kodens väggar (`setWallHeight`). En nod som hör till två väggar i koden (norra väggen) sänks till den lägsta av dem.
+- **CSP:** GLTFLoader läser texturerna i filen via `blob:`-adresser, så `connect-src` i `index.html` tillåter `blob:`.
+- **Väggarna** är bara salens halva av väggen (från mittlinjen och in), så att salen bredvid kan ha sin egen halva. I appen bygger koden fortfarande den andra halvan.
+- **Att komma ihåg: ljus mellan salar.** Bakas varje sal för sig syns inget ljus från grannsalen genom valven (inget varmt sken på golvet innanför dörren), och valvens insidor får lite fel indirekt ljus eftersom salen bakas mot ett tomt mörker. Själva valven är riktiga öppningar, så man ser in i grannsalen ändå. Syns skillnaden när fler salar är byggda: bygg alla salar i samma Blender-scen och baka dem en i taget, var och en till sin egen GLB. Då kommer ljuset genom öppningarna med, men bakningen tar längre tid.
+- **Three.js-tillägg** ligger i `assets/lib/jsm/` (0.160.0, samma licens som Three.js). Deras `from 'three'` är utbytt mot en relativ sökväg till `three.module.js`, eftersom appens CSP inte tillåter en import map.
+
 ## Lagring
 
 `S.museum = { found: { [artefakt-id]: antal delar }, log: [{ t, id, part }], expedition }`, tvättat i `migrate()` som all annan sparad data. Exporten i föräldraläget tar med museet automatiskt.

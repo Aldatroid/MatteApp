@@ -5,6 +5,7 @@
 import { THREE } from '../three/scene.js';
 import { ROOMS, DOORS, ARTIFACTS, SECTIONS, roomById, WALL_H } from './catalog.js';
 import { buildModel, materials, canvasTex, speckle, std } from './models.js';
+import { bakedWall } from './baked.js';
 
 // STUB = höjden på en sänkt vägg: bara en mörk list vid golvet som visar planlösningen.
 const T = 0.6, DOOR_H = 5.2, STUB = 0.12;
@@ -93,7 +94,9 @@ function makeMats() {
     plaque: std({ color: 0x2a1a10, roughness: 0.5 }),
   };
 }
-function buildWall(W, BM, parent, i) {
+// baked = salar byggda i Blender (se baked.js). Mot en sådan sal bygger väggen bara sin andra halva,
+// utan dekor på den sidan; salens egen halva finns i Blender-filen.
+function buildWall(W, BM, parent, i, baked = {}) {
   // Väggar längs x-linjer ligger 2 cm högre än väggar längs z-linjer: där två väggar möts överlappar de,
   // och då hamnar ovansidorna (vägg, list, panel) aldrig i samma plan (det ger flimmer).
   const g = new THREE.Group(); g.position.y = W.axis === 'x' ? 0.02 : 0; parent.add(g);
@@ -101,10 +104,15 @@ function buildWall(W, BM, parent, i) {
   // punkt längs väggen (s) och ut från den (o) till världskoordinater
   const at = (s, o = 0) => alongX ? [s, W.at + o] : [W.at + o, s];
   const pieces = [];
-  const piece = (s0, s1, y0, y1, thick, mat, off = 0, base = false) => {
+  // half = åt vilket håll den bakade salen ligger (0 = ingen). Genomgående bitar blir då halva så tjocka
+  // och flyttas till den andra sidan.
+  const half = W.sides.find(([r]) => baked[r])?.[1] || 0;
+  const piece = (s0, s1, y0, y1, thick, mat, off = 0, base = false, whole = false) => {
+    if (half && off === 0 && !whole) { thick /= 2; off = -half * thick / 2; }
     const m = new THREE.Mesh(box, mat); const [x, z] = at((s0 + s1) / 2, off);
     m.position.set(x, 0, z); m.scale.set(alongX ? s1 - s0 : thick, 1, alongX ? thick : s1 - s0);
-    m.castShadow = m.receiveShadow = true; g.add(m); pieces.push({ m, y0, y1, base }); return m;
+    // mot en bakad sal finns väggens skugga redan i texturen
+    m.castShadow = !half; m.receiveShadow = true; g.add(m); pieces.push({ m, y0, y1, base }); return m;
   };
   const doors = DOORS.filter(d => d.axis === W.axis && d.at === W.at && d.from >= W.from && d.to <= W.to).sort((a, b) => a.from - b.from);
   // massiva bitar mellan öppningarna
@@ -114,7 +122,7 @@ function buildWall(W, BM, parent, i) {
   for (const d of doors) {
     // stängda dörrar med hänglås, som syns när salen bakom är stängd (se setWallHeight)
     const lockMat = BM.gold, mid = (d.from + d.to) / 2;
-    for (const [a, b] of [[d.from + 0.05, mid - 0.02], [mid + 0.02, d.to - 0.05]]) { piece(a, b, 0, DOOR_H - 0.3, 0.16, BM.darkWood); pieces[pieces.length - 1].door = true; }
+    for (const [a, b] of [[d.from + 0.05, mid - 0.02], [mid + 0.02, d.to - 0.05]]) { piece(a, b, 0, DOOR_H - 0.3, 0.16, BM.darkWood, 0, false, true); pieces[pieces.length - 1].door = true; }
     for (const side of [-1, 1]) {
       piece(mid - 0.14, mid + 0.14, 1.9, 2.25, 0.12, lockMat, side * 0.14); pieces[pieces.length - 1].door = true;
       piece(mid - 0.5, mid + 0.5, 2.35, 2.47, 0.08, BM.iron, side * 0.12); pieces[pieces.length - 1].door = true;
@@ -122,19 +130,21 @@ function buildWall(W, BM, parent, i) {
     piece(d.from, d.to, DOOR_H, WALL_H - 0.03, T, BM.wall);
     piece(d.from, d.to, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim);
     // valvbåge av ljus sten runt öppningen
-    const r = (d.to - d.from) / 2, spring = DOOR_H - r, [x, z] = at((d.from + d.to) / 2);
+    const r = (d.to - d.from) / 2, spring = DOOR_H - r, [x, z] = at((d.from + d.to) / 2, -half * 0.35);
     const arch = new THREE.Mesh(new THREE.TorusGeometry(r, 0.22, 8, 24, Math.PI), BM.trim);
-    arch.position.set(x, spring, z); if (!alongX) arch.rotation.y = Math.PI / 2; arch.scale.z = 3.2;
+    arch.position.set(x, spring, z); if (!alongX) arch.rotation.y = Math.PI / 2; arch.scale.z = half ? 1.6 : 3.2;
     g.add(arch); pieces.push({ m: arch, y0: spring, y1: DOOR_H + 0.2, fixed: true });
     // fyllning mellan bågen och den raka överliggaren
     const sp = new THREE.Shape(); sp.moveTo(-r, 0); sp.lineTo(-r, r + 0.01); sp.lineTo(r, r + 0.01); sp.lineTo(r, 0); sp.absarc(0, 0, r, 0, Math.PI, false);
-    const spg = new THREE.ExtrudeGeometry(sp, { depth: T, bevelEnabled: false, curveSegments: 24 }); spg.translate(0, 0, -T / 2);
-    const spm = new THREE.Mesh(spg, BM.wall); spm.position.set(x, spring, z); if (!alongX) spm.rotation.y = Math.PI / 2; spm.castShadow = spm.receiveShadow = true;
+    const depth = half ? T / 2 : T, [sx, sz] = at((d.from + d.to) / 2);
+    const spg = new THREE.ExtrudeGeometry(sp, { depth, bevelEnabled: false, curveSegments: 24 }); spg.translate(0, 0, -depth / 2 - half * depth / 2);
+    const spm = new THREE.Mesh(spg, BM.wall); spm.position.set(sx, spring, sz); if (!alongX) spm.rotation.y = Math.PI / 2; spm.castShadow = !half; spm.receiveShadow = true;
     g.add(spm); pieces.push({ m: spm, y0: spring, y1: DOOR_H, fixed: true });
     for (const e of [d.from, d.to]) piece(e - 0.3, e + 0.3, 0, DOOR_H - (d.to - d.from) / 2 + 0.2, T + 0.3, BM.trim); // pelare vid öppningen
   }
   // pilastrar, fönster och lampetter på insidan mot varje sal
   for (const [room, n] of W.sides) {
+    if (baked[room]) continue;
     const face = n * (T / 2);
     const step = 4.2, count = Math.floor(len / step);
     for (let i = 1; i < count; i++) {
@@ -158,12 +168,17 @@ function buildWall(W, BM, parent, i) {
       }
     }
   }
-  if (W.entrance) { // entrédörrar mot gatan
+  if (W.entrance) { // entrédörrar mot gatan (bara utsidan om salen är bakad)
     piece(-2.2, 2.2, 0, 4.8, T + 0.1, BM.darkWood);
     piece(-2.6, 2.6, 4.8, 5.3, T + 0.3, BM.gold);
     piece(-0.04, 0.04, 0, 4.8, T + 0.14, BM.brass);
   }
-  const wall = { ...W, group: g, pieces, h: WALL_H, near: {}, doors, locked: false };
+  const wall = { ...W, group: g, pieces, h: WALL_H, near: {}, doors, locked: false, baked: null };
+  // den bakade salens vägg sänks tillsammans med den här (en bakad vägg kan höra till flera väggar i koden)
+  for (const [room] of W.sides) {
+    const nodes = baked[room] && bakedWall(baked[room], roomById[room], W); if (!nodes) continue;
+    const share = nodes[0].userData.walls ||= { nodes, walls: [] }; share.walls.push(wall); wall.baked = share;
+  }
   setWallHeight(wall, WALL_H);
   return wall;
 }
@@ -171,6 +186,7 @@ function buildWall(W, BM, parent, i) {
 // samma höjd och flimrar mot varandra.
 export function setWallHeight(w, h) {
   w.h = h; const low = h <= STUB + 0.001;
+  if (w.baked) { const top = Math.min(...w.baked.walls.map(x => x.h)); for (const n of w.baked.nodes) n.material.clippingPlanes[0].constant = top + 0.005; }
   for (const p of w.pieces) {
     if (p.fixed) { p.m.visible = h >= p.y1 - 0.05; continue; }
     if (p.door) { p.m.visible = w.locked && h >= DOOR_H; if (p.m.visible) { p.m.scale.y = p.y1 - p.y0; p.m.position.y = (p.y0 + p.y1) / 2; } continue; }
@@ -380,27 +396,34 @@ function buildRoof(R) {
   return roof;
 }
 
+let shadowM = null;
+const shadowMat = () => shadowM ||= new THREE.ShadowMaterial({ opacity: 0.3 });
+
 /* ---------- allt ihop ---------- */
-export function buildMuseum(scene) {
+export function buildMuseum(scene, baked = {}) {
   const BM = makeMats();
   const root = new THREE.Group(); scene.add(root);
   // marken runt byggnaden
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), BM.outside); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.05; ground.receiveShadow = true; root.add(ground);
   // golv per sal
+  const inBaked = (x, z) => ROOMS.some(R => baked[R.id] && x > R.x[0] && x < R.x[1] && z > R.z[0] && z < R.z[1]);
   for (const R of ROOMS) {
     const w = R.x[1] - R.x[0], d = R.z[1] - R.z[0];
+    if (baked[R.id]) { root.add(baked[R.id].root); continue; } // golv, väggar och dekor från Blender
     const tex = floorTex(R.floor); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(w / (R.floor === 'hall' ? 6 : 5), d / (R.floor === 'hall' ? 6 : 5));
     const f = new THREE.Mesh(new THREE.PlaneGeometry(w, d), std({ map: tex, roughness: R.floor === 'hall' || R.floor === 'ocean' ? 0.35 : 0.8 }));
     f.rotation.x = -Math.PI / 2; f.position.set((R.x[0] + R.x[1]) / 2, 0, (R.z[0] + R.z[1]) / 2); f.receiveShadow = true; root.add(f);
   }
-  const med = new THREE.Mesh(new THREE.CircleGeometry(5.2, 64), std({ map: medallion(), transparent: true, roughness: 0.35 })); med.rotation.x = -Math.PI / 2; med.position.set(0, 0.012, -1); med.receiveShadow = true; root.add(med);
-  // röd matta från entrén
-  const rug = new THREE.Mesh(box, BM.velvet); rug.scale.set(3.4, 0.02, 4.4); rug.position.set(0, 0.012, 7.8); rug.receiveShadow = true; root.add(rug);
+  if (!baked.hall) {
+    const med = new THREE.Mesh(new THREE.CircleGeometry(5.2, 64), std({ map: medallion(), transparent: true, roughness: 0.35 })); med.rotation.x = -Math.PI / 2; med.position.set(0, 0.012, -1); med.receiveShadow = true; root.add(med);
+    // röd matta från entrén
+    const rug = new THREE.Mesh(box, BM.velvet); rug.scale.set(3.4, 0.02, 4.4); rug.position.set(0, 0.012, 7.8); rug.receiveShadow = true; root.add(rug);
+  }
   // trappa utanför entrén
   const landing = new THREE.Mesh(box, BM.marble); landing.scale.set(9, 0.1, 2.2); landing.position.set(0, -0.02, 11.4); root.add(landing);
-  const walls = WALLS.map((W, i) => buildWall(W, BM, root, i));
+  const walls = WALLS.map((W, i) => buildWall(W, BM, root, i, baked));
   // pelare i hallen: de räknas som bitar av närmaste vägg och sänks tillsammans med den
-  for (const [x, z] of [[-11, -7], [11, -7], [-11, 7], [11, 7]]) {
+  for (const [x, z] of baked.hall ? [] : [[-11, -7], [11, -7], [-11, 7], [11, 7]]) {
     const w = walls.find(W => W.axis === 'z' && W.at === (z > 0 ? 10 : -10) && x >= W.from && x <= W.to);
     w.pieces.push(...columnAt(root, x, z, BM)); setWallHeight(w, WALL_H);
   }
@@ -409,10 +432,20 @@ export function buildMuseum(scene) {
   desk(root, 9, 6.2, Math.PI * 1.1, BM);
   bench(root, -7.5, 4.5, 0.2, BM); bench(root, 7.5, 1.5, -0.2, BM); bench(root, -22, 6.5, 0, BM); bench(root, 22, 0.5, Math.PI / 2, BM); bench(root, -15, -12.5, 0, BM); bench(root, 15, -23.5, 0, BM);
   for (const [x, z, s] of [[-13, 9, 1.3], [13, 9, 1.3], [-13, -9, 1.1], [13, -9, 1.1], [-29, 9, 1], [29, 9, 1], [-29, -25, 1], [29, -25, 1], [-1, -25, 1], [1, -11, 1]]) plantAt(root, x, z, BM, s);
+  for (const o of root.children.slice(n0)) if (inBaked(o.position.x, o.position.z)) root.remove(o); // dekoren finns i Blender-filen
   // föremålen
   const artifacts = ARTIFACTS.map(A => {
     const g = new THREE.Group(); g.position.set(A.pos[0], 0, A.pos[1]); g.rotation.y = A.rot; root.add(g);
-    const top = buildStand(A, BM, g);
+    // en sockel från Blender ersätter kodens; skuggorna från föremålet hamnar på en yta ovanpå den
+    const bakedStand = baked[A.room]?.nodes['stand_' + A.id];
+    const top = buildStand(A, BM, bakedStand ? new THREE.Group() : g);
+    if (baked[A.room]) {
+      // Ljuset i salen är bakat. Föremålens skuggor hamnar på ytor runt föremålet (inte över hela golvet,
+      // så att väggarnas skuggor från solen inte läggs ovanpå de bakade).
+      const [w, d] = A.size, ped = A.stand !== 'platform', catcher = (sw, sd, y) => { const sh = new THREE.Mesh(new THREE.PlaneGeometry(sw, sd), shadowMat()); sh.rotation.x = -Math.PI / 2; sh.position.y = y; sh.receiveShadow = true; g.add(sh); };
+      catcher(w + 4, d + 4, 0.004 + ARTIFACTS.indexOf(A) * 0.0005);
+      if (bakedStand && top > 0) catcher(ped ? Math.min(w, 3.4) : w, ped ? Math.min(d, 1.6) : d, top + 0.004);
+    }
     const model = buildModel(A.model); model.root.position.y = top; g.add(model.root);
     const sign = A.stand !== 'hang' ? plaque(g, A.size[0] * 0.3, A.size[1] / 2 + (A.stand === 'platform' && A.size[0] * A.size[1] > 6 ? 1.35 : 0.55), 0, BM) : null;
     g.updateMatrixWorld(true);
