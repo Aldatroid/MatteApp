@@ -78,6 +78,17 @@ Texterna i första versionen gäller föremålstypen (T. rex, runsten). När ett
 - **Senare:** riktiga 3D-modeller i `.glb`-format, i `assets/museum/models/`, laddade med `GLTFLoader` från Three.js 0.160.0 (MIT, läggs i `assets/lib/`). Ett föremål i delar har en nod per del i modellen, med samma namn som i `parts`. Fria modeller av riktiga föremål finns bland annat hos Smithsonian 3D (CC0) och på Sketchfab (kolla licensen per modell).
 - **Prestanda på iPad:** högst ett skuggande ljus, ett punktljus per sal, återanvända material, och modeller under cirka 50 000 trianglar per stort föremål.
 
+### Salar byggda i Blender (test)
+
+Stora hallen finns som test byggd i Blender, med ljuset bakat i texturer. Den ses på `dev/hall.html` och används inte i museet än.
+
+- **Skriptet:** `tools/blender/hall.py` bygger salen i kod (väggar, valv, väggmålning, banderoller, lampetter, golv med fotspår, växter, bänkar och socklarna till hallens föremål). Mått och dörrar följer `ROOMS` och `DOORS` i `catalog.js`. `tools/blender/bake.py` bakar ljuset och exporterar.
+- **Köra:** `Blender -b -P tools/blender/hall.py -- render <mapp>` ger förhandsbilder. `-- bake` bakar och skriver `webb/assets/museum/hall.glb`; det tar runt 10 minuter på en M2 (`BAKE_SAMPLES` styr kvaliteten). `-- blend <fil>` sparar scenen för att öppna i Blender.
+- **Noder i GLB-filen:** `floor`, `wall_N`, `wall_S`, `wall_W`, `wall_E` (allt som sitter på väggen följer med, så att väggen kan sänkas), `decor` (växter och bänkar), `stand_trex`, `stand_moai`, `stand_globe`, och `<vägg>__glow` för lampskärmarna.
+- **Ljuset:** allt utom reflexer bakas i fyra texturer på 2048 × 2048 med Blenders färghantering (AgX). Appen ritar salen med `MeshBasicMaterial` utan ljus och utan tonmappning, och lampskärmarna med en färg starkare än 1 som glöden (`UnrealBloomPass`) tar upp. Föremålen har vanligt ljus, och skuggorna från dem hamnar på golvet via en skuggyta (`ShadowMaterial`).
+- **Väggarnas utsida** tas bort i bakningen, eftersom den hör till salen bredvid.
+- **Three.js-tillägg** ligger i `assets/lib/jsm/` (0.160.0, samma licens som Three.js) och laddas via en import map.
+
 ## Lagring
 
 `S.museum = { found: { [artefakt-id]: antal delar }, log: [{ t, id, part }], expedition }`, tvättat i `migrate()` som all annan sparad data. Exporten i föräldraläget tar med museet automatiskt.
