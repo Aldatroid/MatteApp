@@ -104,7 +104,7 @@ Museet ska kännas levande: nya salar öppnar, och inne i salarna byggs nya avde
 
 | | Vad det är | Vad barnet ser när den är stängd | Vad som öppnar den |
 |---|---|---|---|
-| **Sal** | ett helt rum, till exempel Kristallgrottan | ett tak över salen, stängda dörrar med hänglås, **???** i stället för namnet | ett **mål i matten** (se nedan) |
+| **Sal** | ett helt rum, till exempel Mineralgrottan | ett tak över salen, stängda dörrar med hänglås, **???** i stället för namnet | ett **mål i matten** (se nedan) |
 | **Avdelning** | en del av en sal med 4–6 föremål, till exempel *Istiden* i Fossilsalen | byggplank, ställningar och skynken; en skylt *"Här bygger vi något nytt!"* | att barnet har hittat det mesta i salens öppna avdelningar |
 | **Föremål** | en monter i en öppen avdelning | ett svagt spöke på sin plats (som nu) | ett fynd från Dagens pass (som nu) |
 
@@ -142,16 +142,16 @@ Varje ny sal hör ihop med ett område i appen, med ett tema som passar:
 |---|---|---|---|
 | Vikingasalen | Bråk | nivå 3 | dela upp silverskatten |
 | Havets sal | Längd och enheter | nivå 3 | blåvalen är 30 meter |
-| Kristallgrottan | Symmetri | nivå 4 | kristaller är symmetriska |
+| Mineralgrottan | Symmetri | nivå 4 | mineraler bildar symmetriska kristallformer |
 | Antiken | Area och omkrets | nivå 3 | mosaikgolv och Colosseum |
 | Rymdsalen | Känna igen kroppar | nivå 2 | planeter är klot |
 | Asiens sal | Utfällningar | nivå 2 | origami och papperslyktor |
 | Djursalen | Gångertabellerna | 40 gångertal sitter | räkna djuren i flocken |
 
-- **Synligt mål:** när barnet trycker på en stängd sal står det till exempel *"Kristallgrottan öppnar när du når nivå 4 i Symmetri"*, med en mätare som visar hur långt barnet har kommit. Salens namn visas, men inte innehållet, så att barnet vet vad det jobbar mot. Ska namnet också vara hemligt (**???**), visas bara målet.
+- **Synligt mål:** när barnet trycker på en stängd sal står det till exempel *"Mineralgrottan öppnar när du når nivå 4 i Symmetri"*, med en mätare som visar hur långt barnet har kommit. Salens namn visas, men inte innehållet, så att barnet vet vad det jobbar mot. Ska namnet också vara hemligt (**???**), visas bara målet.
 - **Ingen fastnar:** om föräldern har tagit bort området från Dagens pass, eller om barnet kör fast, öppnas salen också av en **reservväg**: ett antal hittade fynd (till exempel 15 fynd efter att förra salen öppnade). Mätaren visar den väg som är närmast målet.
 - **En nivå som går ner** (nivålogiken flyttar ner barnet efter två fel i rad) stänger aldrig en sal igen. Öppnade salar sparas.
-- **När en sal öppnar:** pop-upen efter passet säger *"Kristallgrottan har öppnat!"* med samma ljud som för fynd, och **Se i museet** flyger dit, där dörrarna svänger upp och taket lyfter.
+- **När en sal öppnar:** pop-upen efter passet säger *"Mineralgrottan har öppnat!"* med samma ljud som för fynd, och **Se i museet** flyger dit, där dörrarna svänger upp och taket lyfter.
 - **Expeditionen** för en sal blir valbar när salen öppnar.
 
 ### Fynd
@@ -164,7 +164,7 @@ Museet byggs ut åt sidorna och bakåt till tio salar. Kameran, väggarna och go
 
 ```text
  z = -42 ┌──────────────┬───────────────┬──────────────┐
-         │  Rymdsalen   │ Kristallgrottan│  Asiens sal │
+         │  Rymdsalen   │ Mineralgrottan │  Asiens sal │
  z = -26 ├──────────────┴───────┬───────┴──────────────┤
          │     Vikingasalen     │      Havets sal      │
  ┌───────┼────────┬─────────────┴─────────┬────────────┼────────┐ z = -10
