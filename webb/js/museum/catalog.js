@@ -8,12 +8,37 @@
 
 export const WALL_H = 7.5;
 
+// start: salen är öppen från början. goal: mål i matten som öppnar salen, backup: reservväg (antal hittade
+// delar totalt) så att ingen fastnar. Se rooms.js.
+// sections: salens avdelningar. rect = [x0, z0, x1, z1]. Den första avdelningen är öppen från början,
+// de andra är byggplatser tills de öppnar (se finds.js). En avdelning utan föremål är en byggplats tills vidare.
 export const ROOMS = [
-  { id: 'hall', name: 'Stora hallen', x: [-14, 14], z: [-10, 10], floor: 'hall', light: 0xffc27a },
-  { id: 'egypt', name: 'Egyptiska salen', x: [-30, -14], z: [-10, 10], floor: 'sand', light: 0xffa94d },
-  { id: 'fossil', name: 'Fossilsalen', x: [14, 30], z: [-10, 10], floor: 'stone', light: 0xffd08a },
-  { id: 'viking', name: 'Vikingasalen', x: [-30, 0], z: [-26, -10], floor: 'wood', light: 0xffb36b },
-  { id: 'ocean', name: 'Havets sal', x: [0, 30], z: [-26, -10], floor: 'ocean', light: 0x5fd6c8 },
+  { id: 'hall', name: 'Stora hallen', x: [-14, 14], z: [-10, 10], floor: 'hall', light: 0xffc27a, start: true, sections: [
+    { id: 'hall-main', name: 'Stora hallen', rect: [-14, -10, 14, 4] },
+    { id: 'hall-new', name: 'Nya fynd', rect: [-14, 4, -5, 10] },
+  ] },
+  { id: 'egypt', name: 'Egyptiska salen', x: [-30, -14], z: [-10, 10], floor: 'sand', light: 0xffa94d, start: true, sections: [
+    { id: 'egypt-tomb', name: 'Gravkammaren', rect: [-30, -10, -14, 0] },
+    { id: 'egypt-mummy', name: 'Mumiernas hemligheter', rect: [-30, 0, -22, 10] },
+    { id: 'egypt-pyramid', name: 'Pyramiderna', rect: [-22, 0, -14, 10] },
+  ] },
+  { id: 'fossil', name: 'Fossilsalen', x: [14, 30], z: [-10, 10], floor: 'stone', light: 0xffd08a, start: true, sections: [
+    { id: 'fossil-dino', name: 'Urtiden', rect: [14, -10, 30, -1] },
+    { id: 'fossil-sea', name: 'Urhavet', rect: [14, -1, 24, 10] },
+    { id: 'fossil-ice', name: 'Istiden', rect: [24, -1, 30, 10] },
+  ] },
+  { id: 'viking', name: 'Vikingasalen', x: [-30, 0], z: [-26, -10], floor: 'wood', light: 0xffb36b,
+    goal: { type: 'level', area: 'fractions', level: 3 }, backup: { type: 'finds', n: 15 }, sections: [
+    { id: 'viking-ship', name: 'Skeppet', rect: [-21, -26, -9, -10] },
+    { id: 'viking-runes', name: 'Runor och skatter', rect: [-30, -26, -21, -10] },
+    { id: 'viking-warriors', name: 'Krigarna', rect: [-9, -26, 0, -10] },
+  ] },
+  { id: 'ocean', name: 'Havets sal', x: [0, 30], z: [-26, -10], floor: 'ocean', light: 0x5fd6c8,
+    goal: { type: 'level', area: 'length', level: 3 }, backup: { type: 'finds', n: 22 }, sections: [
+    { id: 'ocean-whale', name: 'Valarna', rect: [7, -26, 23, -10] },
+    { id: 'ocean-arctic', name: 'Arktis', rect: [0, -26, 7, -10] },
+    { id: 'ocean-deep', name: 'Djuphavet', rect: [23, -26, 30, -10] },
+  ] },
 ];
 
 // Öppningar mellan salarna: vägg (x eller z), läge och spann.
@@ -216,4 +241,10 @@ for (const a of ARTIFACTS) {
 
 export const byId = Object.fromEntries(ARTIFACTS.map(a => [a.id, a]));
 export const roomById = Object.fromEntries(ROOMS.map(r => [r.id, r]));
+export const SECTIONS = ROOMS.flatMap(R => R.sections.map((sec, i) => ({ ...sec, room: R.id, start: i === 0 })));
+export const sectionById = Object.fromEntries(SECTIONS.map(x => [x.id, x]));
+// Varje föremål hör till den avdelning där det står.
+const inRect = ([x0, z0, x1, z1], x, z) => x >= x0 && x <= x1 && z >= z0 && z <= z1;
+for (const a of ARTIFACTS) a.section = roomById[a.room].sections.find(sec => inRect(sec.rect, a.pos[0], a.pos[1]))?.id || roomById[a.room].sections[0].id;
+export const sectionAt = (x, z) => SECTIONS.find(sec => inRect(sec.rect, x, z));
 export const TOTAL_PARTS = ARTIFACTS.reduce((s, a) => s + a.parts.length, 0);

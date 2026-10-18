@@ -10,7 +10,7 @@ let storageOK = true;
 export const storageWorks = () => storageOK;
 // settings.areas: { [områdes-id]: { on: bool, w: vikt } }. Saknas ett område gäller standardvärdet i curriculum.js.
 // settings.sound: volym 0-100 och på/av för effekter och musik. Musiken är avstängd från början.
-export function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, areas: {}, theme: 'auto', sound: { fx: 80, music: 50, fxOn: true, musicOn: false } }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {}, museum: { found: {}, log: [], expedition: '' } }; }
+export function defaults() { return { v: 1, created: Date.now(), name: '', settings: { passMin: 7, areas: {}, theme: 'auto', sound: { fx: 80, music: 50, fxOn: true, musicOn: false } }, facts: {}, geo: {}, days: {}, sessions: [], log: [], tags: {}, museum: { found: {}, log: [], expedition: '', sections: [], pending: {}, fresh: [], rooms: [], freshRooms: [] } }; }
 // Sparad och importerad data tvättas fält för fält: bara kända nycklar, och siffror blir siffror.
 // Då kan en manipulerad säkerhetskopia aldrig smyga in HTML i vyerna.
 const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
@@ -41,6 +41,11 @@ export function migrate(d) {
     museum: {
       found: Object.fromEntries(Object.entries(obj(obj(d.museum).found)).filter(([k]) => /^[a-z]{1,20}$/.test(k)).map(([k, v]) => [k, clamp(Math.round(num(v)), 0, 99)])),
       expedition: /^[a-z]{1,20}$/.test(obj(d.museum).expedition) ? d.museum.expedition : '',
+      sections: arr(obj(d.museum).sections).filter(x => /^[a-z-]{1,30}$/.test(x)).slice(0, 200),
+      pending: Object.fromEntries(Object.entries(obj(obj(d.museum).pending)).filter(([k, v]) => /^[a-z-]{1,30}$/.test(k) && /^\d{4}-\d{2}-\d{2}$/.test(v))),
+      fresh: arr(obj(d.museum).fresh).filter(x => /^[a-z-]{1,30}$/.test(x)).slice(0, 50),
+      rooms: arr(obj(d.museum).rooms).filter(x => /^[a-z]{1,20}$/.test(x)).slice(0, 50),
+      freshRooms: arr(obj(d.museum).freshRooms).filter(x => /^[a-z]{1,20}$/.test(x)).slice(0, 50),
       log: arr(obj(d.museum).log).slice(-300).map(obj).map(x => ({ t: num(x.t), id: str(x.id, 20), part: clamp(Math.round(num(x.part)), 0, 99) })),
     },
   };

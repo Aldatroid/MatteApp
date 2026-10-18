@@ -3,7 +3,7 @@
    Väggarna består av bitar (pieces) med en undre och övre höjd. setWallHeight() klipper bitarna
    så att en vägg kan sänkas till en låg mur (dockskåpsvy) och resas igen. */
 import { THREE } from '../three/scene.js';
-import { ROOMS, DOORS, ARTIFACTS, WALL_H } from './catalog.js';
+import { ROOMS, DOORS, ARTIFACTS, SECTIONS, roomById, WALL_H } from './catalog.js';
 import { buildModel, materials, canvasTex, speckle, std } from './models.js';
 
 // STUB = höjden på en sänkt vägg: bara en mörk list vid golvet som visar planlösningen.
@@ -112,6 +112,13 @@ function buildWall(W, BM, parent, i) {
   for (const d of doors) { solids.push([s, d.from]); s = d.to; } solids.push([s, W.to]);
   for (const [a, b] of solids) { piece(a, b, 0, WALL_H - 0.03, T, BM.wall); piece(a, b, 0, 1.1, T + 0.12, BM.panel, 0, true); piece(a, b, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim); }
   for (const d of doors) {
+    // stängda dörrar med hänglås, som syns när salen bakom är stängd (se setWallHeight)
+    const lockMat = BM.gold, mid = (d.from + d.to) / 2;
+    for (const [a, b] of [[d.from + 0.05, mid - 0.02], [mid + 0.02, d.to - 0.05]]) { piece(a, b, 0, DOOR_H - 0.3, 0.16, BM.darkWood); pieces[pieces.length - 1].door = true; }
+    for (const side of [-1, 1]) {
+      piece(mid - 0.14, mid + 0.14, 1.9, 2.25, 0.12, lockMat, side * 0.14); pieces[pieces.length - 1].door = true;
+      piece(mid - 0.5, mid + 0.5, 2.35, 2.47, 0.08, BM.iron, side * 0.12); pieces[pieces.length - 1].door = true;
+    }
     piece(d.from, d.to, DOOR_H, WALL_H - 0.03, T, BM.wall);
     piece(d.from, d.to, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim);
     // valvbåge av ljus sten runt öppningen
@@ -156,7 +163,7 @@ function buildWall(W, BM, parent, i) {
     piece(-2.6, 2.6, 4.8, 5.3, T + 0.3, BM.gold);
     piece(-0.04, 0.04, 0, 4.8, T + 0.14, BM.brass);
   }
-  const wall = { ...W, group: g, pieces, h: WALL_H, near: {}, doors };
+  const wall = { ...W, group: g, pieces, h: WALL_H, near: {}, doors, locked: false };
   setWallHeight(wall, WALL_H);
   return wall;
 }
@@ -166,6 +173,7 @@ export function setWallHeight(w, h) {
   w.h = h; const low = h <= STUB + 0.001;
   for (const p of w.pieces) {
     if (p.fixed) { p.m.visible = h >= p.y1 - 0.05; continue; }
+    if (p.door) { p.m.visible = w.locked && h >= DOOR_H; if (p.m.visible) { p.m.scale.y = p.y1 - p.y0; p.m.position.y = (p.y0 + p.y1) / 2; } continue; }
     const top = Math.min(p.y1, h), hh = top - p.y0;
     p.m.visible = hh > 0.01 && (!low || p.base);
     if (p.m.visible) { p.m.scale.y = hh; p.m.position.y = p.y0 + hh / 2; }
@@ -265,6 +273,113 @@ function columnAt(parent, x, z, BM) {
   return [add(colGeo, 1, 0.45, WALL_H - 0.45), base, add(box, 1.2, WALL_H - 0.45, WALL_H)];
 }
 
+/* ---------- byggplatser: avdelningar som inte har öppnat än ----------
+   Byggplank med affischer längs avdelningens kanter (där den inte gränsar till en vägg), skynken över
+   formerna som kommer, en ställning, lådor, en stege och en trafikkon. Allt ligger i en grupp per
+   avdelning, så att det kan döljas när avdelningen öppnar. */
+let siteMats = null;
+function siteMaterials() {
+  if (siteMats) return siteMats;
+  const poster = canvasTex(512, 256, (g, w, h) => {
+    g.fillStyle = '#c9a473'; g.fillRect(0, 0, w, h);
+    g.globalAlpha = 0.18; for (let i = 0; i < 40; i++) { g.fillStyle = i % 2 ? '#7a5530' : '#e8cfa5'; g.fillRect(0, Math.random() * h, w, 1 + Math.random() * 3); } g.globalAlpha = 1;
+    for (let x = -h; x < w; x += 36) { g.fillStyle = '#f2c230'; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 18, 0); g.lineTo(x + 18 + 28, 28); g.lineTo(x + 28, 28); g.fill(); }
+    g.fillStyle = '#1f1a14'; g.fillRect(0, 28, w, 3);
+    g.fillStyle = '#2a3f5f'; g.fillRect(w * 0.2, 60, w * 0.6, 150); g.strokeStyle = '#f2e6c8'; g.lineWidth = 5; g.strokeRect(w * 0.2 + 8, 68, w * 0.6 - 16, 134);
+    g.fillStyle = '#f6e7c8'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '600 34px Fredoka, sans-serif';
+    g.fillText('Här bygger vi', w / 2, 110); g.fillText('något nytt!', w / 2, 152);
+  });
+  siteMats = {
+    poster: std({ map: poster, roughness: 0.85 }),
+    plank: std({ color: 0xb48a58, roughness: 0.85 }),
+    tarp: std({ color: 0x8d8a80, roughness: 0.95 }),
+    tarp2: std({ color: 0x5f6f7f, roughness: 0.95 }),
+    pole: std({ color: 0x8a8f96, metalness: 0.6, roughness: 0.4 }),
+    crate: std({ color: 0x9c7442, roughness: 0.8 }),
+    cone: std({ color: 0xf06a1d, roughness: 0.6 }),
+    white: std({ color: 0xf2f2f2, roughness: 0.6 }),
+  };
+  return siteMats;
+}
+// ett skynke över en form: en låda med många hörn som "hänger" ner och vidgar sig vid golvet
+function tarp(parent, x, z, w, d, h, mat) {
+  const geo = new THREE.BoxGeometry(w, h, d, 8, 4, 8), p = geo.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i); const t = 0.5 - v.y / h; // 0 upptill, 1 nedtill
+    const k = 1 + t * 0.12 + Math.sin(v.x * 5 + v.z * 3) * 0.03 * t;
+    v.x *= k; v.z *= k; if (v.y > 0) v.y -= (Math.abs(v.x) / w + Math.abs(v.z) / d) * h * 0.18;
+    p.setXYZ(i, v.x, v.y + h / 2, v.z);
+  }
+  geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, mat); m.position.set(x, 0, z); parent.add(m); return m;
+}
+function buildSite(sec, BM) {
+  const M = siteMaterials(), g = new THREE.Group(), R = roomById[sec.room], [x0, z0, x1, z1] = sec.rect;
+  const parts = []; const add = m => { m.castShadow = m.receiveShadow = true; g.add(m); parts.push(m); return m; };
+  // byggplank längs de kanter som inte ligger mot salens väggar
+  const H = 2.2, edges = [];
+  if (x0 > R.x[0]) edges.push([[x0, z0], [x0, z1]]);
+  if (x1 < R.x[1]) edges.push([[x1, z0], [x1, z1]]);
+  if (z0 > R.z[0]) edges.push([[x0, z0], [x1, z0]]);
+  if (z1 < R.z[1]) edges.push([[x0, z1], [x1, z1]]);
+  for (const [[ax, az], [bx, bz]] of edges) {
+    const len = Math.hypot(bx - ax, bz - az), n = Math.max(1, Math.round(len / 2.4)), alongX = az === bz;
+    for (let i = 0; i < n; i++) {
+      const t = (i + 0.5) / n, px = ax + (bx - ax) * t, pz = az + (bz - az) * t, pw = len / n - 0.06;
+      const panel = new THREE.Mesh(box, [M.plank, M.plank, M.plank, M.plank, M.poster, M.poster]);
+      panel.scale.set(alongX ? pw : 0.08, H, alongX ? 0.08 : pw); panel.position.set(px, H / 2, pz);
+      if (!alongX) { panel.scale.set(pw, H, 0.08); panel.rotation.y = Math.PI / 2; }
+      add(panel);
+      const post = new THREE.Mesh(box, M.plank); post.scale.set(0.14, H + 0.15, 0.14); post.position.set(ax + (bx - ax) * i / n, (H + 0.15) / 2, az + (bz - az) * i / n); add(post);
+    }
+  }
+  // skynken över det som kommer (storleken antyds, men inte formen)
+  const items = ARTIFACTS.filter(a => a.section === sec.id && a.stand !== 'hang');
+  items.forEach((a, i) => {
+    const w = Math.min(4, Math.max(1, a.size[0] * 0.8)), d = Math.min(3, Math.max(1, a.size[1] * 0.8)), h = a.stand === 'platform' ? 1.6 : 1.4;
+    add(tarp(g, a.pos[0], a.pos[1], w, d, h, i % 2 ? M.tarp2 : M.tarp));
+  });
+  const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, rw = x1 - x0, rd = z1 - z0;
+  if (!items.length) { add(tarp(g, cx - rw * 0.15, cz, 2.2, 1.6, 1.5, M.tarp)); add(tarp(g, cx + rw * 0.2, cz + rd * 0.1, 1.2, 1.2, 1.1, M.tarp2)); }
+  // ställning i ett hörn
+  const sx = x0 + Math.min(2.2, rw * 0.3), sz = z0 + Math.min(1.6, rd * 0.25);
+  for (const [dx, dz] of [[-0.9, -0.6], [0.9, -0.6], [-0.9, 0.6], [0.9, 0.6]]) { const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 4, 8), M.pole); pole.position.set(sx + dx, 2, sz + dz); add(pole); }
+  for (const y of [1.9, 3.8]) { const deck = new THREE.Mesh(box, M.plank); deck.scale.set(2, 0.08, 1.3); deck.position.set(sx, y, sz); add(deck); }
+  // lådor, stege och trafikkon
+  const c1 = new THREE.Mesh(box, M.crate); c1.scale.set(0.9, 0.7, 0.7); c1.position.set(x1 - 1.4, 0.35, z1 - 1.3); c1.rotation.y = 0.3; add(c1);
+  const c2 = new THREE.Mesh(box, M.crate); c2.scale.set(0.6, 0.5, 0.6); c2.position.set(x1 - 1.3, 0.95, z1 - 1.25); c2.rotation.y = -0.2; add(c2);
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.6, 16), M.cone); cone.position.set(cx, 0.3, z1 - 0.7); add(cone);
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.1, 16), M.white); band.position.set(cx, 0.33, z1 - 0.7); add(band);
+  const ladder = new THREE.Group(); ladder.position.set(sx + 1.6, 0, sz + 0.2); ladder.rotation.z = 0.25; g.add(ladder);
+  for (const dz of [-0.25, 0.25]) { const rail = new THREE.Mesh(box, M.crate); rail.scale.set(0.06, 3, 0.06); rail.position.set(0, 1.5, dz); ladder.add(rail); parts.push(rail); }
+  for (let i = 0; i < 6; i++) { const step = new THREE.Mesh(box, M.crate); step.scale.set(0.05, 0.05, 0.5); step.position.set(0, 0.4 + i * 0.45, 0); ladder.add(step); parts.push(step); }
+  // osynlig träffyta över hela byggplatsen
+  const hit = new THREE.Mesh(box, new THREE.MeshBasicMaterial()); hit.visible = false; hit.position.set(cx, 1.3, cz); hit.scale.set(rw, 2.6, rd); hit.userData.section = sec.id;
+  return { sec, group: g, parts, hit };
+}
+
+/* ---------- tak över stängda salar ---------- */
+function buildRoof(R) {
+  const w = R.x[1] - R.x[0], d = R.z[1] - R.z[0];
+  const tex = canvasTex(1024, Math.round(1024 * d / w), (g, cw, ch) => {
+    g.fillStyle = '#2d3a46'; g.fillRect(0, 0, cw, ch);
+    g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 4; for (let x = 0; x < cw; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, ch); g.stroke(); }
+    g.strokeStyle = 'rgba(255,255,255,.08)'; g.lineWidth = 2; for (let x = 6; x < cw; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, ch); g.stroke(); }
+    g.strokeStyle = '#c9a45a'; g.lineWidth = 10; g.strokeRect(20, 20, cw - 40, ch - 40);
+    const cx = cw / 2, cy = ch / 2, s = Math.min(cw, ch) / 5;
+    // hänglås
+    g.strokeStyle = '#e8c46a'; g.lineWidth = s * 0.16; g.beginPath(); g.arc(cx, cy - s * 0.15, s * 0.42, Math.PI, 0); g.stroke();
+    g.fillStyle = '#e8c46a'; g.fillRect(cx - s * 0.62, cy - s * 0.15, s * 1.24, s * 0.95);
+    g.fillStyle = '#2d3a46'; g.beginPath(); g.arc(cx, cy + s * 0.22, s * 0.12, 0, 7); g.fill(); g.fillRect(cx - s * 0.05, cy + s * 0.25, s * 0.1, s * 0.3);
+    g.fillStyle = '#f2e6c8'; g.textAlign = 'center'; g.font = `600 ${Math.round(s * 0.42)}px Fredoka, sans-serif`;
+    g.fillText('Stängd sal', cx, cy + s * 1.45);
+  });
+  const roof = new THREE.Mesh(box, [std({ color: 0x24303a }), std({ color: 0x24303a }), std({ map: tex, roughness: 0.9 }), std({ color: 0x24303a }), std({ color: 0x24303a }), std({ color: 0x24303a })]);
+  roof.scale.set(w + 0.6, 0.2, d + 0.6); roof.position.set((R.x[0] + R.x[1]) / 2, WALL_H + 0.12, (R.z[0] + R.z[1]) / 2);
+  roof.userData.room = R.id; roof.castShadow = true;
+  return roof;
+}
+
 /* ---------- allt ihop ---------- */
 export function buildMuseum(scene) {
   const BM = makeMats();
@@ -290,6 +405,7 @@ export function buildMuseum(scene) {
     w.pieces.push(...columnAt(root, x, z, BM)); setWallHeight(w, WALL_H);
   }
   // dekor
+  const n0 = root.children.length;
   desk(root, 9, 6.2, Math.PI * 1.1, BM);
   bench(root, -7.5, 4.5, 0.2, BM); bench(root, 7.5, 1.5, -0.2, BM); bench(root, -22, 6.5, 0, BM); bench(root, 22, 0.5, Math.PI / 2, BM); bench(root, -15, -12.5, 0, BM); bench(root, 15, -23.5, 0, BM);
   for (const [x, z, s] of [[-13, 9, 1.3], [13, 9, 1.3], [-13, -9, 1.1], [13, -9, 1.1], [-29, 9, 1], [29, 9, 1], [-29, -25, 1], [29, -25, 1], [-1, -25, 1], [1, -11, 1]]) plantAt(root, x, z, BM, s);
@@ -310,5 +426,9 @@ export function buildMuseum(scene) {
     g.traverse(o => { if (o.isMesh && !o.userData.glass) { o.castShadow = true; o.receiveShadow = true; } });
     return { def: A, group: g, parts: model.parts, hit, sign, center: sphere.center, radius: sphere.radius };
   });
-  return { root, walls, artifacts, BM };
+  // dekor (bänkar, växter, disk) som står i en avdelning döljs medan avdelningen är en byggplats
+  const decor = root.children.slice(n0, root.children.length - artifacts.length * 2).map(o => ({ obj: o, section: SECTIONS.find(sec => { const [a, b, c, d] = sec.rect; return o.position.x >= a && o.position.x <= c && o.position.z >= b && o.position.z <= d; })?.id }));
+  const sites = SECTIONS.map(sec => { const st = buildSite(sec, BM); root.add(st.group, st.hit); return st; });
+  const roofs = ROOMS.filter(R => !R.start).map(R => { const r = buildRoof(R); root.add(r); return r; });
+  return { root, walls, artifacts, decor, sites, roofs, BM };
 }

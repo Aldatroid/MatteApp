@@ -48,11 +48,11 @@ Reglerna finns i `js/museum/finds.js`, och expeditionernas föremål i `EXPEDITI
    x = -30          entré (söder)                    x = 30
 ```
 
-Salarna är 7,5 m höga och hänger ihop med valvbågar. Nya salar (till exempel en djursal med dioramor, en rymdsal med meteoriter eller en antiksal med Rom och Grekland) läggs till i `ROOMS` och får en plats på planlösningen.
+Salarna är 7,5 m höga och hänger ihop med valvbågar. Fler salar planeras i fas 5, se nedan.
 
 ## Kamera och utforskande
 
-- **Överblick:** kameran tittar snett ovanifrån, som på ett dockskåp. Väggarna som står mellan kameran och en sal sänks automatiskt till låga murar, så att man ser in i alla salar. När man zoomar in i en sal reser sig dess bortre väggar med dekorationer, valv och fönster.
+- **Överblick:** kameran tittar snett ovanifrån, som på ett dockskåp. Väggar som vetter mot kameran sänks automatiskt till en list vid golvet, så att man ser in i alla salar. Inne i en sal sänks bara de väggar som skymmer den salen; alla andra står kvar.
 - **Panorera:** dra med ett finger eller musen.
 - **Zooma:** nyp med två fingrar eller använd scrollhjulet. Kameran sänks mot golvet när man zoomar in.
 - **Vrid:** vrid med två fingrar, högerdra med musen, eller använd vridknapparna.
@@ -80,7 +80,99 @@ Texterna i första versionen gäller föremålstypen (T. rex, runsten). När ett
 
 ## Lagring
 
-`S.museum = { found: { [artefakt-id]: antal delar }, log: [{ t, id, part }] }`, tvättat i `migrate()` som all annan sparad data. Exporten i föräldraläget tar med museet automatiskt.
+`S.museum = { found: { [artefakt-id]: antal delar }, log: [{ t, id, part }], expedition }`, tvättat i `migrate()` som all annan sparad data. Exporten i föräldraläget tar med museet automatiskt.
+
+## Fas 5: ett museum som växer
+
+Museet ska kännas levande: nya salar öppnar, och inne i salarna byggs nya avdelningar upp. Barnet ser att något är på gång men inte exakt vad. Det som öppnar nästa sal är att barnet blir bättre på matte, inte bara att det spelar många pass.
+
+### Tre nivåer av öppet och stängt
+
+| | Vad det är | Vad barnet ser när den är stängd | Vad som öppnar den |
+|---|---|---|---|
+| **Sal** | ett helt rum, till exempel Kristallgrottan | ett tak över salen, stängda dörrar med hänglås, **???** i stället för namnet | ett **mål i matten** (se nedan) |
+| **Avdelning** | en del av en sal med 4–6 föremål, till exempel *Istiden* i Fossilsalen | byggplank, ställningar och skynken; en skylt *"Här bygger vi något nytt!"* | att barnet har hittat det mesta i salens öppna avdelningar |
+| **Föremål** | en monter i en öppen avdelning | ett svagt spöke på sin plats (som nu) | ett fynd från Dagens pass (som nu) |
+
+### Start
+
+Stora hallen och två salar är öppna från början: **Fossilsalen** och **Egyptiska salen**. Det är dinosaurier och mumier, två ämnen de flesta barn tycker om. I varje öppen sal är en eller två avdelningar färdiga, och resten är under uppbyggnad. Med det finns cirka 12–15 föremål att hitta de första veckorna.
+
+### Plats för 10–20 föremål per sal: avdelningar
+
+Varje sal delas i **3–4 avdelningar** med 4–6 föremål var, alltså 12–20 föremål per sal. En avdelning är ett eget område i salen (en vägg med montrar, en hörna med en diorama, en ö mitt i rummet) med en egen liten rubrik på en skylt. Exempel för Fossilsalen (16 × 20 m):
+
+```text
+  ┌──────────────────────┬────────────────────┐
+  │ B. Urhavet           │ C. Istiden         │
+  │ ammonit, trilobit,   │ ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ │   ▒ = byggplank och skynken
+  │ megalodon …          │ ▒ Under uppbyggnad │       (stängd avdelning)
+  │                      │ ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ │
+  ├──────────────────────┴────────────────────┤
+  │ A. Dinosaurierna                          │
+  │ triceratops, T. rex-tänder, ägg …         │
+  │                                           │
+  │ D. Bärnsten och mineraler (stängd) ▒▒▒▒▒▒ │
+  └─────────────────── dörr ──────────────────┘
+```
+
+- **Avdelningar öppnar inifrån salen:** när barnet har hittat cirka **75 % av delarna i salens öppna avdelningar** blir nästa avdelning "klar". För att bygga förväntan öppnar den **nästa dag**: pop-upen efter passet säger *"Bygget i Fossilsalen är nästan klart. Kom tillbaka i morgon!"*. Nästa dag visar museet ett band att klippa: barnet trycker, skynkena faller och spökena tonar fram.
+- **Byggplatsen** är byggd i kod precis som resten: lågt byggplank med affischer, en ställning, ett par skynken över former under tyget (en antydan om storleken, men inte vad det är), en stege och en trafikkon. Den byggs om när avdelningen öppnar.
+- Varje sal har sina **platser** (positioner för montrar) grupperade per avdelning i katalogen. Då kan nya föremål läggas till utan att någon flyttar något.
+
+### Salar öppnar med mål i matten
+
+Varje ny sal hör ihop med ett område i appen, med ett tema som passar:
+
+| Sal | Område | Mål (förslag) | Varför det passar |
+|---|---|---|---|
+| Vikingasalen | Bråk | nivå 3 | dela upp silverskatten |
+| Havets sal | Längd och enheter | nivå 3 | blåvalen är 30 meter |
+| Kristallgrottan | Symmetri | nivå 4 | kristaller är symmetriska |
+| Antiken | Area och omkrets | nivå 3 | mosaikgolv och Colosseum |
+| Rymdsalen | Känna igen kroppar | nivå 2 | planeter är klot |
+| Asiens sal | Utfällningar | nivå 2 | origami och papperslyktor |
+| Djursalen | Gångertabellerna | 40 gångertal sitter | räkna djuren i flocken |
+
+- **Synligt mål:** när barnet trycker på en stängd sal står det till exempel *"Kristallgrottan öppnar när du når nivå 4 i Symmetri"*, med en mätare som visar hur långt barnet har kommit. Salens namn visas, men inte innehållet, så att barnet vet vad det jobbar mot. Ska namnet också vara hemligt (**???**), visas bara målet.
+- **Ingen fastnar:** om föräldern har tagit bort området från Dagens pass, eller om barnet kör fast, öppnas salen också av en **reservväg**: ett antal hittade fynd (till exempel 15 fynd efter att förra salen öppnade). Mätaren visar den väg som är närmast målet.
+- **En nivå som går ner** (nivålogiken flyttar ner barnet efter två fel i rad) stänger aldrig en sal igen. Öppnade salar sparas.
+- **När en sal öppnar:** pop-upen efter passet säger *"Kristallgrottan har öppnat!"* med samma ljud som för fynd, och **Se i museet** flyger dit, där dörrarna svänger upp och taket lyfter.
+- **Expeditionen** för en sal blir valbar när salen öppnar.
+
+### Fynd
+
+Fynd kommer bara från **öppna avdelningar i öppna salar**, och regeln om högst ett fynd per sal och dag gäller fortfarande. I början, med tre öppna salar, blir det högst tre fynd per dag.
+
+### Ny planlösning
+
+Museet byggs ut åt sidorna och bakåt till tio salar. Kameran, väggarna och golven fungerar som nu.
+
+```text
+ z = -42 ┌──────────────┬───────────────┬──────────────┐
+         │  Rymdsalen   │ Kristallgrottan│  Asiens sal │
+ z = -26 ├──────────────┴───────┬───────┴──────────────┤
+         │     Vikingasalen     │      Havets sal      │
+ ┌───────┼────────┬─────────────┴─────────┬────────────┼────────┐ z = -10
+ │Antiken│Egyptiska│     Stora hallen    │ Fossilsalen│Djursalen│
+ └───────┴────────┴──────────╥────────────┴────────────┴────────┘ z = 10
+ x = -46  -30      -14      entré       14          30     46
+```
+
+### Data
+
+- **Katalogen delas upp per sal:** `js/museum/rooms/fossil.js` och så vidare, med salens avdelningar, platser, föremål och mål. Med 10 salar × 15 föremål blir en enda fil för stor.
+- **Mål** beskrivs som data, till exempel `{ type: 'level', area: 'symmetry', level: 4 }`, `{ type: 'facts', n: 40 }` eller `{ type: 'finds', n: 15 }`, så att de är lätta att ändra.
+- **Lagring:** `S.museum.sections` (öppnade avdelningar), `S.museum.pending` (avdelning → dagen bygget blev klart; den öppnar dagen efter) och `S.museum.fresh` (öppnade men inte visade i museet än). `S.museum.rooms` (öppnade salar) och `S.museum.freshRooms` (öppnade men inte visade). Allt tvättas i `migrate()`.
+- **Befintliga spelare:** salar och avdelningar där barnet redan har fynd räknas som öppna. Ingen förlorar något.
+
+### Delsteg
+
+1. **5a – Avdelningar och byggplatser** *(klar)*: varje sal har 2–3 avdelningar (`sections` i `ROOMS`), föremålen hör till avdelningen där de står, och stängda avdelningar är byggplatser. Reglerna finns i `finds.js` (`sectionOpen`, `updateSections`), byggplatserna i `buildSite()` i `build.js` och öppningen i `openSections()` i `museum.js`. Tryck på en byggplats för att se hur många delar som fattas.
+2. **5b – Salar som öppnar med mål i matten** *(klar)*: Stora hallen, Egyptiska salen och Fossilsalen är öppna från början. Vikingasalen öppnar på nivå 3 i Bråk (eller 15 fynd), Havets sal på nivå 3 i Längd (eller 22 fynd). Målen står som `goal` och `backup` i `ROOMS`, och reglerna i `js/museum/rooms.js`. Stängda salar har tak med hänglås och stängda dörrar. Trycker man på dem visas målen med mätare. Pop-upen efter passet och startsidan säger när en sal har öppnat, och i museet lyfts taket av.
+3. **5c – Utbyggd planlösning:** väggar och golv för fem nya salar, som stängda salar.
+4. **5d – Fler föremål:** fyll salarna till 10–20 föremål, en sal i taget, med modeller och infotexter. Djursalen först bland de nya, eftersom dioramorna är mest *Natt på museet*.
+5. **Prestanda:** bara öppna salar och avdelningar byggs fullt ut, och statiska väggbitar slås ihop till färre 3D-objekt.
 
 ## Faser
 
@@ -88,10 +180,14 @@ Texterna i första versionen gäller föremålstypen (T. rex, runsten). När ett
 2. **Fynd från Dagens pass** *(klar)*: `grantFind()` i `js/museum/finds.js` anropas från `finishRun()` och slumpar fyndet. Sammanfattningen visar fyndet, och **Se i museet** flyger dit och sänker ner delen på sin plats.
 3. **Riktiga föremål**: GLB-modeller och infotexter om verkliga föremål, med källor.
 4. **Expeditioner** *(klar)*: knappen **Expedition** i museet öppnar valet. `EXPEDITIONS` i `catalog.js` listar föremålen per roll, och `finds.js` slumpar i första hand bland den valda rollens föremål. Sammanfattningen visar hur långt expeditionen har kommit och när den är klar.
-5. **Fler salar**: djursal med dioramor, rymd och meteoriter, antiken, med mera.
+5. **Ett museum som växer**: se *Fas 5* ovan. Delsteg 5a avdelningar och byggplatser, 5b salar som öppnar med mål i matten, 5c utbyggd planlösning, 5d fler föremål.
 
 ## Öppna frågor
 
+- Fas 5: ska en stängd sal visa sitt namn (och målet), eller bara **???** och målet?
+- Fas 5: passar kopplingen mellan salar och områden, och är målnivåerna lagom?
+- Fas 5: ska en avdelning öppna nästa dag (förväntan) eller direkt när målet är nått?
+- Fas 5: ska skynkena på byggplatserna antyda formen på det som kommer, eller vara helt anonyma?
 - Ska ett halvt pass (under 80 %) ge något, till exempel damm som räknas mot nästa fynd?
 - Ska föräldern kunna se eller styra expeditionen?
 - Ljud: en mjuk "klang" när en del sätts på plats, och kanske museiambiens.

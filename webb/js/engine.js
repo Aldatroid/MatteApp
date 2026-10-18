@@ -8,6 +8,8 @@ import { countGood } from './areas/mul.js';
 import { asset } from './themes.js';
 import { playRight } from './sound.js';
 import { grantFind, expProgress, expChosen } from './museum/finds.js';
+import { roomById } from './museum/catalog.js';
+import { checkRooms } from './museum/rooms.js';
 import { revealFind } from './museum/museum.js';
 
 export let run = null;
@@ -229,6 +231,7 @@ export function finishRun() {
   if (r.n > 0 || r.activeMs > 20000) { S.sessions.push({ start: r.start, ms: r.activeMs, n: r.n, right: r.right, mode: r.mode, kind: r.cfg.kind || r.cfg.area || '' }); if (S.sessions.length > 200) S.sessions.shift(); }
   // Ett fullt pass ger ett fynd till museet.
   if (r.mode === 'pass' && r.activeMs >= r.durMs * 0.8) { const d = today(); d.pass = true; d.passes = (d.passes || 0) + 1; r.find = grantFind(); }
+  r.rooms = checkRooms(); // salar vars mål i matten nåddes under passet
   save(); clearScene();
   if (r.mode === 'pass' && r.n > 0) showSummary(r);
   else show(r.mode === 'pass' ? 'home' : 'free');
@@ -240,8 +243,8 @@ function showSummary(r) {
   const good = countGood(), diff = good - r.goodBefore;
   $('#sumStats').innerHTML = `<div class="stat"><b>${r.right} av ${r.n}</b><span>rätt svar${r.right > r.first ? `, varav ${r.first} på första försöket` : ''}</span></div><div class="stat"><b>${good}</b><span>gångertal som sitter${diff > 0 ? ` (+${diff} idag)` : ''}</span></div>`;
   showFind(r.find);
-  if (r.find && !r.find.none) setTimeout(() => findPopup(r.find), 450);
-  $('#sumNotes').innerHTML = r.levelUps.map(u => `<li>Ny nivå i ${esc(areaById(u.id).name.toLowerCase())}: nivå ${u.level}</li>`).join('') + `<li>Vill du fortsätta? När du utforskar finns ingen klocka.</li>`;
+  if ((r.find && !r.find.none) || r.rooms?.length) setTimeout(() => findPopup(r.find, r.rooms), 450);
+  $('#sumNotes').innerHTML = (r.rooms || []).map(R => `<li><b>${esc(R.name)}</b> har öppnat i museet!</li>`).join('') + r.levelUps.map(u => `<li>Ny nivå i ${esc(areaById(u.id).name.toLowerCase())}: nivå ${u.level}</li>`).join('') + `<li>Vill du fortsätta? När du utforskar finns ingen klocka.</li>`;
   show('summary');
 }
 
@@ -251,6 +254,8 @@ function showFind(f) {
   if (f.none) { // inga fler fynd idag, eller museet är fullt
     el.innerHTML = f.none === 'complete'
       ? '<span class="find-kicker">Museet</span><b class="find-name">Museet är komplett!</b><span class="find-note">Du har hittat allt. Bra jobbat!</span>'
+      : f.none === 'building'
+      ? '<span class="find-kicker">Inga fler fynd just nu</span><b class="find-name">Museet bygger nya avdelningar</b><span class="find-note">Allt i de öppna avdelningarna är hittat. Kom tillbaka i morgon, då öppnar något nytt.</span>'
       : '<span class="find-kicker">Inga fler fynd idag</span><b class="find-name">Alla salar har fått något nytt idag</b><span class="find-note">Kom tillbaka i morgon, då finns nya saker att hitta.</span>';
     return;
   }
@@ -259,7 +264,8 @@ function showFind(f) {
   const exp = f.expDone ? `<span class="find-exp done">Expeditionen ${esc(f.exp.name)} är klar! Välj en ny expedition i museet.</span>`
     : !expChosen() ? '<span class="find-exp">Välj en expedition i museet, så bestämmer du vad du letar efter.</span>'
     : f.exp.id !== 'explorer' && !p.complete ? `<span class="find-exp">${esc(f.exp.name)}: ${p.done} av ${p.total} fynd</span>` : '';
-  el.innerHTML = `<span class="find-kicker">Nytt fynd till museet</span><b class="find-name">${what}</b><span class="find-note">${note}</span>${exp}<button class="btn primary" id="toFind">Se i museet</button>`;
+  const built = buildText(f) ? `<span class="find-exp done">${esc(buildText(f))}</span>` : '';
+  el.innerHTML = `<span class="find-kicker">Nytt fynd till museet</span><b class="find-name">${what}</b><span class="find-note">${note}</span>${built}${exp}<button class="btn primary" id="toFind">Se i museet</button>`;
   $('#toFind').addEventListener('click', () => revealFind(f));
 }
 
@@ -271,12 +277,19 @@ function findText(f) {
     note: all === 1 ? 'Föremålet har fått sin plats i museet.' : f.part + 1 === all ? `Nu är alla ${all} delar på plats!` : `Del ${f.part + 1} av ${all}. Fler delar finns att hitta.`,
   };
 }
-function findPopup(f) {
+// När ett fynd gör att ett bygge blir klart: avdelningen öppnar i morgon.
+const buildText = f => f.built?.length ? `Bygget i ${f.built.map(sec => roomById[sec.room].name).join(' och ')} är nästan klart. Kom tillbaka i morgon!` : '';
+const roomText = rooms => rooms?.length ? `${rooms.map(R => R.name).join(' och ')} har öppnat!` : '';
+// Pop-upen visar fyndet, och när en sal har öppnat även det. Utan fynd handlar den bara om salen.
+function findPopup(f, rooms = []) {
   if ($('#summary').hidden) return;
-  const t = findText(f), pop = $('#findPop');
-  $('#findPopName').textContent = t.what; $('#findPopNote').textContent = t.note;
+  const real = f && !f.none, pop = $('#findPop');
+  const t = real ? findText(f) : { what: roomText(rooms), note: 'Du nådde målet i matten. En ny sal i museet väntar på dig!' };
+  const extra = [real ? buildText(f) : '', real ? roomText(rooms) : ''].filter(Boolean).join(' ');
+  $('.find-pop-card .find-kicker').textContent = real ? 'Nytt fynd till museet!' : 'Ny sal i museet!';
+  $('#findPopName').textContent = t.what; $('#findPopNote').textContent = t.note; $('#findPopBuild').textContent = extra; $('#findPopBuild').hidden = !extra;
   pop.hidden = false; playRight();
-  $('#findPopGo').onclick = () => { pop.hidden = true; revealFind(f); };
+  $('#findPopGo').onclick = () => { pop.hidden = true; real ? revealFind(f) : show('museum'); };
   $('#findPopClose').onclick = () => { pop.hidden = true; };
   $('#findPopGo').focus();
 }
