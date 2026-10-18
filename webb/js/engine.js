@@ -143,7 +143,20 @@ function renderTask(t) {
   const hb = $('#hintBtn'); hb.disabled = !t.hint;
 }
 function updateSlot() { const s = $('.slot'); if (!s) return; s.textContent = run.input || '?'; s.classList.toggle('filled', !!run.input); }
-function submit() { if (!run || run.phase !== 'ask' || !run.input) return; handleAnswer(Number(run.input)); }
+function submit() {
+  if (!run || run.phase !== 'ask' || !run.input) return;
+  if (debugSkip()) return; // DEBUG: kommentera ut den här raden för att stänga av koden
+  handleAnswer(Number(run.input));
+}
+/* DEBUG: skriv DEBUG_SKIP_CODE på knappsatsen under Dagens pass, så klaras hela passet direkt
+   (fynd, salar och sammanfattning som efter ett fullt pass). Bara för att testa flödet. */
+const DEBUG_SKIP_CODE = 7319;
+function debugSkip() {
+  if (run.mode !== 'pass' || Number(run.input) !== DEBUG_SKIP_CODE) return false;
+  tick();
+  run.activeMs = Math.max(run.activeMs, run.durMs); run.n = Math.max(run.n, 1); run.ending = true;
+  finishRun(); return true;
+}
 /* Maskoten Dino poppar upp vid rätt-i-rad, ny nivå och comebacks */
 const MASCOT = {
   streak: ['{n} rätt i rad! Du är grym!', '{n} i rad! Vilken fart!', 'Wow, {n} rätt i rad!', '{n} i rad! Fossilsnabbt!'],
