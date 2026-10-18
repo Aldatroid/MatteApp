@@ -7,7 +7,7 @@ import { startRun } from './engine.js';
 import { startSandbox } from './sandbox.js';
 import { totalFound } from './museum/museum.js';
 import { TOTAL_PARTS } from './museum/catalog.js';
-import { expedition, expChosen, roomsLeftToday, museumComplete, updateSections } from './museum/finds.js';
+import { expedition, expChosen, findsLeftToday, canFind, DAILY, museumComplete, updateSections } from './museum/finds.js';
 import { checkRooms } from './museum/rooms.js';
 import { roomById } from './museum/catalog.js';
 
@@ -22,16 +22,17 @@ function renderHome() {
   ;
   // Museet: innan barnet har valt expedition lockar rutan till att välja, sedan visas hur många salar som kan få fynd idag.
   checkRooms(); updateSections();
-  const rooms = roomsLeftToday().length, chosen = expChosen(), building = Object.keys(S.museum.pending).length, opened = S.museum.fresh.length;
+  const left = findsLeftToday(), chosen = expChosen(), building = Object.keys(S.museum.pending).length, opened = S.museum.fresh.length;
   $('#startMuseum').classList.toggle('new', !chosen);
   $('#museumKicker').textContent = chosen ? `${totalFound()} av ${TOTAL_PARTS} fynd · ${expedition().name}` : 'Samla föremål';
   $('#museumText').textContent = !chosen ? 'Bygg ditt eget museum. Välj om du vill leta dinosaurier, mumier, vikingaskatter eller havsjättar!'
     : S.museum.freshRooms.length ? `${S.museum.freshRooms.map(id => roomById[id].name).join(' och ')} har öppnat! Gå och titta!`
     : opened ? 'En ny avdelning har öppnat i museet. Gå och titta!'
     : museumComplete() ? 'Museet är komplett. Bra jobbat!'
-    : rooms ? `Gör Dagens pass för att hitta något nytt. Idag finns fynd kvar i ${rooms === 1 ? 'en sal' : rooms + ' salar'}.`
+    : !left ? `Du har hittat ${DAILY} saker idag. Kom tillbaka i morgon!`
+    : canFind() ? `Gör Dagens pass för att hitta något nytt. Du kan hitta ${left === 1 ? '1 sak' : left + ' saker'} till idag.`
     : building ? 'Museet bygger en ny avdelning. Den öppnar i morgon!'
-    : 'Alla salar har fått något nytt idag. Kom tillbaka i morgon!';
+    : 'Allt i de öppna salarna är hittat. Nå målen i matten för att öppna nya salar!';
 }
 let tableSel = new Set(['all']);
 function renderFree() {
