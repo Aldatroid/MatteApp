@@ -8,7 +8,7 @@ import { $, esc, clamp, show, onShow, reducedMotion } from '../util.js';
 import { S } from '../store.js';
 import { ROOMS, ARTIFACTS, EXPEDITIONS, byId, roomById, TOTAL_PARTS, WALL_H } from './catalog.js';
 import { expedition, expChosen, expProgress, setExpedition, nextFind } from './finds.js';
-import { buildMuseum, setWallHeight, setPlaque, STUB_H } from './build.js';
+import { buildMuseum, setWallHeight, setPlaque, STUB_H, DOOR_TOP } from './build.js';
 import { setFound, materials } from './models.js';
 
 const PREVIEW_ALL = /[?&]alla\b/.test(location.search);
@@ -96,6 +96,10 @@ function placeCamera() {
   const cp = Math.cos(cur.pitch), sp = Math.sin(cur.pitch), d = focus ? cur.dist * Math.max(1, 0.9 / camera.aspect) * shift.k : fitDist();
   camera.position.set(cur.x + Math.sin(cur.yaw) * cp * d, cur.y + sp * d, cur.z + Math.cos(cur.yaw) * cp * d);
   camera.lookAt(cur.x, cur.y, cur.z);
+  // Närplanet följer avståndet: ju längre ut kameran är, desto längre bort kan det ligga.
+  // Det ger djupbufferten mycket bättre precision i överblicken (mindre flimmer mellan ytor).
+  const near = clamp(d * 0.12, 0.4, 8), far = d * 3 + 120;
+  if (Math.abs(camera.near - near) > near * 0.05 || Math.abs(camera.far - far) > far * 0.05) { camera.near = near; camera.far = far; camera.updateProjectionMatrix(); }
   if (Math.abs(shift.x) + Math.abs(shift.y) > 0.5) camera.setViewOffset(w, h, shift.x, shift.y, w, h); else camera.clearViewOffset();
 }
 function clampGoal() {
@@ -114,8 +118,10 @@ function overview() { closeFocus(false); Object.assign(goal, OVERVIEW); clampGoa
 function rotate(da) { goal.yaw += da; }
 
 /* ---------- väggarna sänks när de står i vägen ----------
-   En hel vägg byter läge på en gång (hög eller låg mur). Alla gränser har marginaler (hysteres),
-   så att väggar inte slår fram och tillbaka när kameran står nära en gräns. */
+   Överblick: väggar som vetter bort från kameran står kvar, de som är vända mot den sänks.
+   Inne i en sal: alla väggar står kvar utom de som skymmer salen. Det avgörs med siktlinjer från
+   kameran till punkter i salen; en vägg som någon siktlinje går igenom (utanför dörröppningarna) sänks.
+   En vägg byter läge på en gång, och en sänkt vägg reser sig först när den har varit ur vägen en stund. */
 let viewRoom = null;
 function currentRoom() {
   if (focus) return focus.def.room;
@@ -124,15 +130,38 @@ function currentRoom() {
   if (R && cur.x > R.x[0] - m && cur.x < R.x[1] + m && cur.z > R.z[0] - m && cur.z < R.z[1] + m) return viewRoom;
   return (viewRoom = roomAt(cur.x, cur.z)?.id || null);
 }
-function updateWalls() {
-  const dx = -Math.sin(cur.yaw), dz = -Math.cos(cur.yaw), room = currentRoom();
+// Punkter i varje sal som ska synas: ett rutnät på golvet och i ögonhöjd, en bit in från väggarna.
+const roomPts = Object.fromEntries(ROOMS.map(R => {
+  const pts = [];
+  for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) for (const y of [0.3, 2.2]) {
+    pts.push(new THREE.Vector3(R.x[0] + 1 + (R.x[1] - R.x[0] - 2) * i / 4, y, R.z[0] + 1 + (R.z[1] - R.z[0] - 2) * j / 4));
+  }
+  return [R.id, pts];
+}));
+// Går siktlinjen från C till P genom väggens massiva del?
+function blocks(w, C, P) {
+  const a = w.axis, b = a === 'z' ? 'x' : 'z';
+  if ((C[a] - w.at) * (P[a] - w.at) >= 0) return false;
+  const t = (w.at - C[a]) / (P[a] - C[a]), s = C[b] + t * (P[b] - C[b]), y = C.y + t * (P.y - C.y);
+  if (s < w.from || s > w.to || y > WALL_H) return false;
+  return !w.doors.some(d => s > d.from + 0.3 && s < d.to - 0.3 && y < DOOR_TOP - 0.6);
+}
+function updateWalls(now) {
+  const room = currentRoom();
+  const pts = room && (focus ? [...roomPts[room], focus.center] : roomPts[room]);
+  const dx = -Math.sin(cur.yaw), dz = -Math.cos(cur.yaw);
   for (const w of MU.walls) {
-    // är väggen mellan kameran och salen? (riktningen in i salen pekar då bort från kameran)
-    for (const [r, n] of w.sides) { const d = w.axis === 'z' ? n * dz : n * dx; w.near[r] = w.near[r] ? d > 0.2 : d > 0.45; }
-    const near = w.sides.some(([r]) => w.near[r]);
-    // Ytterväggar står kvar om de inte är i vägen. Innerväggar sänks i överblicken, men står kvar
-    // runt den sal man har zoomat in i (utom den som är mellan kameran och salen).
-    const full = (w.sides.length === 1 && !near) || (room && w.sides.some(([r]) => r === room && !w.near[r]));
+    let full;
+    if (room) {
+      if (pts.some(P => blocks(w, camera.position, P))) w.clearSince = 0;
+      else w.clearSince ||= now;
+      full = w.clearSince && now - w.clearSince > 350;
+    } else {
+      // är väggen vänd mot kameran? (riktningen in i salen pekar då bort från kameran)
+      for (const [r, n] of w.sides) { const d = w.axis === 'z' ? n * dz : n * dx; w.near[r] = w.near[r] ? d > 0.2 : d > 0.45; }
+      full = w.sides.length === 1 && !w.sides.some(([r]) => w.near[r]);
+      w.clearSince = full ? now - 1000 : 0;
+    }
     const target = full ? WALL_H : STUB_H;
     if (target !== w.h) setWallHeight(w, target);
   }
@@ -260,7 +289,7 @@ function frame(t) {
   for (const key of ['x', 'z', 'y', 'dist', 'yaw', 'pitch']) cur[key] += (goal[key] - cur[key]) * k;
   materials().ghost.opacity = 0.27 + Math.sin(t / 700) * 0.07;
   for (const an of [...anims]) { const p = clamp((t - an.start) / an.dur, 0, 1); if (t < an.start) continue; an.fn(p); if (p >= 1) anims.splice(anims.indexOf(an), 1); }
-  placeCamera(); updateWalls();
+  placeCamera(); camera.updateMatrixWorld(); updateWalls(t);
   renderer.render(scene, camera);
   updateLabels();
 }

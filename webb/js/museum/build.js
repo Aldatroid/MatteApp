@@ -6,7 +6,8 @@ import { THREE } from '../three/scene.js';
 import { ROOMS, DOORS, ARTIFACTS, WALL_H } from './catalog.js';
 import { buildModel, materials, canvasTex, speckle, std } from './models.js';
 
-const T = 0.6, DOOR_H = 5.2, STUB = 1.25;
+// STUB = höjden på en sänkt vägg: bara en mörk list vid golvet som visar planlösningen.
+const T = 0.6, DOOR_H = 5.2, STUB = 0.12;
 const box = new THREE.BoxGeometry(1, 1, 1);
 
 /* ---------- golv ---------- */
@@ -50,7 +51,6 @@ function medallion() {
 /* ---------- väggar ---------- */
 // Varje vägg: axel ('x' = linjen x = at, 'z' = linjen z = at), spann, och vilka salar den vetter mot.
 // n = åt vilket håll salens insida ligger (+1/-1 längs axeln).
-// Väggar som möts i ett hörn överlappar; varje vägg lyfts en aning (se buildWall) så att ytorna aldrig hamnar i samma plan.
 const WALLS = [
   { axis: 'z', at: 10, from: -30, to: -14, sides: [['egypt', -1]] },
   { axis: 'z', at: 10, from: -14, to: 14, sides: [['hall', -1]], entrance: true },
@@ -80,7 +80,6 @@ function makeMats() {
     ...M,
     wall: std({ map: wallTex, roughness: 0.9 }),
     trim: std({ color: 0xe9d6b0, roughness: 0.7 }),
-    cap: std({ color: 0xf1e2c2, roughness: 0.8 }),
     panel: std({ color: 0x3b2414, roughness: 0.55 }),
     outside: std({ color: 0x2a2018, roughness: 1 }),
     window: new THREE.MeshBasicMaterial({ color: 0xffd38a }),
@@ -95,21 +94,23 @@ function makeMats() {
   };
 }
 function buildWall(W, BM, parent, i) {
-  const g = new THREE.Group(); g.position.y = i * 0.004; parent.add(g);
+  // Väggar längs x-linjer ligger 2 cm högre än väggar längs z-linjer: där två väggar möts överlappar de,
+  // och då hamnar ovansidorna (vägg, list, panel) aldrig i samma plan (det ger flimmer).
+  const g = new THREE.Group(); g.position.y = W.axis === 'x' ? 0.02 : 0; parent.add(g);
   const len = W.to - W.from, alongX = W.axis === 'z'; // en vägg på linjen z = at går längs x
   // punkt längs väggen (s) och ut från den (o) till världskoordinater
   const at = (s, o = 0) => alongX ? [s, W.at + o] : [W.at + o, s];
   const pieces = [];
-  const piece = (s0, s1, y0, y1, thick, mat, off = 0) => {
+  const piece = (s0, s1, y0, y1, thick, mat, off = 0, base = false) => {
     const m = new THREE.Mesh(box, mat); const [x, z] = at((s0 + s1) / 2, off);
     m.position.set(x, 0, z); m.scale.set(alongX ? s1 - s0 : thick, 1, alongX ? thick : s1 - s0);
-    m.castShadow = m.receiveShadow = true; g.add(m); pieces.push({ m, y0, y1 }); return m;
+    m.castShadow = m.receiveShadow = true; g.add(m); pieces.push({ m, y0, y1, base }); return m;
   };
   const doors = DOORS.filter(d => d.axis === W.axis && d.at === W.at && d.from >= W.from && d.to <= W.to).sort((a, b) => a.from - b.from);
   // massiva bitar mellan öppningarna
   let s = W.from; const solids = [];
   for (const d of doors) { solids.push([s, d.from]); s = d.to; } solids.push([s, W.to]);
-  for (const [a, b] of solids) { piece(a, b, 0, WALL_H - 0.03, T, BM.wall); piece(a, b, 0, 1.1, T + 0.12, BM.panel); piece(a, b, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim); }
+  for (const [a, b] of solids) { piece(a, b, 0, WALL_H - 0.03, T, BM.wall); piece(a, b, 0, 1.1, T + 0.12, BM.panel, 0, true); piece(a, b, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim); }
   for (const d of doors) {
     piece(d.from, d.to, DOOR_H, WALL_H - 0.03, T, BM.wall);
     piece(d.from, d.to, WALL_H - 0.45, WALL_H, T + 0.35, BM.trim);
@@ -155,24 +156,22 @@ function buildWall(W, BM, parent, i) {
     piece(-2.6, 2.6, 4.8, 5.3, T + 0.3, BM.gold);
     piece(-0.04, 0.04, 0, 4.8, T + 0.14, BM.brass);
   }
-  // locket på en sänkt vägg
-  const cap = new THREE.Mesh(box, BM.cap); const [cx, cz] = at((W.from + W.to) / 2);
-  cap.position.set(cx, STUB, cz); cap.scale.set(alongX ? len + T : T + 0.08, 0.14, alongX ? T + 0.08 : len + T); g.add(cap);
-  const wall = { ...W, group: g, pieces, cap, h: WALL_H, near: {} };
+  const wall = { ...W, group: g, pieces, h: WALL_H, near: {}, doors };
   setWallHeight(wall, WALL_H);
   return wall;
 }
+// En sänkt vägg visar bara sina basbitar (panelen och pelarfötterna), så att inga bitar slutar i
+// samma höjd och flimrar mot varandra.
 export function setWallHeight(w, h) {
-  w.h = h;
+  w.h = h; const low = h <= STUB + 0.001;
   for (const p of w.pieces) {
     if (p.fixed) { p.m.visible = h >= p.y1 - 0.05; continue; }
     const top = Math.min(p.y1, h), hh = top - p.y0;
-    p.m.visible = hh > 0.01;
+    p.m.visible = hh > 0.01 && (!low || p.base);
     if (p.m.visible) { p.m.scale.y = hh; p.m.position.y = p.y0 + hh / 2; }
   }
-  w.cap.visible = h < WALL_H - 0.5; w.cap.position.y = h + 0.07;
 }
-export const STUB_H = STUB;
+export const STUB_H = STUB, DOOR_TOP = DOOR_H;
 
 /* ---------- socklar, montrar och skyltar ---------- */
 function stanchions(parent, w, d, BM) {
@@ -195,7 +194,7 @@ function plaque(parent, x, z, rot, BM) {
   const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rot; parent.add(g);
   const p = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.9, 8), BM.brass); p.position.y = 0.45; g.add(p);
   const s = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.04), BM.plaque); s.position.set(0, 0.95, 0); s.rotation.x = -0.7; g.add(s);
-  const t = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.3, 0.045), [BM.brass, BM.brass, BM.brass, BM.brass, BM.brass, BM.brass]); t.position.set(0, 0.95, 0.005); t.rotation.x = -0.7; g.add(t);
+  const t = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.3, 0.03), [BM.brass, BM.brass, BM.brass, BM.brass, BM.brass, BM.brass]); t.position.set(0, 0.95, 0.025); t.rotation.x = -0.7; g.add(t);
   return t;
 }
 // Texten på skylten: föremålets namn när det är hittat, annars frågetecken.
@@ -230,7 +229,7 @@ function buildStand(A, BM, parent) {
     const b = new THREE.Mesh(box, BM.marble); b.scale.set(pw, 0.12, pd); b.position.y = 0.06; parent.add(b);
     if (A.stand === 'case') {
       const gh = 0.85;
-      const gl = new THREE.Mesh(box, BM.glass); gl.scale.set(pw * 0.92, gh - 0.01, pd * 0.92); gl.position.y = top + (gh - 0.01) / 2; gl.renderOrder = 5; gl.userData.glass = true; parent.add(gl);
+      const gl = new THREE.Mesh(box, BM.glass); gl.scale.set(pw * 0.92, gh - 0.03, pd * 0.92); gl.position.y = top + 0.01 + (gh - 0.03) / 2; gl.renderOrder = 5; gl.userData.glass = true; parent.add(gl);
       const lid = new THREE.Mesh(box, BM.darkWood); lid.scale.set(pw * 0.95, 0.06, pd * 0.95); lid.position.y = top + gh + 0.03; parent.add(lid);
     }
   } else if (A.stand === 'hang') {
@@ -262,7 +261,8 @@ function desk(parent, x, z, rot, BM) {
 const colGeo = new THREE.CylinderGeometry(0.42, 0.48, 1, 20);
 function columnAt(parent, x, z, BM) {
   const add = (geo, sx, y0, y1) => { const m = new THREE.Mesh(geo, BM.trim); m.position.set(x, 0, z); m.scale.set(sx, 1, sx); m.castShadow = m.receiveShadow = true; parent.add(m); return { m, y0, y1 }; };
-  return [add(colGeo, 1, 0.45, WALL_H - 0.45), add(box, 1.2, 0, 0.45), add(box, 1.2, WALL_H - 0.45, WALL_H)];
+  const base = add(box, 1.2, 0, 0.45); base.base = true;
+  return [add(colGeo, 1, 0.45, WALL_H - 0.45), base, add(box, 1.2, WALL_H - 0.45, WALL_H)];
 }
 
 /* ---------- allt ihop ---------- */
