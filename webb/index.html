@@ -151,6 +151,18 @@
     <div class="m-exp" id="mExpPanel" hidden role="dialog" aria-label="Välj expedition"></div>
   </section>
 
+  <!-- NYTT FYND (pop-up över sammanfattningen) -->
+  <div class="find-pop" id="findPop" hidden role="dialog" aria-modal="true" aria-labelledby="findPopName">
+    <div class="find-pop-card">
+      <div class="find-pop-rays" aria-hidden="true"></div>
+      <img class="find-pop-dino" data-asset="dino_ring.png" alt="">
+      <span class="find-kicker">Nytt fynd till museet!</span>
+      <b class="find-pop-name" id="findPopName"></b>
+      <span class="find-pop-note" id="findPopNote"></span>
+      <div class="row find-pop-btns"><button class="btn primary" id="findPopGo">Se i museet</button><button class="btn" id="findPopClose">Fortsätt</button></div>
+    </div>
+  </div>
+
   <!-- FÖRÄLDRASPÄRR -->
   <section id="gate" class="screen gate" hidden>
     <div class="gate-box">
