@@ -252,7 +252,7 @@ textarea{width:100%;min-height:90px;font-family:ui-monospace,Menlo,Consolas,mono
 .warn{padding:10px 14px;border-radius:var(--r-sm);background:var(--bad-bg);font-size:14px}
 .msg{font-size:14px;color:var(--muted);min-height:1.2em}
 
-/* ===== Dinotema: grafik ur asset-arket (assets/*.png), skalbar via border-image ===== */
+/* ===== Dinotema: grafik ur asset-arket (assets/*.webp), skalbar via border-image ===== */
 /* bakgrund: konceptets djungeltempel, suddig och nedtonad överallt; skarp på startsidan */
 body{background:linear-gradient(rgba(var(--shade),.80),rgba(var(--shade),.92)),var(--img-bg-blur) center/cover no-repeat,var(--paper)}
 #home{background:linear-gradient(180deg,rgba(var(--shade),.30) 0%,rgba(var(--shade),.50) 45%,rgba(var(--shade),.88) 100%),var(--img-bg) center/cover no-repeat}

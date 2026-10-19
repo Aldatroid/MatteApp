@@ -3,7 +3,7 @@
 
    Så lägger du till ett tema:
    1. Lägg bilderna i en egen mapp under assets/themes/, med samma filnamn och pixelmått som originalen i
-      assets/ (t.ex. panel.png, bg.jpg, levels/door.jpg). Bilder som saknas i mappen tas från assets/.
+      assets/ (t.ex. panel.webp, bg.jpg, levels/door.jpg). Bilder som saknas i mappen tas från assets/.
    2. Lägg till temat i THEMES nedan: namn, mapp, vilka bilder som finns och när det gäller.
    3. season = [från, till] som 'MM-DD'. Med inställningen "Automatiskt" används temat under den perioden.
       Perioden får gå över nyår, t.ex. ['12-01', '01-06']. Utan season väljs temat bara manuellt i föräldraläget.
@@ -14,9 +14,9 @@
    - colors: CSS-variabler som skrivs över, t.ex. knapparnas färger (se :root i css/app.css). */
 import { S } from './store.js';
 
-const ALL = ['bg.jpg', 'bg_blur.jpg', 'btn_pass.png', 'bubble.png', 'dino.png', 'dino_ring.png', 'gear.png', 'glowframe.png', 'header.png', 'hintbar.png',
-  'icon-180.png', 'icon-192.png', 'icon-32.png', 'icon-512.png', 'icon_back.png', 'icon_bulb.png', 'icon_chev.png', 'icon_foot.png', 'icon_mountain.png',
-  'key.png', 'key_back.png', 'key_dark.png', 'key_light.png', 'key_ok.png', 'key_wide.png', 'panel.png', 'topbar.png',
+const ALL = ['bg.jpg', 'bg_blur.jpg', 'btn_pass.webp', 'bubble.webp', 'dino.webp', 'dino_ring.webp', 'gear.webp', 'glowframe.webp', 'header.webp', 'hintbar.webp',
+  'icon-180.png', 'icon-192.png', 'icon-32.png', 'icon-512.png', 'icon_back.webp', 'icon_bulb.webp', 'icon_chev.webp', 'icon_foot.webp', 'icon_mountain.webp',
+  'key.webp', 'key_back.webp', 'key_dark.webp', 'key_light.webp', 'key_ok.webp', 'key_wide.webp', 'panel.webp', 'topbar.webp',
   'levels/door.jpg', 'levels/final.jpg', 'levels/progress1.jpg', 'levels/progress2.jpg', 'levels/progress3.jpg'];
 
 export const THEMES = {
@@ -47,8 +47,8 @@ export const THEMES = {
   // Mörka detaljer som inte är variabler skrivs över i app.css under [data-theme="manga"].
   manga: {
     name: 'Manga', dir: 'assets/themes/manga/',
-    files: ['bg.jpg', 'bg_blur.jpg', 'btn_pass.png', 'dino.png', 'dino_ring.png', 'gear.png', 'header.png', 'icon-180.png', 'icon-192.png', 'icon-32.png', 'icon-512.png',
-      'icon_back.png', 'icon_bulb.png', 'icon_foot.png', 'icon_mountain.png', 'panel.png', 'topbar.png',
+    files: ['bg.jpg', 'bg_blur.jpg', 'btn_pass.webp', 'dino.webp', 'dino_ring.webp', 'gear.webp', 'header.webp', 'icon-180.png', 'icon-192.png', 'icon-32.png', 'icon-512.png',
+      'icon_back.webp', 'icon_bulb.webp', 'icon_foot.webp', 'icon_mountain.webp', 'panel.webp', 'topbar.webp',
       'levels/door.jpg', 'levels/final.jpg', 'levels/progress1.jpg', 'levels/progress2.jpg', 'levels/progress3.jpg'],
     frames: {
       panel: { slice: [40, 40, 40, 40], width: [24, 24, 24, 24] },
@@ -83,7 +83,7 @@ const abs = p => new URL(p, document.baseURI).href;
 
 // Bilder som CSS använder, som variabler (--img-bg osv., se :root i app.css). Sätts alltid här, som
 // absoluta adresser, så att bara aktuellt temas bilder laddas och adresserna fungerar i alla CSS-filer.
-const CSS_IMAGES = ['bg.jpg', 'bg_blur.jpg', 'btn_pass.png', 'panel.png', 'header.png', 'topbar.png', 'icon_back.png', 'icon_bulb.png', 'icon_foot.png', 'icon_mountain.png'];
+const CSS_IMAGES = ['bg.jpg', 'bg_blur.jpg', 'btn_pass.webp', 'panel.webp', 'header.webp', 'topbar.webp', 'icon_back.webp', 'icon_bulb.webp', 'icon_foot.webp', 'icon_mountain.webp'];
 const cssVar = file => '--img-' + file.replace(/\.\w+$/, '').replace(/_/g, '-');
 const listeners = [];
 export const onTheme = fn => listeners.push(fn);

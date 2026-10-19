@@ -59,12 +59,24 @@ Föräldern väljer i föräldraläget vilka områden som ska vara med i dagens 
 
 Appen kan byta utseende under en säsong, till exempel Halloween eller jul. Ett tema är en mapp med bilder under `webb/assets/themes/` och en post i `THEMES` i `webb/js/themes.js`.
 
-- Bilderna ska ha samma filnamn och pixelmått som originalen i `webb/assets/` (till exempel `panel.png`, `bg.jpg` och `levels/door.jpg`). Bilder som saknas i temamappen tas från originalen.
+- Bilderna ska ha samma filnamn och pixelmått som originalen i `webb/assets/` (till exempel `panel.webp`, `bg.jpg` och `levels/door.jpg`). Bilder som saknas i temamappen tas från originalen.
 - `season` anger när temat gäller med inställningen **Automatiskt**, till exempel `['10-10', '11-02']`. Perioden får gå över nyår.
 - `frames` behövs bara om dekorationer i ramarnas hörn är större än originalets hörn, så att de inte sträcks ut.
 - `colors` kan byta knapparnas, pratbubblans och bakgrundens färger (variablerna står i `:root` i `css/app.css`).
 
 Föräldern väljer tema under **Inställningar** i föräldraläget: Automatiskt (efter säsong) eller ett bestämt tema. Bara det aktuella temats bilder laddas. Mappar som heter `_review` och `README.md`-filer i temamapparna publiceras inte.
+
+## Mindre bilder (WebP)
+
+Appens bilder med genomskinlighet är WebP, som är ungefär 90 % mindre än PNG. Bara appikonerna (`icon-32.png`, `icon-180.png`, `icon-192.png` och `icon-512.png`) är kvar som PNG, eftersom webbläsare och hemskärmar vill ha dem så.
+
+En ny eller ändrad PNG-bild (till exempel från `tools\cut.ps1` eller ett nytt tema) görs om till WebP med `tools\webp.ps1`. Skriptet använder Blender i bakgrundsläge (Blender måste vara installerat), behåller genomskinligheten och hoppar över appikonerna och mappar som heter `_source`. Filer vars WebP redan är nyare än PNG-filen görs inte om.
+
+```powershell
+.\tools\webp.ps1 -Remove         # kvalitet 90, tar bort PNG-filerna efteråt
+.\tools\webp.ps1 -Lossless       # förlustfri, pixel för pixel lika PNG, ungefär hälften så stor
+.\tools\webp.ps1 -Path webb\assets\themes\manga -Quality 80 -Force
+```
 
 ## Integritet och säkerhet
 
