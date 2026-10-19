@@ -290,7 +290,7 @@ function columnAt(parent, x, z, BM) {
 }
 
 /* ---------- byggplatser: avdelningar som inte har öppnat än ----------
-   Byggplank med affischer längs avdelningens kanter (där den inte gränsar till en vägg). Allt ligger i en
+   Byggplank längs avdelningens kanter, med en affisch mitt på varje sida (där den inte gränsar till en vägg). Allt ligger i en
    grupp per avdelning, så att det kan döljas när avdelningen öppnar. */
 let siteMats = null;
 function siteMaterials() {
@@ -313,17 +313,17 @@ function siteMaterials() {
 function buildSite(sec, BM) {
   const M = siteMaterials(), g = new THREE.Group(), R = roomById[sec.room], [x0, z0, x1, z1] = sec.rect;
   const parts = []; const add = m => { m.castShadow = m.receiveShadow = true; g.add(m); parts.push(m); return m; };
-  // byggplank längs de kanter som inte ligger mot salens väggar
+  // byggplank längs de kanter som inte ligger mot salens väggar, ett udda antal skivor så att affischen hamnar mitt på
   const H = 2.2, edges = [];
   if (x0 > R.x[0]) edges.push([[x0, z0], [x0, z1]]);
   if (x1 < R.x[1]) edges.push([[x1, z0], [x1, z1]]);
   if (z0 > R.z[0]) edges.push([[x0, z0], [x1, z0]]);
   if (z1 < R.z[1]) edges.push([[x0, z1], [x1, z1]]);
   for (const [[ax, az], [bx, bz]] of edges) {
-    const len = Math.hypot(bx - ax, bz - az), n = Math.max(1, Math.round(len / 2.4)), alongX = az === bz;
+    const len = Math.hypot(bx - ax, bz - az), n = Math.round(len / 2.4) | 1, alongX = az === bz;
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n, px = ax + (bx - ax) * t, pz = az + (bz - az) * t, pw = len / n - 0.06;
-      const panel = new THREE.Mesh(box, [M.plank, M.plank, M.plank, M.plank, M.poster, M.poster]);
+      const face = i === (n >> 1) ? M.poster : M.plank, panel = new THREE.Mesh(box, [M.plank, M.plank, M.plank, M.plank, face, face]);
       panel.scale.set(alongX ? pw : 0.08, H, alongX ? 0.08 : pw); panel.position.set(px, H / 2, pz);
       if (!alongX) { panel.scale.set(pw, H, 0.08); panel.rotation.y = Math.PI / 2; }
       add(panel);

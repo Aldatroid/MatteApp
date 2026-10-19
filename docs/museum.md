@@ -131,7 +131,7 @@ Varje sal delas i **3–4 avdelningar** med 4–6 föremål var, alltså 12–20
 ```
 
 - **Avdelningar öppnar inifrån salen:** när barnet har hittat cirka **75 % av delarna i salens öppna avdelningar** blir nästa avdelning "klar". För att bygga förväntan öppnar den **nästa dag**: pop-upen efter passet säger *"Bygget i Fossilsalen är nästan klart. Kom tillbaka i morgon!"*. Nästa dag visar museet ett band att klippa: barnet trycker, byggplanket faller och spökena tonar fram.
-- **Byggplatsen** är byggd i kod precis som resten: byggplank med affischer längs avdelningens kanter, inget mer (ställningar, skynken, lådor och koner togs bort eftersom salen blev rörig). Den byggs om när avdelningen öppnar.
+- **Byggplatsen** är byggd i kod precis som resten: byggplank längs avdelningens kanter med en affisch mitt på varje sida, inget mer (ställningar, skynken, lådor och koner togs bort eftersom salen blev rörig). Den byggs om när avdelningen öppnar.
 - Varje sal har sina **platser** (positioner för montrar) grupperade per avdelning i katalogen. Då kan nya föremål läggas till utan att någon flyttar något.
 
 ### Salar öppnar med mål i matten
