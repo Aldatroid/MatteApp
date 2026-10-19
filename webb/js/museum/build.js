@@ -290,9 +290,8 @@ function columnAt(parent, x, z, BM) {
 }
 
 /* ---------- byggplatser: avdelningar som inte har öppnat än ----------
-   Byggplank med affischer längs avdelningens kanter (där den inte gränsar till en vägg), skynken över
-   formerna som kommer, en ställning, lådor, en stege och en trafikkon. Allt ligger i en grupp per
-   avdelning, så att det kan döljas när avdelningen öppnar. */
+   Byggplank med affischer längs avdelningens kanter (där den inte gränsar till en vägg). Allt ligger i en
+   grupp per avdelning, så att det kan döljas när avdelningen öppnar. */
 let siteMats = null;
 function siteMaterials() {
   if (siteMats) return siteMats;
@@ -308,26 +307,8 @@ function siteMaterials() {
   siteMats = {
     poster: std({ map: poster, roughness: 0.85 }),
     plank: std({ color: 0xb48a58, roughness: 0.85 }),
-    tarp: std({ color: 0x8d8a80, roughness: 0.95 }),
-    tarp2: std({ color: 0x5f6f7f, roughness: 0.95 }),
-    pole: std({ color: 0x8a8f96, metalness: 0.6, roughness: 0.4 }),
-    crate: std({ color: 0x9c7442, roughness: 0.8 }),
-    cone: std({ color: 0xf06a1d, roughness: 0.6 }),
-    white: std({ color: 0xf2f2f2, roughness: 0.6 }),
   };
   return siteMats;
-}
-// ett skynke över en form: en låda med många hörn som "hänger" ner och vidgar sig vid golvet
-function tarp(parent, x, z, w, d, h, mat) {
-  const geo = new THREE.BoxGeometry(w, h, d, 8, 4, 8), p = geo.attributes.position, v = new THREE.Vector3();
-  for (let i = 0; i < p.count; i++) {
-    v.fromBufferAttribute(p, i); const t = 0.5 - v.y / h; // 0 upptill, 1 nedtill
-    const k = 1 + t * 0.12 + Math.sin(v.x * 5 + v.z * 3) * 0.03 * t;
-    v.x *= k; v.z *= k; if (v.y > 0) v.y -= (Math.abs(v.x) / w + Math.abs(v.z) / d) * h * 0.18;
-    p.setXYZ(i, v.x, v.y + h / 2, v.z);
-  }
-  geo.computeVertexNormals();
-  const m = new THREE.Mesh(geo, mat); m.position.set(x, 0, z); parent.add(m); return m;
 }
 function buildSite(sec, BM) {
   const M = siteMaterials(), g = new THREE.Group(), R = roomById[sec.room], [x0, z0, x1, z1] = sec.rect;
@@ -349,26 +330,7 @@ function buildSite(sec, BM) {
       const post = new THREE.Mesh(box, M.plank); post.scale.set(0.14, H + 0.15, 0.14); post.position.set(ax + (bx - ax) * i / n, (H + 0.15) / 2, az + (bz - az) * i / n); add(post);
     }
   }
-  // skynken över det som kommer (storleken antyds, men inte formen)
-  const items = ARTIFACTS.filter(a => a.section === sec.id && a.stand !== 'hang');
-  items.forEach((a, i) => {
-    const w = Math.min(4, Math.max(1, a.size[0] * 0.8)), d = Math.min(3, Math.max(1, a.size[1] * 0.8)), h = a.stand === 'platform' ? 1.6 : 1.4;
-    add(tarp(g, a.pos[0], a.pos[1], w, d, h, i % 2 ? M.tarp2 : M.tarp));
-  });
   const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, rw = x1 - x0, rd = z1 - z0;
-  if (!items.length) { add(tarp(g, cx - rw * 0.15, cz, 2.2, 1.6, 1.5, M.tarp)); add(tarp(g, cx + rw * 0.2, cz + rd * 0.1, 1.2, 1.2, 1.1, M.tarp2)); }
-  // ställning i ett hörn
-  const sx = x0 + Math.min(2.2, rw * 0.3), sz = z0 + Math.min(1.6, rd * 0.25);
-  for (const [dx, dz] of [[-0.9, -0.6], [0.9, -0.6], [-0.9, 0.6], [0.9, 0.6]]) { const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 4, 8), M.pole); pole.position.set(sx + dx, 2, sz + dz); add(pole); }
-  for (const y of [1.9, 3.8]) { const deck = new THREE.Mesh(box, M.plank); deck.scale.set(2, 0.08, 1.3); deck.position.set(sx, y, sz); add(deck); }
-  // lådor, stege och trafikkon
-  const c1 = new THREE.Mesh(box, M.crate); c1.scale.set(0.9, 0.7, 0.7); c1.position.set(x1 - 1.4, 0.35, z1 - 1.3); c1.rotation.y = 0.3; add(c1);
-  const c2 = new THREE.Mesh(box, M.crate); c2.scale.set(0.6, 0.5, 0.6); c2.position.set(x1 - 1.3, 0.95, z1 - 1.25); c2.rotation.y = -0.2; add(c2);
-  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.6, 16), M.cone); cone.position.set(cx, 0.3, z1 - 0.7); add(cone);
-  const band = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.1, 16), M.white); band.position.set(cx, 0.33, z1 - 0.7); add(band);
-  const ladder = new THREE.Group(); ladder.position.set(sx + 1.6, 0, sz + 0.2); ladder.rotation.z = 0.25; g.add(ladder);
-  for (const dz of [-0.25, 0.25]) { const rail = new THREE.Mesh(box, M.crate); rail.scale.set(0.06, 3, 0.06); rail.position.set(0, 1.5, dz); ladder.add(rail); parts.push(rail); }
-  for (let i = 0; i < 6; i++) { const step = new THREE.Mesh(box, M.crate); step.scale.set(0.05, 0.05, 0.5); step.position.set(0, 0.4 + i * 0.45, 0); ladder.add(step); parts.push(step); }
   // osynlig träffyta över hela byggplatsen
   const hit = new THREE.Mesh(box, new THREE.MeshBasicMaterial()); hit.visible = false; hit.position.set(cx, 1.3, cz); hit.scale.set(rw, 2.6, rd); hit.userData.section = sec.id;
   return { sec, group: g, parts, hit };
