@@ -64,7 +64,7 @@ Appen kan byta utseende under en säsong, till exempel Halloween eller jul. Ett 
 - `frames` behövs bara om dekorationer i ramarnas hörn är större än originalets hörn, så att de inte sträcks ut.
 - `colors` kan byta knapparnas, pratbubblans och bakgrundens färger (variablerna står i `:root` i `css/app.css`).
 
-Föräldern väljer tema under **Inställningar** i föräldraläget: Automatiskt (efter säsong) eller ett bestämt tema. Bara det aktuella temats bilder laddas. Mappar som heter `_review` och `README.md`-filer i temamapparna publiceras inte.
+Föräldern väljer tema under **Inställningar** i föräldraläget: Automatiskt (efter säsong) eller ett bestämt tema. Bara det aktuella temats bilder laddas. Mappar som heter `_review` eller `_source` och `README.md`-filer i temamapparna publiceras inte.
 
 ## Mindre bilder (WebP)
 

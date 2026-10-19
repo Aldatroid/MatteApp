@@ -23,8 +23,8 @@ jobs:
           mkdir _site
           cp webb/index.html _site/index.html
           cp -R webb/css webb/js webb/assets _site/
-          # granskningsmaterial och beskrivningar i temamapparna ska inte publiceras
-          find _site/assets -type d -name _review -prune -exec rm -rf {} +
+          # granskningsmaterial, källbilder och beskrivningar i temamapparna ska inte publiceras
+          find _site/assets -type d \( -name _review -o -name _source \) -prune -exec rm -rf {} +
           find _site/assets -mindepth 2 -name README.md -delete
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
