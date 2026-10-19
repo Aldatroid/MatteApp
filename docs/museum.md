@@ -105,7 +105,7 @@ Museet ska kännas levande: nya salar öppnar, och inne i salarna byggs nya avde
 | | Vad det är | Vad barnet ser när den är stängd | Vad som öppnar den |
 |---|---|---|---|
 | **Sal** | ett helt rum, till exempel Mineralgrottan | ett tak över salen, stängda dörrar med hänglås, **???** i stället för namnet | ett **mål i matten** (se nedan) |
-| **Avdelning** | en del av en sal med 4–6 föremål, till exempel *Istiden* i Fossilsalen | byggplank, ställningar och skynken; en skylt *"Här bygger vi något nytt!"* | att barnet har hittat det mesta i salens öppna avdelningar |
+| **Avdelning** | en del av en sal med 4–6 föremål, till exempel *Istiden* i Fossilsalen | byggplank med skylten *"Här bygger vi något nytt!"* | att barnet har hittat det mesta i salens öppna avdelningar |
 | **Föremål** | en monter i en öppen avdelning | ett svagt spöke på sin plats (som nu) | ett fynd från Dagens pass (som nu) |
 
 ### Start
@@ -119,7 +119,7 @@ Varje sal delas i **3–4 avdelningar** med 4–6 föremål var, alltså 12–20
 ```text
   ┌──────────────────────┬────────────────────┐
   │ B. Urhavet           │ C. Istiden         │
-  │ ammonit, trilobit,   │ ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ │   ▒ = byggplank och skynken
+  │ ammonit, trilobit,   │ ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ │   ▒ = byggplank
   │ megalodon …          │ ▒ Under uppbyggnad │       (stängd avdelning)
   │                      │ ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ │
   ├──────────────────────┴────────────────────┤
@@ -130,8 +130,8 @@ Varje sal delas i **3–4 avdelningar** med 4–6 föremål var, alltså 12–20
   └─────────────────── dörr ──────────────────┘
 ```
 
-- **Avdelningar öppnar inifrån salen:** när barnet har hittat cirka **75 % av delarna i salens öppna avdelningar** blir nästa avdelning "klar". För att bygga förväntan öppnar den **nästa dag**: pop-upen efter passet säger *"Bygget i Fossilsalen är nästan klart. Kom tillbaka i morgon!"*. Nästa dag visar museet ett band att klippa: barnet trycker, skynkena faller och spökena tonar fram.
-- **Byggplatsen** är byggd i kod precis som resten: lågt byggplank med affischer, en ställning, ett par skynken över former under tyget (en antydan om storleken, men inte vad det är), en stege och en trafikkon. Den byggs om när avdelningen öppnar.
+- **Avdelningar öppnar inifrån salen:** när barnet har hittat cirka **75 % av delarna i salens öppna avdelningar** blir nästa avdelning "klar". För att bygga förväntan öppnar den **nästa dag**: pop-upen efter passet säger *"Bygget i Fossilsalen är nästan klart. Kom tillbaka i morgon!"*. Nästa dag visar museet ett band att klippa: barnet trycker, byggplanket faller och spökena tonar fram.
+- **Byggplatsen** är byggd i kod precis som resten: byggplank längs avdelningens kanter med en affisch mitt på varje sida, inget mer (ställningar, skynken, lådor och koner togs bort eftersom salen blev rörig). Den byggs om när avdelningen öppnar.
 - Varje sal har sina **platser** (positioner för montrar) grupperade per avdelning i katalogen. Då kan nya föremål läggas till utan att någon flyttar något.
 
 ### Salar öppnar med mål i matten
@@ -201,7 +201,6 @@ Museet byggs ut åt sidorna och bakåt till tio salar. Kameran, väggarna och go
 - Fas 5: ska en stängd sal visa sitt namn (och målet), eller bara **???** och målet?
 - Fas 5: passar kopplingen mellan salar och områden, och är målnivåerna lagom?
 - Fas 5: ska en avdelning öppna nästa dag (förväntan) eller direkt när målet är nått?
-- Fas 5: ska skynkena på byggplatserna antyda formen på det som kommer, eller vara helt anonyma?
 - Ska ett halvt pass (under 80 %) ge något, till exempel damm som räknas mot nästa fynd?
 - Ska föräldern kunna se eller styra expeditionen?
 - Ljud: en mjuk "klang" när en del sätts på plats, och kanske museiambiens.
